@@ -77,6 +77,70 @@ static void cg_surface_write_to_png(struct cg_surface_t * surface, const char * 
 	free(image);
 }
 
+static void test_arc(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	double xc = 128.0;
+	double yc = 128.0;
+	double radius = 100.0;
+	double angle1 = 45.0 * (M_PI / 180.0);
+	double angle2 = 180.0 * (M_PI / 180.0);
+
+	cg_set_line_width(ctx, 10.0);
+	cg_arc(ctx, xc, yc, radius, angle1, angle2);
+	cg_stroke(ctx);
+
+	cg_set_source_rgba(ctx, 1, 0.2, 0.2, 0.6);
+	cg_set_line_width(ctx, 6.0);
+
+	cg_arc(ctx, xc, yc, 10.0, 0, 2 * M_PI);
+	cg_fill(ctx);
+
+	cg_arc(ctx, xc, yc, radius, angle1, angle1);
+	cg_line_to(ctx, xc, yc);
+	cg_arc(ctx, xc, yc, radius, angle2, angle2);
+	cg_line_to(ctx, xc, yc);
+	cg_stroke(ctx);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
+static void test_arc_negative(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	double xc = 128.0;
+	double yc = 128.0;
+	double radius = 100.0;
+	double angle1 = 45.0 * (M_PI / 180.0);
+	double angle2 = 180.0 * (M_PI / 180.0);
+
+	cg_set_line_width(ctx, 10.0);
+	cg_arc_negative(ctx, xc, yc, radius, angle1, angle2);
+	cg_stroke(ctx);
+
+	cg_set_source_rgba(ctx, 1, 0.2, 0.2, 0.6);
+	cg_set_line_width(ctx, 6.0);
+
+	cg_arc(ctx, xc, yc, 10.0, 0, 2 * M_PI);
+	cg_fill(ctx);
+
+	cg_arc(ctx, xc, yc, radius, angle1, angle1);
+	cg_line_to(ctx, xc, yc);
+	cg_arc(ctx, xc, yc, radius, angle2, angle2);
+	cg_line_to(ctx, xc, yc);
+	cg_stroke(ctx);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 static void test_clip(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(300, 300);
@@ -479,6 +543,8 @@ static void test_smile(const char * filename)
 
 int main(int argc, char * argv[])
 {
+	test_arc("arc.png");
+	test_arc_negative("arc_negative.png");
 	test_clip("clip.png");
 	test_curve_rectangle("curve_rectangle.png");
 	test_curve_to("curve_to.png");
