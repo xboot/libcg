@@ -1,5 +1,4 @@
-#include "sw_ft_stroker.h"
-#include "sw_ft_math.h"
+#include <swft.h>
 
 #define SW_FT_SMALL_CONIC_THRESHOLD	(SW_FT_ANGLE_PI / 6)
 #define SW_FT_SMALL_CUBIC_THRESHOLD	(SW_FT_ANGLE_PI / 8)

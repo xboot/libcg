@@ -5,10 +5,7 @@
 extern "C" {
 #endif
 
-#include <sw_ft_types.h>
-#include <sw_ft_raster.h>
-#include <sw_ft_stroker.h>
-#include <sw_ft_math.h>
+#include <swft.h>
 
 struct cg_point_t {
 	double x;

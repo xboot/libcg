@@ -1,4 +1,4 @@
-#include <sw_ft_math.h>
+#include <swft.h>
 
 #define SW_FT_MSB(x)			(31 - __builtin_clz(x))
 #define SW_FT_PAD_FLOOR(x, n)	((x) & ~((n)-1))

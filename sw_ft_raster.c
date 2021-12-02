@@ -1,5 +1,4 @@
-#include "sw_ft_raster.h"
-#include "sw_ft_math.h"
+#include <swft.h>
 
 #define SW_FT_ERR_XCAT(x, y) x##y
 #define SW_FT_ERR_CAT(x, y) SW_FT_ERR_XCAT(x, y)
