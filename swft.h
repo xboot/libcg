@@ -12,7 +12,7 @@
 #include <math.h>
 
 /*
- * type.h
+ * type
  */
 typedef signed long SW_FT_Fixed;
 typedef signed int SW_FT_Int;
@@ -46,7 +46,7 @@ typedef uint32_t SW_FT_UInt32;
 #endif
 
 /*
- * math.h
+ * math
  */
 typedef SW_FT_Fixed			SW_FT_Angle;
 #define SW_FT_MIN(a, b)		((a) < (b) ? (a) : (b))
@@ -73,7 +73,7 @@ void SW_FT_Vector_Polarize(SW_FT_Vector * vec, SW_FT_Fixed * length, SW_FT_Angle
 void SW_FT_Vector_From_Polar(SW_FT_Vector * vec, SW_FT_Fixed length, SW_FT_Angle angle);
 
 /*
- * raster.h
+ * raster
  */
 typedef struct SW_FT_BBox_ {
 	SW_FT_Pos xMin, yMin;
@@ -148,7 +148,7 @@ typedef struct SW_FT_Raster_Funcs_ {
 extern const SW_FT_Raster_Funcs sw_ft_grays_raster;
 
 /*
- * stroker.h
+ * stroker
  */
 typedef struct SW_FT_StrokerRec_ * SW_FT_Stroker;
 
