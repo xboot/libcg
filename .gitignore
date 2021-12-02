@@ -16,7 +16,7 @@
 #
 # Generated files
 #
-!/images/*.png
+!/screenshots/*.png
 /.vscode/
 /.settings/
 /cg

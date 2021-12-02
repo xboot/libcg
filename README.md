@@ -14,17 +14,17 @@ make
 ```
 ## Screenshots
 
-![clip](images/clip.png)
-![curve_rectangle](images/curve_rectangle.png)
-![curve_to](images/curve_to.png)
-![dash](images/dash.png)
-![fill_and_stroke](images/fill_and_stroke.png)
-![gradient](images/gradient.png)
-![multi_segment_caps](images/multi_segment_caps.png)
-![rounded_rectangle](images/rounded_rectangle.png)
-![set_line_cap](images/set_line_cap.png)
-![set_line_join](images/set_line_join.png)
-![smile](images/smile.png)
+![clip](screenshots/clip.png)
+![curve_rectangle](screenshots/curve_rectangle.png)
+![curve_to](screenshots/curve_to.png)
+![dash](screenshots/dash.png)
+![fill_and_stroke](screenshots/fill_and_stroke.png)
+![gradient](screenshots/gradient.png)
+![multi_segment_caps](screenshots/multi_segment_caps.png)
+![rounded_rectangle](screenshots/rounded_rectangle.png)
+![set_line_cap](screenshots/set_line_cap.png)
+![set_line_join](screenshots/set_line_join.png)
+![smile](screenshots/smile.png)
 
 ## License
 
