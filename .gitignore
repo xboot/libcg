@@ -1,0 +1,21 @@
+#
+# Normal rules
+#
+*.map
+*.elf
+*.bin
+*.png
+*.rej
+*.orig
+*.d
+*.o
+*.a
+*.so
+*~
+
+#
+# Generated files
+#
+/.vscode/
+/.settings/
+/cg
