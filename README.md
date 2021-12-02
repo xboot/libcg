@@ -1,12 +1,12 @@
 
 ***
-# Libcg
-The tiny `C` library of 2D vector graphics.
+# libcg
+The tiny `C` library of 2D computer graphics.
 
 ## Getting Started
 
 The library's .c and .h files can be dropped into a project and compiled along with it.
-Just type `make` at the root directory, you will see a  binary for test.
+Just type `make` at the root directory, you will see a  example binary file.
 
 ```shell
 cd libcg
