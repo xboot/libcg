@@ -117,7 +117,7 @@ static void test_smile(const char * filename)
 
 static void test_dash(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	double dashes[] = {50.0,  /* ink */
@@ -142,7 +142,7 @@ static void test_dash(const char * filename)
 
 static void test_fill_and_stroke(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_move_to(ctx, 128.0, 25.6);
@@ -170,7 +170,7 @@ static void test_fill_and_stroke(const char * filename)
 
 static void test_multi_segment_caps(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_move_to(ctx, 50.0, 75.0);
@@ -193,7 +193,7 @@ static void test_multi_segment_caps(const char * filename)
 
 static void test_set_line_cap(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_set_line_width(ctx, 30.0);
@@ -228,7 +228,7 @@ static void test_set_line_cap(const char * filename)
 
 static void test_set_line_join(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_set_line_width(ctx, 40.96);
@@ -257,7 +257,7 @@ static void test_set_line_join(const char * filename)
 
 static void test_rounded_rectangle(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	double x = 25.6,
@@ -289,7 +289,7 @@ static void test_rounded_rectangle(const char * filename)
 
 static void test_curve_rectangle(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	double x0 = 25.6,
@@ -362,7 +362,7 @@ static void test_curve_rectangle(const char * filename)
 
 static void test_curve_to(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	double x = 25.6, y = 128.0;
@@ -389,7 +389,7 @@ static void test_curve_to(const char * filename)
 
 static void test_fill_style(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_set_line_width(ctx, 6);
@@ -426,7 +426,7 @@ static void test_fill_style(const char * filename)
 
 static void test_clip(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI, 0);
@@ -450,7 +450,7 @@ static void test_clip(const char * filename)
 
 static void test_gradient(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(400, 400);
+	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI, 0);
