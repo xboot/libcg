@@ -45,7 +45,7 @@ CPPOBJS		:= $(patsubst %, %, $(CPPFILES:.cpp=.o))
 OBJS		:= $(SOBJS) $(COBJS) $(CPPOBJS)
 
 OBJDIRS		:= $(patsubst %, %, $(SRCDIRS))
-NAME		:= cg
+NAME		:= example
 VPATH		:= $(OBJDIRS)
 
 .PHONY:		all clean
@@ -54,7 +54,7 @@ all : $(NAME)
 
 $(NAME) : $(OBJS)
 	@echo [LD] Linking $@
-	@$(CC) $(LDFLAGS) $(LIBDIRS) -Wl,--cref,-Map=$@.map $^ -o $@ $(LIBS) -static
+	@$(CC) $(LDFLAGS) $(LIBDIRS) $^ -o $@ $(LIBS) -static
 
 $(SOBJS) : %.o : %.S
 	@echo [AS] $<
