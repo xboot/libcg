@@ -23,6 +23,7 @@ make
 ![fill_and_stroke](screenshots/fill_and_stroke.png)
 ![fill_style](screenshots/fill_style.png)
 ![gradient](screenshots/gradient.png)
+![lines](screenshots/lines.png)
 ![multi_segment_caps](screenshots/multi_segment_caps.png)
 ![rounded_rectangle](screenshots/rounded_rectangle.png)
 ![set_line_cap](screenshots/set_line_cap.png)
