@@ -952,7 +952,8 @@ static void gray_render_cubic(RAS_ARG_ const SW_FT_Vector * control1, const SW_F
 			return;
 		arc -= 3;
 		continue;
-		Split: gray_split_cubic(arc);
+Split:
+		gray_split_cubic(arc);
 		arc += 3;
 	}
 }
