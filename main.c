@@ -82,7 +82,7 @@ static void test_clip(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI, 0);
+	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI);
 	cg_clip(ctx);
 
 	cg_new_path(ctx);
@@ -259,9 +259,9 @@ static void test_fill_style(const char * filename)
 
 	cg_rectangle(ctx, 12, 12, 232, 70);
 	cg_new_path(ctx);
-	cg_arc(ctx, 64, 64, 40, 0, 2 * M_PI, 0);
+	cg_arc(ctx, 64, 64, 40, 0, 2 * M_PI);
 	cg_new_path(ctx);
-	cg_arc(ctx, 192, 64, 40, 0, -2 * M_PI, 1);
+	cg_arc_negative(ctx, 192, 64, 40, 0, -2 * M_PI);
 
 	cg_set_fill_rule(ctx, XVG_FILL_RULE_WINDING);
 	cg_set_source_rgb(ctx, 0, 0.7, 0);
@@ -272,9 +272,9 @@ static void test_fill_style(const char * filename)
 	cg_translate(ctx, 0, 128);
 	cg_rectangle(ctx, 12, 12, 232, 70);
 	cg_new_path(ctx);
-	cg_arc(ctx, 64, 64, 40, 0, 2 * M_PI, 0);
+	cg_arc(ctx, 64, 64, 40, 0, 2 * M_PI);
 	cg_new_path(ctx);
-	cg_arc(ctx, 192, 64, 40, 0, -2 * M_PI, 1);
+	cg_arc_negative(ctx, 192, 64, 40, 0, -2 * M_PI);
 
 	cg_set_fill_rule(ctx, XVG_FILL_RULE_WINDING);
 	cg_set_source_rgb(ctx, 0, 0, 0.9);
@@ -292,7 +292,7 @@ static void test_gradient(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI, 0);
+	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI);
 	cg_clip(ctx);
 
 	struct cg_gradient_t * gradient;
@@ -309,7 +309,7 @@ static void test_gradient(const char * filename)
 	cg_gradient_add_stop_rgba(gradient, 0, 1, 1, 1, 1);
 	cg_gradient_add_stop_rgba(gradient, 1, 0, 0, 0, 1);
 	cg_set_source_gradient(ctx, gradient);
-	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI, 0);
+	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI);
 	cg_fill(ctx);
 	cg_gradient_destroy(gradient);
 
@@ -356,10 +356,10 @@ static void test_rounded_rectangle(const char * filename)
 	double degrees = M_PI / 180.0;
 
 	cg_new_path(ctx);
-	cg_arc(ctx, x + width - radius, y + radius, radius, -90 * degrees, 0 * degrees, 0);
-	cg_arc(ctx, x + width - radius, y + height - radius, radius, 0 * degrees, 90 * degrees, 0);
-	cg_arc(ctx, x + radius, y + height - radius, radius, 90 * degrees, 180 * degrees, 0);
-	cg_arc(ctx, x + radius, y + radius, radius, 180 * degrees, 270 * degrees, 0);
+	cg_arc(ctx, x + width - radius, y + radius, radius, -90 * degrees, 0 * degrees);
+	cg_arc(ctx, x + width - radius, y + height - radius, radius, 0 * degrees, 90 * degrees);
+	cg_arc(ctx, x + radius, y + height - radius, radius, 90 * degrees, 180 * degrees);
+	cg_arc(ctx, x + radius, y + radius, radius, 180 * degrees, 270 * degrees);
 	cg_close_path(ctx);
 
 	cg_set_source_rgb(ctx, 0.5, 0.5, 1);
@@ -452,7 +452,7 @@ static void test_smile(const char * filename)
 	double eye_y = center_y - eye_offset_y;
 
 	cg_save(ctx);
-	cg_arc(ctx, center_x, center_y, face_radius, 0, 2 * M_PI, 0);
+	cg_arc(ctx, center_x, center_y, face_radius, 0, 2 * M_PI);
 	cg_set_source_rgb(ctx, 1, 1, 0);
 	cg_fill_preserve(ctx);
 	cg_set_source_rgb(ctx, 0, 0, 0);
@@ -461,13 +461,13 @@ static void test_smile(const char * filename)
 	cg_restore(ctx);
 
 	cg_save(ctx);
-	cg_arc(ctx, eye_x, eye_y, eye_radius, 0, 2 * M_PI, 0);
-	cg_arc(ctx, center_x + eye_offset_x, eye_y, eye_radius, 0, 2 * M_PI, 0);
+	cg_arc(ctx, eye_x, eye_y, eye_radius, 0, 2 * M_PI);
+	cg_arc(ctx, center_x + eye_offset_x, eye_y, eye_radius, 0, 2 * M_PI);
 	cg_fill(ctx);
 	cg_restore(ctx);
 
 	cg_save(ctx);
-	cg_arc(ctx, center_x, center_y, mouth_radius, 0, M_PI, 0);
+	cg_arc(ctx, center_x, center_y, mouth_radius, 0, M_PI);
 	cg_set_line_width(ctx, 5);
 	cg_stroke(ctx);
 	cg_restore(ctx);

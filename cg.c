@@ -2755,9 +2755,14 @@ void cg_circle(struct cg_ctx_t * ctx, double cx, double cy, double r)
 	cg_ellipse(ctx, cx, cy, r, r);
 }
 
-void cg_arc(struct cg_ctx_t * ctx, double cx, double cy, double r, double a0, double a1, int ccw)
+void cg_arc(struct cg_ctx_t * ctx, double cx, double cy, double r, double a0, double a1)
 {
-	cg_path_add_arc(ctx->path, cx, cy, r, a0, a1, ccw);
+	cg_path_add_arc(ctx->path, cx, cy, r, a0, a1, 0);
+}
+
+void cg_arc_negative(struct cg_ctx_t * ctx, double cx, double cy, double r, double a0, double a1)
+{
+	cg_path_add_arc(ctx->path, cx, cy, r, a0, a1, 1);
 }
 
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
