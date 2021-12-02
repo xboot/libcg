@@ -52,21 +52,19 @@ static void cg_surface_write_to_png(struct cg_surface_t * surface, const char * 
 	int width = surface->width;
 	int height = surface->height;
 	int stride = surface->stride;
-	unsigned char *image = malloc((size_t)(stride * height));
+	unsigned char * image = malloc((size_t)(stride * height));
 	for(int y = 0; y < height; y++)
 	{
-		uint32_t *src = (uint32_t*)(data + stride * y);
-		uint32_t *dst = (uint32_t*)(image + stride * y);
+		uint32_t * src = (uint32_t *)(data + stride * y);
+		uint32_t * dst = (uint32_t *)(image + stride * y);
 		for(int x = 0; x < width; x++)
 		{
 			uint32_t a = src[x] >> 24;
 			if(a == 0)
 				continue;
-
 			uint32_t r = (((src[x] >> 16) & 0xff) * 255) / a;
 			uint32_t g = (((src[x] >> 8) & 0xff) * 255) / a;
 			uint32_t b = (((src[x] >> 0) & 0xff) * 255) / a;
-
 			dst[x] = (a << 24) | (b << 16) | (g << 8) | r;
 		}
 	}
@@ -120,11 +118,7 @@ static void test_dash(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(300, 300);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	double dashes[] = {50.0,  /* ink */
-	                   10.0,  /* skip */
-	                   10.0,  /* ink */
-	                   10.0   /* skip*/
-	                  };
+	double dashes[] = { 50.0, 10.0, 10.0, 10.0 };
 	int ndash = sizeof(dashes) / sizeof(dashes[0]);
 	double offset = -50.0;
 	cg_set_dash(ctx, dashes, ndash, offset);
@@ -197,7 +191,7 @@ static void test_set_line_cap(const char * filename)
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_set_line_width(ctx, 30.0);
-	cg_set_line_cap(ctx, XVG_LINE_CAP_BUTT); /* default */
+	cg_set_line_cap(ctx, XVG_LINE_CAP_BUTT);
 	cg_move_to(ctx, 64.0, 50.0);
 	cg_line_to(ctx, 64.0, 200.0);
 	cg_stroke(ctx);
@@ -235,7 +229,7 @@ static void test_set_line_join(const char * filename)
 	cg_move_to(ctx, 76.8, 84.48);
 	cg_rel_line_to(ctx, 51.2, -51.2);
 	cg_rel_line_to(ctx, 51.2, 51.2);
-	cg_set_line_join(ctx, XVG_LINE_JOIN_MITER); /* default */
+	cg_set_line_join(ctx, XVG_LINE_JOIN_MITER);
 	cg_stroke(ctx);
 
 	cg_move_to(ctx, 76.8, 161.28);
