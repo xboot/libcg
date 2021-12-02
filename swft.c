@@ -480,17 +480,6 @@ typedef struct SW_FT_Outline_Funcs_ {
     }                                                               \
     SW_FT_END_STMNT
 
-#ifdef __arm__
-#undef SW_FT_DIV_MOD
-#define SW_FT_DIV_MOD(type, dividend, divisor, quotient, remainder) \
-    SW_FT_BEGIN_STMNT(quotient) = (type)((dividend) / (divisor));   \
-    (remainder) = (type)((dividend) - (quotient) * (divisor));      \
-    if ((remainder) < 0) {                                          \
-        (quotient)--;                                               \
-        (remainder) += (type)(divisor);                             \
-    }                                                               \
-    SW_FT_END_STMNT
-#endif
 #define SW_FT_UDIVPREP(b) \
     long b##_r = (long)(SW_FT_ULONG_MAX >> PIXEL_BITS) / (b)
 #define SW_FT_UDIV(a, b)                              \
