@@ -1026,13 +1026,11 @@ void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, do
 				da -= M_PI * 2;
 		}
 	}
-
 	int ndivs = max(1, min((int)(fabs(da) / (M_PI * 0.5) + 0.5), 5));
 	double hda = (da / (double)ndivs) / 2.0;
 	double kappa = fabs(4.0 / 3.0 * (1.0 - cos(hda)) / sin(hda));
 	if(ccw == 1)
 		kappa = -kappa;
-
 	double px = 0, py = 0;
 	double ptanx = 0, ptany = 0;
 	for(int i = 0; i <= ndivs; i++)
@@ -1050,12 +1048,13 @@ void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, do
 				cg_path_move_to(path, x, y);
 			else
 				cg_path_line_to(path, x, y);
+			if(da == 0)
+				break;
 		}
 		else
 		{
 			cg_path_curve_to(path, px + ptanx, py + ptany, x - tanx, y - tany, x, y);
 		}
-
 		px = x;
 		py = y;
 		ptanx = tanx;
