@@ -17,5 +17,7 @@
 # Generated files
 #
 !/screenshots/*.png
-/.settings/
+/.cproject
+/.project
+/.settings
 /example
