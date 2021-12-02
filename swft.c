@@ -1,8 +1,33 @@
 #include <swft.h>
 
 /*
+ * type
+ */
+typedef int64_t			SW_FT_Int64;
+typedef uint64_t		SW_FT_UInt64;
+typedef int32_t			SW_FT_Int32;
+typedef uint32_t		SW_FT_UInt32;
+
+#define SW_FT_BOOL(x)	((SW_FT_Bool)(x))
+#ifndef TRUE
+#define TRUE			1
+#endif
+#ifndef FALSE
+#define FALSE			0
+#endif
+
+/*
  * math
  */
+#define SW_FT_MIN(a, b)		((a) < (b) ? (a) : (b))
+#define SW_FT_MAX(a, b)		((a) > (b) ? (a) : (b))
+#define SW_FT_ABS(a)		((a) < 0 ? -(a) : (a))
+#define SW_FT_HYPOT(x, y)	(x = SW_FT_ABS(x), y = SW_FT_ABS(y), x > y ? x + (3 * y >> 3) : y + (3 * x >> 3))
+#define SW_FT_ANGLE_PI		(180L << 16)
+#define SW_FT_ANGLE_2PI		(SW_FT_ANGLE_PI * 2)
+#define SW_FT_ANGLE_PI2		(SW_FT_ANGLE_PI / 2)
+#define SW_FT_ANGLE_PI4		(SW_FT_ANGLE_PI / 4)
+
 #define SW_FT_MSB(x)			(31 - __builtin_clz(x))
 #define SW_FT_PAD_FLOOR(x, n)	((x) & ~((n)-1))
 #define SW_FT_PAD_ROUND(x, n)	SW_FT_PAD_FLOOR((x) + ((n) / 2), n)

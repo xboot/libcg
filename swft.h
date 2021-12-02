@@ -30,33 +30,10 @@ typedef struct SW_FT_Vector_ {
 	SW_FT_Pos y;
 } SW_FT_Vector;
 
-typedef int64_t SW_FT_Int64;
-typedef uint64_t SW_FT_UInt64;
-typedef int32_t SW_FT_Int32;
-typedef uint32_t SW_FT_UInt32;
-
-#define SW_FT_BOOL(x)	((SW_FT_Bool)(x))
-
-#ifndef TRUE
-#define TRUE	1
-#endif
-
-#ifndef FALSE
-#define FALSE	0
-#endif
-
 /*
  * math
  */
-typedef SW_FT_Fixed			SW_FT_Angle;
-#define SW_FT_MIN(a, b)		((a) < (b) ? (a) : (b))
-#define SW_FT_MAX(a, b)		((a) > (b) ? (a) : (b))
-#define SW_FT_ABS(a)		((a) < 0 ? -(a) : (a))
-#define SW_FT_HYPOT(x, y)	(x = SW_FT_ABS(x), y = SW_FT_ABS(y), x > y ? x + (3 * y >> 3) : y + (3 * x >> 3))
-#define SW_FT_ANGLE_PI		(180L << 16)
-#define SW_FT_ANGLE_2PI		(SW_FT_ANGLE_PI * 2)
-#define SW_FT_ANGLE_PI2		(SW_FT_ANGLE_PI / 2)
-#define SW_FT_ANGLE_PI4		(SW_FT_ANGLE_PI / 4)
+typedef SW_FT_Fixed SW_FT_Angle;
 
 SW_FT_Long SW_FT_MulFix(SW_FT_Long a, SW_FT_Long b);
 SW_FT_Long SW_FT_MulDiv(SW_FT_Long a, SW_FT_Long b, SW_FT_Long c);
