@@ -28,7 +28,6 @@
 		} \
 	} while(0)
 
-
 static struct cg_dash_t * cg_dash_create(double * dashes, int ndash, double offset)
 {
 	if(dashes && (ndash > 0))
@@ -2116,7 +2115,7 @@ static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operato
 }
 
 #define FIXED_SCALE (1 << 16)
-static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t *texture)
+static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 	uint32_t buffer[1024];
@@ -2166,7 +2165,7 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 	}
 }
 
-static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t *texture)
+static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 
@@ -2208,7 +2207,7 @@ static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_oper
 	}
 }
 
-static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t *texture)
+static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 
@@ -2254,7 +2253,7 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 	}
 }
 
-static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t *texture)
+static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 	uint32_t buffer[1024];
