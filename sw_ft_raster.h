@@ -39,8 +39,8 @@ typedef struct SW_FT_Span_ {
 	unsigned char coverage;
 } SW_FT_Span;
 
-typedef void (*SW_FT_SpanFunc)(int count, const SW_FT_Span *spans, void *user);
-typedef void (*SW_FT_BboxFunc)(int x, int y, int w, int h, void *user);
+typedef void (*SW_FT_SpanFunc)(int count, const SW_FT_Span * spans, void * user);
+typedef void (*SW_FT_BboxFunc)(int x, int y, int w, int h, void * user);
 
 #define SW_FT_Raster_Span_Func		SW_FT_SpanFunc
 #define SW_FT_RASTER_FLAG_DEFAULT	0x0
@@ -63,9 +63,9 @@ typedef int (*SW_FT_Raster_NewFunc)(SW_FT_Raster *raster);
 #define SW_FT_Raster_New_Func  SW_FT_Raster_NewFunc
 typedef void (*SW_FT_Raster_DoneFunc)(SW_FT_Raster raster);
 #define SW_FT_Raster_Done_Func  SW_FT_Raster_DoneFunc
-typedef void (*SW_FT_Raster_ResetFunc)(SW_FT_Raster raster, unsigned char *pool_base, unsigned long pool_size);
+typedef void (*SW_FT_Raster_ResetFunc)(SW_FT_Raster raster, unsigned char * pool_base, unsigned long pool_size);
 #define SW_FT_Raster_Reset_Func  SW_FT_Raster_ResetFunc
-typedef int (*SW_FT_Raster_RenderFunc)(SW_FT_Raster raster, const SW_FT_Raster_Params *params);
+typedef int (*SW_FT_Raster_RenderFunc)(SW_FT_Raster raster, const SW_FT_Raster_Params * params);
 #define SW_FT_Raster_Render_Func  SW_FT_Raster_RenderFunc
 typedef struct SW_FT_Raster_Funcs_ {
 	SW_FT_Raster_NewFunc raster_new;

@@ -47,9 +47,9 @@ SW_FT_Long SW_FT_DivFix(SW_FT_Long a, SW_FT_Long b)
 	return (s < 0 ? -q : q);
 }
 
-#define SW_FT_TRIG_SCALE		0xDBD95B16UL
-#define SW_FT_TRIG_SAFE_MSB		29
-#define SW_FT_TRIG_MAX_ITERS	23
+#define SW_FT_TRIG_SCALE		(0xDBD95B16UL)
+#define SW_FT_TRIG_SAFE_MSB		(29)
+#define SW_FT_TRIG_MAX_ITERS	(23)
 
 static const SW_FT_Fixed ft_trig_arctan_table[] = {
 	1740967L, 919879L, 466945L, 234379L, 117304L, 58666L, 29335L, 14668L,
@@ -253,11 +253,7 @@ void SW_FT_Vector_Unit(SW_FT_Vector * vec, SW_FT_Angle angle)
 	vec->y = (vec->y + 0x80L) >> 8;
 }
 
-#define SW_FT_SIGN_LONG(x)		((x) >> (SW_FT_SIZEOF_LONG * 8 - 1))
-#define SW_FT_SIGN_INT(x)		((x) >> (SW_FT_SIZEOF_INT * 8 - 1))
-#define SW_FT_SIGN_INT32(x)		((x) >> 31)
-#define SW_FT_SIGN_INT16(x)		((x) >> 15)
-
+#define SW_FT_SIGN_LONG(x)	((x) >> (sizeof(signed long) * 8 - 1))
 void SW_FT_Vector_Rotate(SW_FT_Vector * vec, SW_FT_Angle angle)
 {
 	SW_FT_Int shift;

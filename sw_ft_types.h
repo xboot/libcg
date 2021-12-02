@@ -27,13 +27,12 @@ typedef struct SW_FT_Vector_ {
 	SW_FT_Pos y;
 } SW_FT_Vector;
 
-typedef long long int SW_FT_Int64;
-typedef unsigned long long int SW_FT_UInt64;
-typedef signed int SW_FT_Int32;
-typedef unsigned int SW_FT_UInt32;
+typedef int64_t SW_FT_Int64;
+typedef uint64_t SW_FT_UInt64;
+typedef int32_t SW_FT_Int32;
+typedef uint32_t SW_FT_UInt32;
 
-#define SW_FT_BOOL(x)		((SW_FT_Bool)(x))
-#define SW_FT_SIZEOF_LONG	4
+#define SW_FT_BOOL(x)	((SW_FT_Bool)(x))
 
 #ifndef TRUE
 #define TRUE	1
