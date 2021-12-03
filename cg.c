@@ -1641,9 +1641,9 @@ struct cg_texture_t * cg_paint_get_texture(struct cg_paint_t * paint)
 	return (paint->type == XVG_PAINT_TYPE_TEXTURE) ? paint->texture : NULL;
 }
 
-#define cg_alpha(c)	((c) >> 24)
+#define cg_alpha(c)		((c) >> 24)
 #define cg_red(c)		(((c) >> 16) & 0xff)
-#define cg_green(c)	(((c) >> 8) & 0xff)
+#define cg_green(c)		(((c) >> 8) & 0xff)
 #define cg_blue(c)		(((c) >> 0) & 0xff)
 
 struct gradient_data_t {
@@ -1694,7 +1694,6 @@ static inline uint32_t premultiply_color(struct cg_color_t * color, double opaci
 	uint32_t pr = (uint8_t)(color->r * alpha);
 	uint32_t pg = (uint8_t)(color->g * alpha);
 	uint32_t pb = (uint8_t)(color->b * alpha);
-
 	return (alpha << 24) | (pr << 16) | (pg << 8) | (pb);
 }
 
@@ -1704,7 +1703,6 @@ static inline uint32_t combine_opacity(struct cg_color_t * color, double opacity
 	uint32_t r = (uint8_t)(color->r * 255);
 	uint32_t g = (uint8_t)(color->g * 255);
 	uint32_t b = (uint8_t)(color->b * 255);
-
 	return (a << 24) | (r << 16) | (g << 8) | (b);
 }
 
@@ -1714,7 +1712,6 @@ static inline uint32_t premultiply_pixel(uint32_t color)
 	uint32_t r = cg_red(color);
 	uint32_t g = cg_green(color);
 	uint32_t b = cg_blue(color);
-
 	uint32_t pr = (r * a) / 255;
 	uint32_t pg = (g * a) / 255;
 	uint32_t pb = (b * a) / 255;
@@ -1751,46 +1748,47 @@ static inline void memfill32(uint32_t * dest, uint32_t value, int length)
 		dest[i] = value;
 }
 
-static inline int gradient_clamp(struct gradient_data_t *gradient, int ipos)
+static inline int gradient_clamp(struct gradient_data_t * gradient, int ipos)
 {
-	if(gradient->spread == XVG_SPREAD_METHOD_REPEAT)
+	switch(gradient->spread)
 	{
-		ipos = ipos % 1024;
-		ipos = ipos < 0 ? 1024 + ipos : ipos;
-	}
-	else if(gradient->spread == XVG_SPREAD_METHOD_REFLECT)
-	{
-		int limit = 1024 * 2;
-		ipos = ipos % limit;
-		ipos = ipos < 0 ? limit + ipos : ipos;
-		ipos = ipos >= 1024 ? limit - 1 - ipos : ipos;
-	}
-	else
-	{
+	case XVG_SPREAD_METHOD_PAD:
 		if(ipos < 0)
 			ipos = 0;
 		else if(ipos >= 1024)
 			ipos = 1024 - 1;
+		break;
+	case XVG_SPREAD_METHOD_REFLECT:
+		ipos = ipos % 2048;
+		ipos = ipos < 0 ? 2048 + ipos : ipos;
+		ipos = ipos >= 1024 ? 2048 - 1 - ipos : ipos;
+		break;
+	case XVG_SPREAD_METHOD_REPEAT:
+		ipos = ipos % 1024;
+		ipos = ipos < 0 ? 1024 + ipos : ipos;
+		break;
+	default:
+		break;
 	}
-
 	return ipos;
 }
 
-#define FIXPT_BITS	8
+#define FIXPT_BITS	(8)
 #define FIXPT_SIZE	(1 << FIXPT_BITS)
-static inline uint32_t gradient_pixel_fixed(struct gradient_data_t *gradient, int fixed_pos)
+
+static inline uint32_t gradient_pixel_fixed(struct gradient_data_t * gradient, int fixed_pos)
 {
 	int ipos = (fixed_pos + (FIXPT_SIZE / 2)) >> FIXPT_BITS;
 	return gradient->colortable[gradient_clamp(gradient, ipos)];
 }
 
-static inline uint32_t gradient_pixel(struct gradient_data_t *gradient, double pos)
+static inline uint32_t gradient_pixel(struct gradient_data_t * gradient, double pos)
 {
 	int ipos = (int)(pos * (1024 - 1) + 0.5);
 	return gradient->colortable[gradient_clamp(gradient, ipos)];
 }
 
-static void fetch_linear_gradient(uint32_t *buffer, struct linear_gradient_values_t *v, struct gradient_data_t *gradient, int y, int x, int length)
+static void fetch_linear_gradient(uint32_t * buffer, struct linear_gradient_values_t * v, struct gradient_data_t * gradient, int y, int x, int length)
 {
 	double t, inc;
 	double rx = 0, ry = 0;
@@ -1808,9 +1806,8 @@ static void fetch_linear_gradient(uint32_t *buffer, struct linear_gradient_value
 		t *= (1024 - 1);
 		inc *= (1024 - 1);
 	}
-
-	uint32_t *end = buffer + length;
-	if(inc > -1e-5 && inc < 1e-5)
+	uint32_t * end = buffer + length;
+	if((inc > -1e-5) && (inc < 1e-5))
 	{
 		memfill32(buffer, gradient_pixel_fixed(gradient, (int)(t * FIXPT_SIZE)), length);
 	}
@@ -1839,7 +1836,7 @@ static void fetch_linear_gradient(uint32_t *buffer, struct linear_gradient_value
 	}
 }
 
-static void fetch_radial_gradient(uint32_t *buffer, struct radial_gradient_values_t *v, struct gradient_data_t *gradient, int y, int x, int length)
+static void fetch_radial_gradient(uint32_t * buffer, struct radial_gradient_values_t * v, struct gradient_data_t * gradient, int y, int x, int length)
 {
 	if(v->a == 0.0)
 	{
@@ -1878,7 +1875,7 @@ static void fetch_radial_gradient(uint32_t *buffer, struct radial_gradient_value
 	double delta_det = (b_delta_b + delta_bb + 4 * v->a * (rx_plus_ry + delta_rxrxryry)) * inv_a;
 	double delta_delta_det = (delta_b_delta_b + 4 * v->a * delta_rx_plus_ry) * inv_a;
 
-	uint32_t *end = buffer + length;
+	uint32_t * end = buffer + length;
 	if(v->extended)
 	{
 		while(buffer < end)
@@ -1890,7 +1887,6 @@ static void fetch_radial_gradient(uint32_t *buffer, struct radial_gradient_value
 				if(gradient->radial.fr + v->dr * w >= 0)
 					result = gradient_pixel(gradient, w);
 			}
-
 			*buffer = result;
 			det += delta_det;
 			delta_det += delta_delta_det;
@@ -2035,10 +2031,19 @@ static void composition_destination_out(uint32_t * dest, int length, uint32_t * 
 typedef void (*composition_solid_function_t)(uint32_t * dest, int length, uint32_t color, uint32_t const_alpha);
 typedef void (*composition_function_t)(uint32_t * dest, int length, uint32_t * src, uint32_t const_alpha);
 
-static composition_solid_function_t composition_solid_map[] = { composition_solid_source, composition_solid_source_over, composition_solid_destination_in,
-        composition_solid_destination_out };
+static composition_solid_function_t composition_solid_map[] = {
+	composition_solid_source,
+	composition_solid_source_over,
+	composition_solid_destination_in,
+	composition_solid_destination_out,
+};
 
-static composition_function_t composition_map[] = { composition_source, composition_source_over, composition_destination_in, composition_destination_out };
+static composition_function_t composition_map[] = {
+	composition_source,
+	composition_source_over,
+	composition_destination_in,
+	composition_destination_out,
+};
 
 static void blend_solid(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, uint32_t solid)
 {
@@ -2053,7 +2058,7 @@ static void blend_solid(struct cg_surface_t * surface, enum cg_operator_t op, st
 	}
 }
 
-static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct gradient_data_t *gradient)
+static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct gradient_data_t * gradient)
 {
 	composition_function_t func = composition_map[op];
 	unsigned int buffer[1024];
@@ -2085,12 +2090,11 @@ static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operato
 			x += l;
 			length -= l;
 		}
-
 		++spans;
 	}
 }
 
-static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct gradient_data_t *gradient)
+static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct gradient_data_t * gradient)
 {
 	composition_function_t func = composition_map[op];
 	unsigned int buffer[1024];
@@ -2119,7 +2123,6 @@ static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operato
 			x += l;
 			length -= l;
 		}
-
 		++spans;
 	}
 }
@@ -2132,10 +2135,8 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 
 	int image_width = texture->width;
 	int image_height = texture->height;
-
 	int fdx = (int)(texture->matrix.m00 * FIXED_SCALE);
 	int fdy = (int)(texture->matrix.m10 * FIXED_SCALE);
-
 	int count = rle->spans.size;
 	struct cg_span_t * spans = rle->spans.data;
 	while(count--)
@@ -2144,10 +2145,8 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 
 		double cx = spans->x + 0.5;
 		double cy = spans->y + 0.5;
-
 		int x = (int)((texture->matrix.m01 * cy + texture->matrix.m00 * cx + texture->matrix.m02) * FIXED_SCALE);
 		int y = (int)((texture->matrix.m11 * cy + texture->matrix.m10 * cx + texture->matrix.m12) * FIXED_SCALE);
-
 		int length = spans->len;
 		int coverage = (spans->coverage * texture->const_alpha) >> 8;
 		while(length)
@@ -2165,12 +2164,10 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 				y += fdy;
 				++b;
 			}
-
 			func(target, l, buffer, coverage);
 			target += l;
 			length -= l;
 		}
-
 		++spans;
 	}
 }
@@ -2181,10 +2178,8 @@ static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_oper
 
 	int image_width = texture->width;
 	int image_height = texture->height;
-
 	int xoff = (int)(texture->matrix.m02);
 	int yoff = (int)(texture->matrix.m12);
-
 	int count = rle->spans.size;
 	struct cg_span_t * spans = rle->spans.data;
 	while(count--)
@@ -2201,10 +2196,8 @@ static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_oper
 				length += sx;
 				sx = 0;
 			}
-
 			if(sx + length > image_width)
 				length = image_width - sx;
-
 			if(length > 0)
 			{
 				int coverage = (spans->coverage * texture->const_alpha) >> 8;
@@ -2223,15 +2216,12 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 
 	int image_width = texture->width;
 	int image_height = texture->height;
-
 	int xoff = (int)(texture->matrix.m02) % image_width;
 	int yoff = (int)(texture->matrix.m12) % image_height;
-
 	if(xoff < 0)
 		xoff += image_width;
 	if(yoff < 0)
 		yoff += image_height;
-
 	int count = rle->spans.size;
 	struct cg_span_t * spans = rle->spans.data;
 	while(count--)
@@ -2244,7 +2234,6 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 			sx += image_width;
 		if(sy < 0)
 			sy += image_height;
-
 		int coverage = (spans->coverage * texture->const_alpha) >> 8;
 		while(length)
 		{
@@ -2258,7 +2247,6 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 			length -= l;
 			sx = 0;
 		}
-
 		++spans;
 	}
 }
@@ -2271,23 +2259,18 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 	int image_width = texture->width;
 	int image_height = texture->height;
 	int scanline_offset = texture->stride / 4;
-
 	int fdx = (int)(texture->matrix.m00 * FIXED_SCALE);
 	int fdy = (int)(texture->matrix.m10 * FIXED_SCALE);
-
 	int count = rle->spans.size;
 	struct cg_span_t * spans = rle->spans.data;
 	while(count--)
 	{
 		uint32_t * target = (uint32_t *)(surface->pixels + spans->y * surface->stride) + spans->x;
 		uint32_t * image_bits = (uint32_t *)texture->pixels;
-
 		double cx = spans->x + 0.5;
 		double cy = spans->y + 0.5;
-
 		int x = (int)((texture->matrix.m01 * cy + texture->matrix.m00 * cx + texture->matrix.m02) * FIXED_SCALE);
 		int y = (int)((texture->matrix.m11 * cy + texture->matrix.m10 * cx + texture->matrix.m12) * FIXED_SCALE);
-
 		int coverage = (spans->coverage * texture->const_alpha) >> 8;
 		int length = spans->len;
 		while(length)
@@ -2320,31 +2303,29 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 					py16 -= image_height << 16;
 				++b;
 			}
-
 			func(target, l, buffer, coverage);
 			target += l;
 			length -= l;
 		}
-
 		++spans;
 	}
 }
 
-static void cg_blend_color(struct cg_ctx_t * ctx, struct cg_rle_t * rle, struct cg_color_t * color)
+static inline void cg_blend_color(struct cg_ctx_t * ctx, struct cg_rle_t * rle, struct cg_color_t * color)
 {
 	if(color)
 	{
 		struct cg_state_t * state = ctx->state;
 		uint32_t solid = premultiply_color(color, state->opacity);
 		uint32_t alpha = cg_alpha(solid);
-		if(alpha == 255 && state->op == XVG_OPERATOR_SRC_OVER)
+		if((alpha == 255) && (state->op == XVG_OPERATOR_SRC_OVER))
 			blend_solid(ctx->surface, XVG_OPERATOR_SRC, rle, solid);
 		else
 			blend_solid(ctx->surface, state->op, rle, solid);
 	}
 }
 
-static void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_rle_t * rle, struct cg_gradient_t * gradient)
+static inline void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_rle_t * rle, struct cg_gradient_t * gradient)
 {
 	if(gradient && (gradient->stops.size > 0))
 	{
@@ -2372,7 +2353,6 @@ static void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_rle_t * rle, stru
 			++pos;
 			fpos += incr;
 		}
-
 		for(i = 0; i < nstop - 1; i++)
 		{
 			curr = (start + i);
@@ -2388,7 +2368,6 @@ static void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_rle_t * rle, stru
 				++pos;
 				fpos += incr;
 			}
-
 			curr_color = next_color;
 		}
 
@@ -2423,7 +2402,7 @@ static void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_rle_t * rle, stru
 	}
 }
 
-static void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_rle_t * rle, struct cg_texture_t * texture)
+static inline void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_rle_t * rle, struct cg_texture_t * texture)
 {
 	if(texture)
 	{
@@ -2461,13 +2440,21 @@ static void cg_blend(struct cg_ctx_t * ctx, struct cg_rle_t * rle)
 {
 	if(rle && (rle->spans.size > 0))
 	{
-		struct cg_paint_t *source = ctx->state->source;
-		if(source->type == XVG_PAINT_TYPE_COLOR)
+		struct cg_paint_t * source = ctx->state->source;
+		switch(source->type)
+		{
+		case XVG_PAINT_TYPE_COLOR:
 			cg_blend_color(ctx, rle, source->color);
-		else if(source->type == XVG_PAINT_TYPE_GRADIENT)
+			break;
+		case XVG_PAINT_TYPE_GRADIENT:
 			cg_blend_gradient(ctx, rle, source->gradient);
-		else
+			break;
+		case XVG_PAINT_TYPE_TEXTURE:
 			cg_blend_texture(ctx, rle, source->texture);
+			break;
+		default:
+			break;
+		}
 	}
 }
 
@@ -2475,7 +2462,7 @@ static struct cg_state_t * cg_state_create(void)
 {
 	struct cg_state_t * state = malloc(sizeof(struct cg_state_t));
 	state->clippath = NULL;
-	state->source = cg_paint_create_rgb(0, 0, 0);
+	state->source = cg_paint_create_rgba(0, 0, 0, 1.0);
 	cg_matrix_init_identity(&state->matrix);
 	state->winding = XVG_FILL_RULE_WINDING;
 	state->stroke.width = 1.0;
@@ -2491,9 +2478,9 @@ static struct cg_state_t * cg_state_create(void)
 
 static struct cg_state_t * cg_state_clone(struct cg_state_t * state)
 {
-	struct cg_state_t *newstate = malloc(sizeof(struct cg_state_t));
+	struct cg_state_t * newstate = malloc(sizeof(struct cg_state_t));
 	newstate->clippath = cg_rle_clone(state->clippath);
-	newstate->source = cg_paint_reference(state->source); /** FIXME: clone!!?**/
+	newstate->source = cg_paint_reference(state->source);
 	newstate->matrix = state->matrix;
 	newstate->winding = state->winding;
 	newstate->stroke.width = state->stroke.width;
@@ -2773,7 +2760,7 @@ void cg_reset_clip(struct cg_ctx_t * ctx)
 void cg_clip(struct cg_ctx_t * ctx)
 {
 	cg_clip_preserve(ctx);
-	cg_new_path(ctx);
+	cg_path_clear(ctx->path);
 }
 
 void cg_clip_preserve(struct cg_ctx_t * ctx)
@@ -2795,7 +2782,7 @@ void cg_clip_preserve(struct cg_ctx_t * ctx)
 void cg_fill(struct cg_ctx_t * ctx)
 {
 	cg_fill_preserve(ctx);
-	cg_new_path(ctx);
+	cg_path_clear(ctx->path);
 }
 
 void cg_fill_preserve(struct cg_ctx_t * ctx)
@@ -2810,7 +2797,7 @@ void cg_fill_preserve(struct cg_ctx_t * ctx)
 void cg_stroke(struct cg_ctx_t * ctx)
 {
 	cg_stroke_preserve(ctx);
-	cg_new_path(ctx);
+	cg_path_clear(ctx->path);
 }
 
 void cg_stroke_preserve(struct cg_ctx_t * ctx)
