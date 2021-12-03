@@ -567,6 +567,8 @@ static inline void split(struct cg_bezier_t * b, struct cg_bezier_t * first, str
 static void flatten(struct cg_path_t * path, struct cg_point_t * p0, struct cg_point_t * p1, struct cg_point_t * p2, struct cg_point_t * p3)
 {
 	struct cg_bezier_t beziers[32];
+	struct cg_bezier_t * b = beziers;
+
 	beziers[0].x1 = p0->x;
 	beziers[0].y1 = p0->y;
 	beziers[0].x2 = p1->x;
@@ -575,9 +577,6 @@ static void flatten(struct cg_path_t * path, struct cg_point_t * p0, struct cg_p
 	beziers[0].y3 = p2->y;
 	beziers[0].x4 = p3->x;
 	beziers[0].y4 = p3->y;
-
-	double threshold = 0.25;
-	struct cg_bezier_t * b = beziers;
 	while(b >= beziers)
 	{
 		double y4y1 = b->y4 - b->y1;
@@ -593,7 +592,7 @@ static void flatten(struct cg_path_t * path, struct cg_point_t * p0, struct cg_p
 			d = fabs(b->x1 - b->x2) + fabs(b->y1 - b->y2) + fabs(b->x1 - b->x3) + fabs(b->y1 - b->y3);
 			l = 1.0;
 		}
-		if(d < threshold * l || b == beziers + 31)
+		if((d < l * 0.25) || (b == beziers + 31))
 		{
 			cg_path_line_to(path, b->x4, b->y4);
 			--b;
@@ -608,10 +607,12 @@ static void flatten(struct cg_path_t * path, struct cg_point_t * p0, struct cg_p
 
 static struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path)
 {
+	struct cg_point_t * points = path->points.data;
 	struct cg_path_t * result = cg_path_create();
+	struct cg_point_t p0;
+
 	cg_array_ensure(result->elements, path->elements.size);
 	cg_array_ensure(result->points, path->points.size);
-	struct cg_point_t *points = path->points.data;
 	for(int i = 0; i < path->elements.size; i++)
 	{
 		switch(path->elements.data[i])
@@ -621,18 +622,20 @@ static struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path)
 			points += 1;
 			break;
 		case XVG_PATH_ELEMENT_LINE_TO:
-		case XVG_PATH_ELEMENT_CLOSE:
 			cg_path_line_to(result, points[0].x, points[0].y);
 			points += 1;
 			break;
 		case XVG_PATH_ELEMENT_CURVE_TO:
-		{
-			struct cg_point_t p0;
 			cg_path_get_current_point(result, &p0.x, &p0.y);
 			flatten(result, &p0, points, points + 1, points + 2);
 			points += 3;
 			break;
-		}
+		case XVG_PATH_ELEMENT_CLOSE:
+			cg_path_line_to(result, points[0].x, points[0].y);
+			points += 1;
+			break;
+		default:
+			break;
 		}
 	}
 	return result;
