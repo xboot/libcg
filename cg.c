@@ -2764,57 +2764,16 @@ void cg_close_path(struct cg_ctx_t * ctx)
 	cg_path_close(ctx->path);
 }
 
-void cg_fill(struct cg_ctx_t * ctx)
+void cg_reset_clip(struct cg_ctx_t * ctx)
 {
-	cg_fill_preserve(ctx);
-	cg_new_path(ctx);
-}
-
-void cg_stroke(struct cg_ctx_t * ctx)
-{
-	cg_stroke_preserve(ctx);
-	cg_new_path(ctx);
+	cg_rle_destroy(ctx->state->clippath);
+	ctx->state->clippath = NULL;
 }
 
 void cg_clip(struct cg_ctx_t * ctx)
 {
 	cg_clip_preserve(ctx);
 	cg_new_path(ctx);
-}
-
-void cg_paint(struct cg_ctx_t * ctx)
-{
-	struct cg_state_t * state = ctx->state;
-	if((state->clippath == NULL) && (ctx->clippath == NULL))
-	{
-		struct cg_path_t * path = cg_path_create();
-		cg_path_add_rectangle(path, ctx->clip.x, ctx->clip.y, ctx->clip.w, ctx->clip.h);
-		struct cg_matrix_t matrix;
-		cg_matrix_init_identity(&matrix);
-		ctx->clippath = cg_rle_create();
-		cg_rle_rasterize(ctx->clippath, path, &matrix, &ctx->clip, NULL, XVG_FILL_RULE_WINDING);
-		cg_path_destroy(path);
-	}
-	struct cg_rle_t * rle = state->clippath ? state->clippath : ctx->clippath;
-	cg_blend(ctx, rle);
-}
-
-void cg_fill_preserve(struct cg_ctx_t * ctx)
-{
-	struct cg_state_t * state = ctx->state;
-	cg_rle_clear(ctx->rle);
-	cg_rle_rasterize(ctx->rle, ctx->path, &state->matrix, &ctx->clip, NULL, state->winding);
-	cg_rle_intersect(ctx->rle, state->clippath);
-	cg_blend(ctx, ctx->rle);
-}
-
-void cg_stroke_preserve(struct cg_ctx_t * ctx)
-{
-	struct cg_state_t * state = ctx->state;
-	cg_rle_clear(ctx->rle);
-	cg_rle_rasterize(ctx->rle, ctx->path, &state->matrix, &ctx->clip, &state->stroke, XVG_FILL_RULE_WINDING);
-	cg_rle_intersect(ctx->rle, state->clippath);
-	cg_blend(ctx, ctx->rle);
 }
 
 void cg_clip_preserve(struct cg_ctx_t * ctx)
@@ -2833,8 +2792,49 @@ void cg_clip_preserve(struct cg_ctx_t * ctx)
 	}
 }
 
-void cg_reset_clip(struct cg_ctx_t * ctx)
+void cg_fill(struct cg_ctx_t * ctx)
 {
-	cg_rle_destroy(ctx->state->clippath);
-	ctx->state->clippath = NULL;
+	cg_fill_preserve(ctx);
+	cg_new_path(ctx);
+}
+
+void cg_fill_preserve(struct cg_ctx_t * ctx)
+{
+	struct cg_state_t * state = ctx->state;
+	cg_rle_clear(ctx->rle);
+	cg_rle_rasterize(ctx->rle, ctx->path, &state->matrix, &ctx->clip, NULL, state->winding);
+	cg_rle_intersect(ctx->rle, state->clippath);
+	cg_blend(ctx, ctx->rle);
+}
+
+void cg_stroke(struct cg_ctx_t * ctx)
+{
+	cg_stroke_preserve(ctx);
+	cg_new_path(ctx);
+}
+
+void cg_stroke_preserve(struct cg_ctx_t * ctx)
+{
+	struct cg_state_t * state = ctx->state;
+	cg_rle_clear(ctx->rle);
+	cg_rle_rasterize(ctx->rle, ctx->path, &state->matrix, &ctx->clip, &state->stroke, XVG_FILL_RULE_WINDING);
+	cg_rle_intersect(ctx->rle, state->clippath);
+	cg_blend(ctx, ctx->rle);
+}
+
+void cg_paint(struct cg_ctx_t * ctx)
+{
+	struct cg_state_t * state = ctx->state;
+	if((state->clippath == NULL) && (ctx->clippath == NULL))
+	{
+		struct cg_path_t * path = cg_path_create();
+		cg_path_add_rectangle(path, ctx->clip.x, ctx->clip.y, ctx->clip.w, ctx->clip.h);
+		struct cg_matrix_t matrix;
+		cg_matrix_init_identity(&matrix);
+		ctx->clippath = cg_rle_create();
+		cg_rle_rasterize(ctx->clippath, path, &matrix, &ctx->clip, NULL, XVG_FILL_RULE_WINDING);
+		cg_path_destroy(path);
+	}
+	struct cg_rle_t * rle = state->clippath ? state->clippath : ctx->clippath;
+	cg_blend(ctx, rle);
 }

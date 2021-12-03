@@ -344,14 +344,14 @@ void cg_arc_negative(struct cg_ctx_t * ctx, double cx, double cy, double r, doub
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path);
 void cg_new_path(struct cg_ctx_t * ctx);
 void cg_close_path(struct cg_ctx_t * ctx);
-void cg_fill(struct cg_ctx_t * ctx);
-void cg_stroke(struct cg_ctx_t * ctx);
-void cg_clip(struct cg_ctx_t * ctx);
-void cg_paint(struct cg_ctx_t * ctx);
-void cg_fill_preserve(struct cg_ctx_t * ctx);
-void cg_stroke_preserve(struct cg_ctx_t * ctx);
-void cg_clip_preserve(struct cg_ctx_t * ctx);
 void cg_reset_clip(struct cg_ctx_t * ctx);
+void cg_clip(struct cg_ctx_t * ctx);
+void cg_clip_preserve(struct cg_ctx_t * ctx);
+void cg_fill(struct cg_ctx_t * ctx);
+void cg_fill_preserve(struct cg_ctx_t * ctx);
+void cg_stroke(struct cg_ctx_t * ctx);
+void cg_stroke_preserve(struct cg_ctx_t * ctx);
+void cg_paint(struct cg_ctx_t * ctx);
 
 #ifdef __cplusplus
 }
