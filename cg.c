@@ -240,7 +240,7 @@ static void sw_ft_outline_end(SW_FT_Outline * ft)
 	}
 }
 
-static SW_FT_Outline* sw_ft_outline_convert(struct cg_path_t *path, struct cg_matrix_t *  matrix)
+static SW_FT_Outline * sw_ft_outline_convert(struct cg_path_t *path, struct cg_matrix_t *  matrix)
 {
 	SW_FT_Outline * outline = sw_ft_outline_create(path->points.size, path->contours);
 	enum cg_path_element_t * elements = path->elements.data;
@@ -280,7 +280,7 @@ static SW_FT_Outline* sw_ft_outline_convert(struct cg_path_t *path, struct cg_ma
 static SW_FT_Outline * sw_ft_outline_convert_dash(struct cg_path_t * path, struct cg_matrix_t * matrix, struct cg_dash_t * dash)
 {
 	struct cg_path_t * dashed = cg_dash_path(dash, path);
-	SW_FT_Outline *outline = sw_ft_outline_convert(dashed, matrix);
+	SW_FT_Outline * outline = sw_ft_outline_convert(dashed, matrix);
 	cg_path_destroy(dashed);
 	return outline;
 }
@@ -289,7 +289,7 @@ static void generation_callback(int count, const SW_FT_Span * spans, void * user
 {
 	struct cg_rle_t * rle = user;
 	cg_array_ensure(rle->spans, count);
-	struct cg_span_t *data = rle->spans.data + rle->spans.size;
+	struct cg_span_t * data = rle->spans.data + rle->spans.size;
 	memcpy(data, spans, (size_t)count * sizeof(struct cg_span_t));
 	rle->spans.size += count;
 }
