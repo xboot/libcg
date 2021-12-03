@@ -252,11 +252,6 @@ int cg_path_empty(struct cg_path_t * path);
 struct cg_path_t * cg_path_clone(struct cg_path_t * path);
 struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path);
 
-void cg_color_init_rgb(struct cg_color_t * color, double r, double g, double b);
-void cg_color_init_rgba(struct cg_color_t * color, double r, double g, double b, double a);
-void cg_color_init_rgb8(struct cg_color_t * color, unsigned char r, unsigned char g, unsigned char b);
-void cg_color_init_rgba8(struct cg_color_t * color, unsigned char r, unsigned char g, unsigned char b, unsigned char a);
-
 struct cg_gradient_t * cg_gradient_create_linear(double x1, double y1, double x2, double y2);
 struct cg_gradient_t * cg_gradient_create_radial(double cx, double cy, double cr, double fx, double fy, double fr);
 void cg_gradient_destroy(struct cg_gradient_t * gradient);

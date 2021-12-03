@@ -1266,28 +1266,12 @@ struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path)
 	return result;
 }
 
-
-void cg_color_init_rgb(struct cg_color_t * color, double r, double g, double b)
-{
-	cg_color_init_rgba(color, r, g, b, 1.0);
-}
-
-void cg_color_init_rgba(struct cg_color_t * color, double r, double g, double b, double a)
+static inline void cg_color_init_rgba(struct cg_color_t * color, double r, double g, double b, double a)
 {
 	color->r = clamp(r, 0.0, 1.0);
 	color->g = clamp(g, 0.0, 1.0);
 	color->b = clamp(b, 0.0, 1.0);
 	color->a = clamp(a, 0.0, 1.0);
-}
-
-void cg_color_init_rgb8(struct cg_color_t * color, unsigned char r, unsigned char g, unsigned char b)
-{
-	cg_color_init_rgba8(color, r, g, b, 255);
-}
-
-void cg_color_init_rgba8(struct cg_color_t * color, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
-{
-	cg_color_init_rgba(color, r / 255.0, g / 255.0, b / 255.0, a / 255.0);
 }
 
 struct cg_gradient_t * cg_gradient_create_linear(double x1, double y1, double x2, double y2)
