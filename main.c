@@ -522,11 +522,11 @@ static void test_set_line_join(const char * filename)
 
 static void test_smile(const char * filename)
 {
-	struct cg_surface_t * surface = cg_surface_create(150, 150);
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	double center_x = 150 * 0.5;
-	double center_y = 150 * 0.5;
+	double center_x = 256 * 0.5;
+	double center_y = 256 * 0.5;
 	double face_radius = 70;
 	double eye_radius = 10;
 	double mouth_radius = 50;
