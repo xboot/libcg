@@ -2833,31 +2833,6 @@ void cg_clip_preserve(struct cg_ctx_t * ctx)
 	}
 }
 
-void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * rect)
-{
-	struct cg_state_t * state = ctx->state;
-	cg_rle_clear(ctx->rle);
-	cg_rle_rasterize(ctx->rle, ctx->path, &state->matrix, NULL, NULL, state->winding);
-	cg_rect_init(rect, ctx->rle->x, ctx->rle->y, ctx->rle->w, ctx->rle->h);
-}
-
-void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * rect)
-{
-	struct cg_state_t * state = ctx->state;
-	cg_rle_clear(ctx->rle);
-	cg_rle_rasterize(ctx->rle, ctx->path, &state->matrix, NULL, &state->stroke, XVG_FILL_RULE_WINDING);
-	cg_rect_init(rect, ctx->rle->x, ctx->rle->y, ctx->rle->w, ctx->rle->h);
-}
-
-void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * rect)
-{
-	struct cg_state_t * state = ctx->state;
-	rect->x = state->clippath ? state->clippath->x : ctx->clip.x;
-	rect->y = state->clippath ? state->clippath->y : ctx->clip.y;
-	rect->w = state->clippath ? state->clippath->w : ctx->clip.w;
-	rect->h = state->clippath ? state->clippath->h : ctx->clip.h;
-}
-
 void cg_reset_clip(struct cg_ctx_t * ctx)
 {
 	cg_rle_destroy(ctx->state->clippath);

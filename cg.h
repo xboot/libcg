@@ -351,9 +351,6 @@ void cg_paint(struct cg_ctx_t * ctx);
 void cg_fill_preserve(struct cg_ctx_t * ctx);
 void cg_stroke_preserve(struct cg_ctx_t * ctx);
 void cg_clip_preserve(struct cg_ctx_t * ctx);
-void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * rect);
-void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * rect);
-void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * rect);
 void cg_reset_clip(struct cg_ctx_t * ctx);
 
 #ifdef __cplusplus
