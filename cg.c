@@ -2297,7 +2297,7 @@ static struct cg_state_t * cg_state_create(void)
 	cg_matrix_init_identity(&state->matrix);
 	state->winding = XVG_FILL_RULE_WINDING;
 	state->stroke.width = 1.0;
-	state->stroke.miterlimit = 4.0;
+	state->stroke.miterlimit = 10.0;
 	state->stroke.cap = XVG_LINE_CAP_BUTT;
 	state->stroke.join = XVG_LINE_JOIN_MITER;
 	state->stroke.dash = NULL;
