@@ -535,7 +535,7 @@ static struct cg_rle_t * cg_rle_clone(struct cg_rle_t * rle)
 	return NULL;
 }
 
-static void cg_rle_clear(struct cg_rle_t * rle)
+static inline void cg_rle_clear(struct cg_rle_t * rle)
 {
 	rle->spans.size = 0;
 	rle->x = 0;
