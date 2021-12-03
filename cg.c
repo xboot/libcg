@@ -439,51 +439,6 @@ static void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, doubl
 	}
 }
 
-static void cg_path_arc_to(struct cg_path_t * path, double x1, double y1, double x2, double y2, double radius)
-{
-	double x0, y0;
-	cg_path_get_current_point(path, &x0, &y0);
-	if((x0 == x1 && y0 == y1) || (x1 == x2 && y1 == y2) || radius == 0.0)
-	{
-		cg_path_line_to(path, x1, y2);
-		return;
-	}
-
-	double dir = (x2 - x1) * (y0 - y1) + (y2 - y1) * (x1 - x0);
-	if(dir == 0.0)
-	{
-		cg_path_line_to(path, x1, y2);
-		return;
-	}
-
-	double a2 = (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1);
-	double b2 = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-	double c2 = (x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2);
-
-	double cosx = (a2 + b2 - c2) / (2 * sqrt(a2 * b2));
-	double sinx = sqrt(1 - cosx * cosx);
-	double d = radius / ((1 - cosx) / sinx);
-
-	double anx = (x1 - x0) / sqrt(a2);
-	double any = (y1 - y0) / sqrt(a2);
-	double bnx = (x1 - x2) / sqrt(b2);
-	double bny = (y1 - y2) / sqrt(b2);
-
-	double x3 = x1 - anx * d;
-	double y3 = y1 - any * d;
-	double x4 = x1 - bnx * d;
-	double y4 = y1 - bny * d;
-
-	int ccw = dir < 0.0;
-	double cx = x3 + any * radius * (ccw ? 1 : -1);
-	double cy = y3 - anx * radius * (ccw ? 1 : -1);
-	double a0 = atan2(y3 - cy, x3 - cx);
-	double a1 = atan2(y4 - cy, x4 - cx);
-
-	cg_path_line_to(path, x3, y3);
-	cg_path_add_arc(path, cx, cy, radius, a0, a1, ccw);
-}
-
 static void cg_path_close(struct cg_path_t * path)
 {
 	if(path->elements.size == 0)
@@ -532,13 +487,6 @@ static void cg_path_rel_quad_to(struct cg_path_t * path, double dx1, double dy1,
 	rel_to_abs(path, &dx1, &dy1);
 	rel_to_abs(path, &dx2, &dy2);
 	cg_path_quad_to(path, dx1, dy1, dx2, dy2);
-}
-
-static void cg_path_rel_arc_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2, double radius)
-{
-	rel_to_abs(path, &dx1, &dy1);
-	rel_to_abs(path, &dx2, &dy2);
-	cg_path_arc_to(path, dx1, dy1, dx2, dy2, radius);
 }
 
 static void cg_path_add_rectangle(struct cg_path_t * path, double x, double y, double w, double h)
