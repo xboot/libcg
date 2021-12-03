@@ -376,7 +376,106 @@ static void cg_path_quad_to(struct cg_path_t * path, double x1, double y1, doubl
 	cg_path_curve_to(path, cx, cy, cx1, cy1, x2, y2);
 }
 
-static void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, double a0, double a1, int ccw)
+static void cg_path_close(struct cg_path_t * path)
+{
+	if(path->elements.size == 0)
+		return;
+	if(path->elements.data[path->elements.size - 1] == XVG_PATH_ELEMENT_CLOSE)
+		return;
+	cg_array_ensure(path->elements, 1);
+	cg_array_ensure(path->points, 1);
+	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_CLOSE;
+	path->elements.size += 1;
+	path->points.data[path->points.size].x = path->start.x;
+	path->points.data[path->points.size].y = path->start.y;
+	path->points.size += 1;
+}
+
+static inline void rel_to_abs(struct cg_path_t * path, double * x, double * y)
+{
+	double _x, _y;
+	cg_path_get_current_point(path, &_x, &_y);
+	*x += _x;
+	*y += _y;
+}
+
+static void cg_path_rel_move_to(struct cg_path_t * path, double dx, double dy)
+{
+	rel_to_abs(path, &dx, &dy);
+	cg_path_move_to(path, dx, dy);
+}
+
+static void cg_path_rel_line_to(struct cg_path_t * path, double dx, double dy)
+{
+	rel_to_abs(path, &dx, &dy);
+	cg_path_line_to(path, dx, dy);
+}
+
+static void cg_path_rel_curve_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3)
+{
+	rel_to_abs(path, &dx1, &dy1);
+	rel_to_abs(path, &dx2, &dy2);
+	rel_to_abs(path, &dx3, &dy3);
+	cg_path_curve_to(path, dx1, dy1, dx2, dy2, dx3, dy3);
+}
+
+static void cg_path_rel_quad_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2)
+{
+	rel_to_abs(path, &dx1, &dy1);
+	rel_to_abs(path, &dx2, &dy2);
+	cg_path_quad_to(path, dx1, dy1, dx2, dy2);
+}
+
+static inline void cg_path_add_rectangle(struct cg_path_t * path, double x, double y, double w, double h)
+{
+	cg_path_move_to(path, x, y);
+	cg_path_line_to(path, x + w, y);
+	cg_path_line_to(path, x + w, y + h);
+	cg_path_line_to(path, x, y + h);
+	cg_path_line_to(path, x, y);
+	cg_path_close(path);
+}
+
+static inline void cg_path_add_round_rectangle(struct cg_path_t * path, double x, double y, double w, double h, double rx, double ry)
+{
+	rx = min(rx, w * 0.5);
+	ry = min(ry, h * 0.5);
+
+	double right = x + w;
+	double bottom = y + h;
+	double cpx = rx * 0.55228474983079339840;
+	double cpy = ry * 0.55228474983079339840;
+
+	cg_path_move_to(path, x, y + ry);
+	cg_path_curve_to(path, x, y + ry - cpy, x + rx - cpx, y, x + rx, y);
+	cg_path_line_to(path, right - rx, y);
+	cg_path_curve_to(path, right - rx + cpx, y, right, y + ry - cpy, right, y + ry);
+	cg_path_line_to(path, right, bottom - ry);
+	cg_path_curve_to(path, right, bottom - ry + cpy, right - rx + cpx, bottom, right - rx, bottom);
+	cg_path_line_to(path, x + rx, bottom);
+	cg_path_curve_to(path, x + rx - cpx, bottom, x, bottom - ry + cpy, x, bottom - ry);
+	cg_path_line_to(path, x, y + ry);
+	cg_path_close(path);
+}
+
+static inline void cg_path_add_ellipse(struct cg_path_t * path, double cx, double cy, double rx, double ry)
+{
+	double left = cx - rx;
+	double top = cy - ry;
+	double right = cx + rx;
+	double bottom = cy + ry;
+	double cpx = rx * 0.55228474983079339840;
+	double cpy = ry * 0.55228474983079339840;
+
+	cg_path_move_to(path, cx, top);
+	cg_path_curve_to(path, cx + cpx, top, right, cy - cpy, right, cy);
+	cg_path_curve_to(path, right, cy + cpy, cx + cpx, bottom, cx, bottom);
+	cg_path_curve_to(path, cx - cpx, bottom, left, cy + cpy, left, cy);
+	cg_path_curve_to(path, left, cy - cpy, cx - cpx, top, cx, top);
+	cg_path_close(path);
+}
+
+static inline void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, double a0, double a1, int ccw)
 {
 	double da = a1 - a0;
 	if(ccw == 0)
@@ -439,111 +538,7 @@ static void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, doubl
 	}
 }
 
-static void cg_path_close(struct cg_path_t * path)
-{
-	if(path->elements.size == 0)
-		return;
-	if(path->elements.data[path->elements.size - 1] == XVG_PATH_ELEMENT_CLOSE)
-		return;
-	cg_array_ensure(path->elements, 1);
-	cg_array_ensure(path->points, 1);
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_CLOSE;
-	path->elements.size += 1;
-	path->points.data[path->points.size].x = path->start.x;
-	path->points.data[path->points.size].y = path->start.y;
-	path->points.size += 1;
-}
-
-static inline void rel_to_abs(struct cg_path_t * path, double * x, double * y)
-{
-	double _x, _y;
-	cg_path_get_current_point(path, &_x, &_y);
-	*x += _x;
-	*y += _y;
-}
-
-static void cg_path_rel_move_to(struct cg_path_t * path, double dx, double dy)
-{
-	rel_to_abs(path, &dx, &dy);
-	cg_path_move_to(path, dx, dy);
-}
-
-static void cg_path_rel_line_to(struct cg_path_t * path, double dx, double dy)
-{
-	rel_to_abs(path, &dx, &dy);
-	cg_path_line_to(path, dx, dy);
-}
-
-static void cg_path_rel_curve_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3)
-{
-	rel_to_abs(path, &dx1, &dy1);
-	rel_to_abs(path, &dx2, &dy2);
-	rel_to_abs(path, &dx3, &dy3);
-	cg_path_curve_to(path, dx1, dy1, dx2, dy2, dx3, dy3);
-}
-
-static void cg_path_rel_quad_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2)
-{
-	rel_to_abs(path, &dx1, &dy1);
-	rel_to_abs(path, &dx2, &dy2);
-	cg_path_quad_to(path, dx1, dy1, dx2, dy2);
-}
-
-static void cg_path_add_rectangle(struct cg_path_t * path, double x, double y, double w, double h)
-{
-	cg_path_move_to(path, x, y);
-	cg_path_line_to(path, x + w, y);
-	cg_path_line_to(path, x + w, y + h);
-	cg_path_line_to(path, x, y + h);
-	cg_path_line_to(path, x, y);
-	cg_path_close(path);
-}
-
-static void cg_path_add_round_rectangle(struct cg_path_t * path, double x, double y, double w, double h, double rx, double ry)
-{
-	rx = min(rx, w * 0.5);
-	ry = min(ry, h * 0.5);
-
-	double right = x + w;
-	double bottom = y + h;
-	double cpx = rx * 0.55228474983079339840;
-	double cpy = ry * 0.55228474983079339840;
-
-	cg_path_move_to(path, x, y + ry);
-	cg_path_curve_to(path, x, y + ry - cpy, x + rx - cpx, y, x + rx, y);
-	cg_path_line_to(path, right - rx, y);
-	cg_path_curve_to(path, right - rx + cpx, y, right, y + ry - cpy, right, y + ry);
-	cg_path_line_to(path, right, bottom - ry);
-	cg_path_curve_to(path, right, bottom - ry + cpy, right - rx + cpx, bottom, right - rx, bottom);
-	cg_path_line_to(path, x + rx, bottom);
-	cg_path_curve_to(path, x + rx - cpx, bottom, x, bottom - ry + cpy, x, bottom - ry);
-	cg_path_line_to(path, x, y + ry);
-	cg_path_close(path);
-}
-
-static void cg_path_add_ellipse(struct cg_path_t * path, double cx, double cy, double rx, double ry)
-{
-	double left = cx - rx;
-	double top = cy - ry;
-	double right = cx + rx;
-	double bottom = cy + ry;
-	double cpx = rx * 0.55228474983079339840;
-	double cpy = ry * 0.55228474983079339840;
-
-	cg_path_move_to(path, cx, top);
-	cg_path_curve_to(path, cx + cpx, top, right, cy - cpy, right, cy);
-	cg_path_curve_to(path, right, cy + cpy, cx + cpx, bottom, cx, bottom);
-	cg_path_curve_to(path, cx - cpx, bottom, left, cy + cpy, left, cy);
-	cg_path_curve_to(path, left, cy - cpy, cx - cpx, top, cx, top);
-	cg_path_close(path);
-}
-
-static void cg_path_add_circle(struct cg_path_t * path, double cx, double cy, double r)
-{
-	cg_path_add_ellipse(path, cx, cy, r, r);
-}
-
-static void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct cg_matrix_t * matrix)
+static inline void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct cg_matrix_t * matrix)
 {
 	cg_array_ensure(path->elements, source->elements.size);
 	cg_array_ensure(path->points, source->points.size);
@@ -2645,7 +2640,7 @@ void cg_ellipse(struct cg_ctx_t * ctx, double cx, double cy, double rx, double r
 
 void cg_circle(struct cg_ctx_t * ctx, double cx, double cy, double r)
 {
-	cg_ellipse(ctx, cx, cy, r, r);
+	cg_path_add_ellipse(ctx->path, cx, cy, r, r);
 }
 
 void cg_arc(struct cg_ctx_t * ctx, double cx, double cy, double r, double a0, double a1)
