@@ -55,6 +55,734 @@
 		} \
 	} while(0)
 
+static inline void cg_color_init_rgba(struct cg_color_t * color, double r, double g, double b, double a)
+{
+	color->r = clamp(r, 0.0, 1.0);
+	color->g = clamp(g, 0.0, 1.0);
+	color->b = clamp(b, 0.0, 1.0);
+	color->a = clamp(a, 0.0, 1.0);
+}
+
+static inline void cg_rect_init(struct cg_rect_t * rect, double x, double y, double w, double h)
+{
+	rect->x = x;
+	rect->y = y;
+	rect->w = w;
+	rect->h = h;
+}
+
+static inline void cg_matrix_init(struct cg_matrix_t * matrix, double m00, double m10, double m01, double m11, double m02, double m12)
+{
+	matrix->m00 = m00; matrix->m10 = m10;
+	matrix->m01 = m01; matrix->m11 = m11;
+	matrix->m02 = m02; matrix->m12 = m12;
+}
+
+void cg_matrix_init_identity(struct cg_matrix_t * matrix)
+{
+	matrix->m00 = 1.0; matrix->m10 = 0.0;
+	matrix->m01 = 0.0; matrix->m11 = 1.0;
+	matrix->m02 = 0.0; matrix->m12 = 0.0;
+}
+
+void cg_matrix_init_translate(struct cg_matrix_t * matrix, double x, double y)
+{
+	cg_matrix_init(matrix, 1.0, 0.0, 0.0, 1.0, x, y);
+}
+
+void cg_matrix_init_scale(struct cg_matrix_t * matrix, double x, double y)
+{
+	cg_matrix_init(matrix, x, 0.0, 0.0, y, 0.0, 0.0);
+}
+
+void cg_matrix_init_shear(struct cg_matrix_t * matrix, double x, double y)
+{
+	cg_matrix_init(matrix, 1.0, tan(y), tan(x), 1.0, 0.0, 0.0);
+}
+
+void cg_matrix_init_rotate(struct cg_matrix_t * matrix, double radians)
+{
+	double c = cos(radians);
+	double s = sin(radians);
+	cg_matrix_init(matrix, c, s, -s, c, 0.0, 0.0);
+}
+
+void cg_matrix_init_rotate_translate(struct cg_matrix_t * matrix, double radians, double x, double y)
+{
+	double c = cos(radians);
+	double s = sin(radians);
+	double cx = x * (1 - c) + y * s;
+	double cy = y * (1 - c) - x * s;
+	cg_matrix_init(matrix, c, s, -s, c, cx, cy);
+}
+
+void cg_matrix_translate(struct cg_matrix_t * matrix, double x, double y)
+{
+	struct cg_matrix_t m;
+	cg_matrix_init_translate(&m, x, y);
+	cg_matrix_multiply(matrix, &m, matrix);
+}
+
+void cg_matrix_scale(struct cg_matrix_t * matrix, double x, double y)
+{
+	struct cg_matrix_t m;
+	cg_matrix_init_scale(&m, x, y);
+	cg_matrix_multiply(matrix, &m, matrix);
+}
+
+void cg_matrix_shear(struct cg_matrix_t * matrix, double x, double y)
+{
+	struct cg_matrix_t m;
+	cg_matrix_init_shear(&m, x, y);
+	cg_matrix_multiply(matrix, &m, matrix);
+}
+
+void cg_matrix_rotate(struct cg_matrix_t * matrix, double radians)
+{
+	struct cg_matrix_t m;
+	cg_matrix_init_rotate(&m, radians);
+	cg_matrix_multiply(matrix, &m, matrix);
+}
+
+void cg_matrix_rotate_translate(struct cg_matrix_t * matrix, double radians, double x, double y)
+{
+	struct cg_matrix_t m;
+	cg_matrix_init_rotate_translate(&m, radians, x, y);
+	cg_matrix_multiply(matrix, &m, matrix);
+}
+
+void cg_matrix_multiply(struct cg_matrix_t * matrix, struct cg_matrix_t * a, struct cg_matrix_t * b)
+{
+	double m00 = a->m00 * b->m00 + a->m10 * b->m01;
+	double m10 = a->m00 * b->m10 + a->m10 * b->m11;
+	double m01 = a->m01 * b->m00 + a->m11 * b->m01;
+	double m11 = a->m01 * b->m10 + a->m11 * b->m11;
+	double m02 = a->m02 * b->m00 + a->m12 * b->m01 + b->m02;
+	double m12 = a->m02 * b->m10 + a->m12 * b->m11 + b->m12;
+	cg_matrix_init(matrix, m00, m10, m01, m11, m02, m12);
+}
+
+int cg_matrix_invert(struct cg_matrix_t * matrix)
+{
+	double det = (matrix->m00 * matrix->m11 - matrix->m10 * matrix->m01);
+	if(det == 0.0)
+		return 0;
+	double inv_det = 1.0 / det;
+	double m00 = matrix->m00 * inv_det;
+	double m10 = matrix->m10 * inv_det;
+	double m01 = matrix->m01 * inv_det;
+	double m11 = matrix->m11 * inv_det;
+	double m02 = (matrix->m01 * matrix->m12 - matrix->m11 * matrix->m02) * inv_det;
+	double m12 = (matrix->m10 * matrix->m02 - matrix->m00 * matrix->m12) * inv_det;
+	cg_matrix_init(matrix, m11, -m10, -m01, m00, m02, m12);
+	return 1;
+}
+
+void cg_matrix_map_point(struct cg_matrix_t * matrix, struct cg_point_t * src, struct cg_point_t * dst)
+{
+	dst->x = src->x * matrix->m00 + src->y * matrix->m01 + matrix->m02;
+	dst->y = src->x * matrix->m10 + src->y * matrix->m11 + matrix->m12;
+}
+
+void cg_matrix_map_rect(struct cg_matrix_t * matrix, struct cg_rect_t * src, struct cg_rect_t * dst)
+{
+	struct cg_point_t p[4];
+
+	p[0].x = src->x;
+	p[0].y = src->y;
+	p[1].x = src->x + src->w;
+	p[1].y = src->y;
+	p[2].x = src->x + src->w;
+	p[2].y = src->y + src->h;
+	p[3].x = src->x;
+	p[3].y = src->y + src->h;
+	cg_matrix_map_point(matrix, &p[0], &p[0]);
+	cg_matrix_map_point(matrix, &p[1], &p[1]);
+	cg_matrix_map_point(matrix, &p[2], &p[2]);
+	cg_matrix_map_point(matrix, &p[3], &p[3]);
+	double l = p[0].x;
+	double t = p[0].y;
+	double r = p[0].x;
+	double b = p[0].y;
+	for(int i = 1; i < 4; i++)
+	{
+		if(p[i].x < l)
+			l = p[i].x;
+		if(p[i].x > r)
+			r = p[i].x;
+		if(p[i].y < t)
+			t = p[i].y;
+		if(p[i].y > b)
+			b = p[i].y;
+	}
+	dst->x = l;
+	dst->y = t;
+	dst->w = r - l;
+	dst->h = b - t;
+}
+
+struct cg_surface_t * cg_surface_create(int width, int height)
+{
+	struct cg_surface_t * surface = malloc(sizeof(struct cg_surface_t));
+	surface->ref = 1;
+	surface->width = width;
+	surface->height = height;
+	surface->stride = width << 2;
+	surface->owndata = 1;
+	surface->pixels = calloc(1, (size_t)(height * surface->stride));
+	return surface;
+}
+
+struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * pixels)
+{
+	struct cg_surface_t * surface = malloc(sizeof(struct cg_surface_t));
+	surface->ref = 1;
+	surface->width = width;
+	surface->height = height;
+	surface->stride = width << 2;
+	surface->owndata = 0;
+	surface->pixels = pixels;
+	return surface;
+}
+
+void cg_surface_destroy(struct cg_surface_t * surface)
+{
+	if(surface)
+	{
+		if(--surface->ref == 0)
+		{
+			if(surface->owndata)
+				free(surface->pixels);
+			free(surface);
+		}
+	}
+}
+
+struct cg_surface_t * cg_surface_reference(struct cg_surface_t * surface)
+{
+	if(surface)
+	{
+		++surface->ref;
+		return surface;
+	}
+	return NULL;
+}
+
+struct cg_path_t * cg_path_create(void)
+{
+	struct cg_path_t * path = malloc(sizeof(struct cg_path_t));
+	path->ref = 1;
+	path->contours = 0;
+	path->start.x = 0.0;
+	path->start.y = 0.0;
+	cg_array_init(path->elements);
+	cg_array_init(path->points);
+	return path;
+}
+
+void cg_path_destroy(struct cg_path_t * path)
+{
+	if(path)
+	{
+		if(--path->ref == 0)
+		{
+			if(path->elements.data)
+				free(path->elements.data);
+			if(path->points.data)
+				free(path->points.data);
+			free(path);
+		}
+	}
+}
+
+struct cg_path_t * cg_path_reference(struct cg_path_t * path)
+{
+	if(path)
+	{
+		++path->ref;
+		return path;
+	}
+	return NULL;
+}
+
+static void cg_path_get_current_point(struct cg_path_t * path, double * x, double * y)
+{
+	if(x)
+		*x = 0.0;
+	if(y)
+		*y = 0.0;
+	if(path->points.size == 0)
+		return;
+	if(x)
+		*x = path->points.data[path->points.size - 1].x;
+	if(y)
+		*y = path->points.data[path->points.size - 1].y;
+}
+
+static void cg_path_move_to(struct cg_path_t * path, double x, double y)
+{
+	cg_array_ensure(path->elements, 1);
+	cg_array_ensure(path->points, 1);
+
+	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_MOVE_TO;
+	path->elements.size += 1;
+	path->contours += 1;
+	path->points.data[path->points.size].x = x;
+	path->points.data[path->points.size].y = y;
+	path->points.size += 1;
+	path->start.x = x;
+	path->start.y = y;
+}
+
+static void cg_path_line_to(struct cg_path_t * path, double x, double y)
+{
+	cg_array_ensure(path->elements, 1);
+	cg_array_ensure(path->points, 1);
+
+	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_LINE_TO;
+	path->elements.size += 1;
+	path->points.data[path->points.size].x = x;
+	path->points.data[path->points.size].y = y;
+	path->points.size += 1;
+}
+
+static void cg_path_curve_to(struct cg_path_t * path, double x1, double y1, double x2, double y2, double x3, double y3)
+{
+	cg_array_ensure(path->elements, 1);
+	cg_array_ensure(path->points, 3);
+
+	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_CURVE_TO;
+	path->elements.size += 1;
+	path->points.data[path->points.size].x = x1;
+	path->points.data[path->points.size].y = y1;
+	path->points.size += 1;
+	path->points.data[path->points.size].x = x2;
+	path->points.data[path->points.size].y = y2;
+	path->points.size += 1;
+	path->points.data[path->points.size].x = x3;
+	path->points.data[path->points.size].y = y3;
+	path->points.size += 1;
+}
+
+static void cg_path_quad_to(struct cg_path_t * path, double x1, double y1, double x2, double y2)
+{
+	double x, y;
+	cg_path_get_current_point(path, &x, &y);
+
+	double cx = 2.0 / 3.0 * x1 + 1.0 / 3.0 * x;
+	double cy = 2.0 / 3.0 * y1 + 1.0 / 3.0 * y;
+	double cx1 = 2.0 / 3.0 * x1 + 1.0 / 3.0 * x2;
+	double cy1 = 2.0 / 3.0 * y1 + 1.0 / 3.0 * y2;
+	cg_path_curve_to(path, cx, cy, cx1, cy1, x2, y2);
+}
+
+static void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, double a0, double a1, int ccw)
+{
+	double da = a1 - a0;
+	if(ccw == 0)
+	{
+		if(fabs(da) >= M_PI * 2)
+		{
+			da = M_PI * 2;
+		}
+		else
+		{
+			while(da < 0.0)
+				da += M_PI * 2;
+		}
+	}
+	else
+	{
+		if(fabs(da) >= M_PI * 2)
+		{
+			da = -M_PI * 2;
+		}
+		else
+		{
+			while(da > 0.0)
+				da -= M_PI * 2;
+		}
+	}
+	int ndivs = max(1, min((int)(fabs(da) / (M_PI * 0.5) + 0.5), 5));
+	double hda = (da / (double)ndivs) / 2.0;
+	double kappa = fabs(4.0 / 3.0 * (1.0 - cos(hda)) / sin(hda));
+	if(ccw == 1)
+		kappa = -kappa;
+	double px = 0, py = 0;
+	double ptanx = 0, ptany = 0;
+	for(int i = 0; i <= ndivs; i++)
+	{
+		double a = a0 + da * (i / (double)ndivs);
+		double dx = cos(a);
+		double dy = sin(a);
+		double x = cx + dx * r;
+		double y = cy + dy * r;
+		double tanx = -dy * r * kappa;
+		double tany = dx * r * kappa;
+		if(i == 0)
+		{
+			if(path->elements.size == 0)
+				cg_path_move_to(path, x, y);
+			else
+				cg_path_line_to(path, x, y);
+			if(da == 0)
+				break;
+		}
+		else
+		{
+			cg_path_curve_to(path, px + ptanx, py + ptany, x - tanx, y - tany, x, y);
+		}
+		px = x;
+		py = y;
+		ptanx = tanx;
+		ptany = tany;
+	}
+}
+
+static void cg_path_arc_to(struct cg_path_t * path, double x1, double y1, double x2, double y2, double radius)
+{
+	double x0, y0;
+	cg_path_get_current_point(path, &x0, &y0);
+	if((x0 == x1 && y0 == y1) || (x1 == x2 && y1 == y2) || radius == 0.0)
+	{
+		cg_path_line_to(path, x1, y2);
+		return;
+	}
+
+	double dir = (x2 - x1) * (y0 - y1) + (y2 - y1) * (x1 - x0);
+	if(dir == 0.0)
+	{
+		cg_path_line_to(path, x1, y2);
+		return;
+	}
+
+	double a2 = (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1);
+	double b2 = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	double c2 = (x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2);
+
+	double cosx = (a2 + b2 - c2) / (2 * sqrt(a2 * b2));
+	double sinx = sqrt(1 - cosx * cosx);
+	double d = radius / ((1 - cosx) / sinx);
+
+	double anx = (x1 - x0) / sqrt(a2);
+	double any = (y1 - y0) / sqrt(a2);
+	double bnx = (x1 - x2) / sqrt(b2);
+	double bny = (y1 - y2) / sqrt(b2);
+
+	double x3 = x1 - anx * d;
+	double y3 = y1 - any * d;
+	double x4 = x1 - bnx * d;
+	double y4 = y1 - bny * d;
+
+	int ccw = dir < 0.0;
+	double cx = x3 + any * radius * (ccw ? 1 : -1);
+	double cy = y3 - anx * radius * (ccw ? 1 : -1);
+	double a0 = atan2(y3 - cy, x3 - cx);
+	double a1 = atan2(y4 - cy, x4 - cx);
+
+	cg_path_line_to(path, x3, y3);
+	cg_path_add_arc(path, cx, cy, radius, a0, a1, ccw);
+}
+
+static void cg_path_close(struct cg_path_t * path)
+{
+	if(path->elements.size == 0)
+		return;
+	if(path->elements.data[path->elements.size - 1] == XVG_PATH_ELEMENT_CLOSE)
+		return;
+	cg_array_ensure(path->elements, 1);
+	cg_array_ensure(path->points, 1);
+	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_CLOSE;
+	path->elements.size += 1;
+	path->points.data[path->points.size].x = path->start.x;
+	path->points.data[path->points.size].y = path->start.y;
+	path->points.size += 1;
+}
+
+static inline void rel_to_abs(struct cg_path_t * path, double * x, double * y)
+{
+	double _x, _y;
+	cg_path_get_current_point(path, &_x, &_y);
+	*x += _x;
+	*y += _y;
+}
+
+static void cg_path_rel_move_to(struct cg_path_t * path, double dx, double dy)
+{
+	rel_to_abs(path, &dx, &dy);
+	cg_path_move_to(path, dx, dy);
+}
+
+static void cg_path_rel_line_to(struct cg_path_t * path, double dx, double dy)
+{
+	rel_to_abs(path, &dx, &dy);
+	cg_path_line_to(path, dx, dy);
+}
+
+static void cg_path_rel_curve_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3)
+{
+	rel_to_abs(path, &dx1, &dy1);
+	rel_to_abs(path, &dx2, &dy2);
+	rel_to_abs(path, &dx3, &dy3);
+	cg_path_curve_to(path, dx1, dy1, dx2, dy2, dx3, dy3);
+}
+
+static void cg_path_rel_quad_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2)
+{
+	rel_to_abs(path, &dx1, &dy1);
+	rel_to_abs(path, &dx2, &dy2);
+	cg_path_quad_to(path, dx1, dy1, dx2, dy2);
+}
+
+static void cg_path_rel_arc_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2, double radius)
+{
+	rel_to_abs(path, &dx1, &dy1);
+	rel_to_abs(path, &dx2, &dy2);
+	cg_path_arc_to(path, dx1, dy1, dx2, dy2, radius);
+}
+
+static void cg_path_add_rectangle(struct cg_path_t * path, double x, double y, double w, double h)
+{
+	cg_path_move_to(path, x, y);
+	cg_path_line_to(path, x + w, y);
+	cg_path_line_to(path, x + w, y + h);
+	cg_path_line_to(path, x, y + h);
+	cg_path_line_to(path, x, y);
+	cg_path_close(path);
+}
+
+static void cg_path_add_round_rectangle(struct cg_path_t * path, double x, double y, double w, double h, double rx, double ry)
+{
+	rx = min(rx, w * 0.5);
+	ry = min(ry, h * 0.5);
+
+	double right = x + w;
+	double bottom = y + h;
+	double cpx = rx * 0.55228474983079339840;
+	double cpy = ry * 0.55228474983079339840;
+
+	cg_path_move_to(path, x, y + ry);
+	cg_path_curve_to(path, x, y + ry - cpy, x + rx - cpx, y, x + rx, y);
+	cg_path_line_to(path, right - rx, y);
+	cg_path_curve_to(path, right - rx + cpx, y, right, y + ry - cpy, right, y + ry);
+	cg_path_line_to(path, right, bottom - ry);
+	cg_path_curve_to(path, right, bottom - ry + cpy, right - rx + cpx, bottom, right - rx, bottom);
+	cg_path_line_to(path, x + rx, bottom);
+	cg_path_curve_to(path, x + rx - cpx, bottom, x, bottom - ry + cpy, x, bottom - ry);
+	cg_path_line_to(path, x, y + ry);
+	cg_path_close(path);
+}
+
+static void cg_path_add_ellipse(struct cg_path_t * path, double cx, double cy, double rx, double ry)
+{
+	double left = cx - rx;
+	double top = cy - ry;
+	double right = cx + rx;
+	double bottom = cy + ry;
+	double cpx = rx * 0.55228474983079339840;
+	double cpy = ry * 0.55228474983079339840;
+
+	cg_path_move_to(path, cx, top);
+	cg_path_curve_to(path, cx + cpx, top, right, cy - cpy, right, cy);
+	cg_path_curve_to(path, right, cy + cpy, cx + cpx, bottom, cx, bottom);
+	cg_path_curve_to(path, cx - cpx, bottom, left, cy + cpy, left, cy);
+	cg_path_curve_to(path, left, cy - cpy, cx - cpx, top, cx, top);
+	cg_path_close(path);
+}
+
+static void cg_path_add_circle(struct cg_path_t * path, double cx, double cy, double r)
+{
+	cg_path_add_ellipse(path, cx, cy, r, r);
+}
+
+static void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct cg_matrix_t * matrix)
+{
+	cg_array_ensure(path->elements, source->elements.size);
+	cg_array_ensure(path->points, source->points.size);
+
+	struct cg_point_t *points = path->points.data + path->points.size;
+	struct cg_point_t *data = source->points.data;
+	struct cg_point_t *end = data + source->points.size;
+	while(data < end)
+	{
+		if(matrix)
+			cg_matrix_map_point(matrix, data, points);
+		else
+			memcpy(points, data, sizeof(struct cg_point_t));
+		points += 1;
+		data += 1;
+	}
+
+	enum cg_path_element_t *elements = path->elements.data + path->elements.size;
+	memcpy(elements, source->elements.data, (size_t)source->elements.size * sizeof(enum cg_path_element_t));
+	path->elements.size += source->elements.size;
+	path->points.size += source->points.size;
+	path->contours += source->contours;
+	path->start = source->start;
+}
+
+static void cg_path_transform(struct cg_path_t *path, struct cg_matrix_t *matrix)
+{
+	struct cg_point_t *points = path->points.data;
+	struct cg_point_t *end = points + path->points.size;
+	while(points < end)
+	{
+		cg_matrix_map_point(matrix, points, points);
+		points += 1;
+	}
+}
+
+static int cg_path_get_element_count(struct cg_path_t * path)
+{
+	return path->elements.size;
+}
+
+static enum cg_path_element_t * cg_path_get_elements(struct cg_path_t * path)
+{
+	return path->elements.data;
+}
+
+static int cg_path_get_point_count(struct cg_path_t * path)
+{
+	return path->points.size;
+}
+
+static struct cg_point_t * cg_path_get_points(struct cg_path_t * path)
+{
+	return path->points.data;
+}
+
+static void cg_path_clear(struct cg_path_t * path)
+{
+	path->elements.size = 0;
+	path->points.size = 0;
+	path->contours = 0;
+	path->start.x = 0.0;
+	path->start.y = 0.0;
+}
+
+static int cg_path_empty(struct cg_path_t * path)
+{
+	return (path->elements.size == 0);
+}
+
+static struct cg_path_t * cg_path_clone(struct cg_path_t * path)
+{
+	struct cg_path_t * result = cg_path_create();
+	cg_array_ensure(result->elements, path->elements.size);
+	cg_array_ensure(result->points, path->points.size);
+
+	memcpy(result->elements.data, path->elements.data, (size_t)path->elements.size * sizeof(enum cg_path_element_t));
+	memcpy(result->points.data, path->points.data, (size_t)path->points.size * sizeof(struct cg_point_t));
+	result->elements.size = path->elements.size;
+	result->points.size = path->points.size;
+	result->contours = path->contours;
+	result->start = path->start;
+	return result;
+}
+
+struct cg_bezier_t {
+	double x1; double y1;
+	double x2; double y2;
+	double x3; double y3;
+	double x4; double y4;
+};
+
+static inline void split(struct cg_bezier_t * b, struct cg_bezier_t * first, struct cg_bezier_t * second)
+{
+	double c = (b->x2 + b->x3) * 0.5;
+	first->x2 = (b->x1 + b->x2) * 0.5;
+	second->x3 = (b->x3 + b->x4) * 0.5;
+	first->x1 = b->x1;
+	second->x4 = b->x4;
+	first->x3 = (first->x2 + c) * 0.5;
+	second->x2 = (second->x3 + c) * 0.5;
+	first->x4 = second->x1 = (first->x3 + second->x2) * 0.5;
+
+	c = (b->y2 + b->y3) * 0.5;
+	first->y2 = (b->y1 + b->y2) * 0.5;
+	second->y3 = (b->y3 + b->y4) * 0.5;
+	first->y1 = b->y1;
+	second->y4 = b->y4;
+	first->y3 = (first->y2 + c) * 0.5;
+	second->y2 = (second->y3 + c) * 0.5;
+	first->y4 = second->y1 = (first->y3 + second->y2) * 0.5;
+}
+
+static void flatten(struct cg_path_t * path, struct cg_point_t * p0, struct cg_point_t * p1, struct cg_point_t * p2, struct cg_point_t * p3)
+{
+	struct cg_bezier_t beziers[32];
+	beziers[0].x1 = p0->x;
+	beziers[0].y1 = p0->y;
+	beziers[0].x2 = p1->x;
+	beziers[0].y2 = p1->y;
+	beziers[0].x3 = p2->x;
+	beziers[0].y3 = p2->y;
+	beziers[0].x4 = p3->x;
+	beziers[0].y4 = p3->y;
+
+	double threshold = 0.25;
+	struct cg_bezier_t * b = beziers;
+	while(b >= beziers)
+	{
+		double y4y1 = b->y4 - b->y1;
+		double x4x1 = b->x4 - b->x1;
+		double l = fabs(x4x1) + fabs(y4y1);
+		double d;
+		if(l > 1.0)
+		{
+			d = fabs((x4x1) * (b->y1 - b->y2) - (y4y1) * (b->x1 - b->x2)) + fabs((x4x1) * (b->y1 - b->y3) - (y4y1) * (b->x1 - b->x3));
+		}
+		else
+		{
+			d = fabs(b->x1 - b->x2) + fabs(b->y1 - b->y2) + fabs(b->x1 - b->x3) + fabs(b->y1 - b->y3);
+			l = 1.0;
+		}
+		if(d < threshold * l || b == beziers + 31)
+		{
+			cg_path_line_to(path, b->x4, b->y4);
+			--b;
+		}
+		else
+		{
+			split(b, b + 1, b);
+			++b;
+		}
+	}
+}
+
+static struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path)
+{
+	struct cg_path_t * result = cg_path_create();
+	cg_array_ensure(result->elements, path->elements.size);
+	cg_array_ensure(result->points, path->points.size);
+	struct cg_point_t *points = path->points.data;
+	for(int i = 0; i < path->elements.size; i++)
+	{
+		switch(path->elements.data[i])
+		{
+		case XVG_PATH_ELEMENT_MOVE_TO:
+			cg_path_move_to(result, points[0].x, points[0].y);
+			points += 1;
+			break;
+		case XVG_PATH_ELEMENT_LINE_TO:
+		case XVG_PATH_ELEMENT_CLOSE:
+			cg_path_line_to(result, points[0].x, points[0].y);
+			points += 1;
+			break;
+		case XVG_PATH_ELEMENT_CURVE_TO:
+		{
+			struct cg_point_t p0;
+			cg_path_get_current_point(result, &p0.x, &p0.y);
+			flatten(result, &p0, points, points + 1, points + 2);
+			points += 3;
+			break;
+		}
+		}
+	}
+	return result;
+}
+
 static struct cg_dash_t * cg_dash_create(double * dashes, int ndash, double offset)
 {
 	if(dashes && (ndash > 0))
@@ -155,6 +883,7 @@ static struct cg_path_t * cg_dash_path(struct cg_dash_t * dash, struct cg_path_t
 	cg_path_destroy(flat);
 	return result;
 }
+
 
 static SW_FT_Outline * sw_ft_outline_create(int points, int contours)
 {
@@ -542,736 +1271,6 @@ static inline void cg_rle_clear(struct cg_rle_t * rle)
 	rle->y = 0;
 	rle->w = 0;
 	rle->h = 0;
-}
-
-static inline void cg_rect_init(struct cg_rect_t * rect, double x, double y, double w, double h)
-{
-	rect->x = x;
-	rect->y = y;
-	rect->w = w;
-	rect->h = h;
-}
-
-static inline void cg_matrix_init(struct cg_matrix_t * matrix, double m00, double m10, double m01, double m11, double m02, double m12)
-{
-	matrix->m00 = m00; matrix->m10 = m10;
-	matrix->m01 = m01; matrix->m11 = m11;
-	matrix->m02 = m02; matrix->m12 = m12;
-}
-
-void cg_matrix_init_identity(struct cg_matrix_t * matrix)
-{
-	matrix->m00 = 1.0; matrix->m10 = 0.0;
-	matrix->m01 = 0.0; matrix->m11 = 1.0;
-	matrix->m02 = 0.0; matrix->m12 = 0.0;
-}
-
-void cg_matrix_init_translate(struct cg_matrix_t * matrix, double x, double y)
-{
-	cg_matrix_init(matrix, 1.0, 0.0, 0.0, 1.0, x, y);
-}
-
-void cg_matrix_init_scale(struct cg_matrix_t * matrix, double x, double y)
-{
-	cg_matrix_init(matrix, x, 0.0, 0.0, y, 0.0, 0.0);
-}
-
-void cg_matrix_init_shear(struct cg_matrix_t * matrix, double x, double y)
-{
-	cg_matrix_init(matrix, 1.0, tan(y), tan(x), 1.0, 0.0, 0.0);
-}
-
-void cg_matrix_init_rotate(struct cg_matrix_t * matrix, double radians)
-{
-	double c = cos(radians);
-	double s = sin(radians);
-	cg_matrix_init(matrix, c, s, -s, c, 0.0, 0.0);
-}
-
-void cg_matrix_init_rotate_translate(struct cg_matrix_t * matrix, double radians, double x, double y)
-{
-	double c = cos(radians);
-	double s = sin(radians);
-	double cx = x * (1 - c) + y * s;
-	double cy = y * (1 - c) - x * s;
-	cg_matrix_init(matrix, c, s, -s, c, cx, cy);
-}
-
-void cg_matrix_translate(struct cg_matrix_t * matrix, double x, double y)
-{
-	struct cg_matrix_t m;
-	cg_matrix_init_translate(&m, x, y);
-	cg_matrix_multiply(matrix, &m, matrix);
-}
-
-void cg_matrix_scale(struct cg_matrix_t * matrix, double x, double y)
-{
-	struct cg_matrix_t m;
-	cg_matrix_init_scale(&m, x, y);
-	cg_matrix_multiply(matrix, &m, matrix);
-}
-
-void cg_matrix_shear(struct cg_matrix_t * matrix, double x, double y)
-{
-	struct cg_matrix_t m;
-	cg_matrix_init_shear(&m, x, y);
-	cg_matrix_multiply(matrix, &m, matrix);
-}
-
-void cg_matrix_rotate(struct cg_matrix_t * matrix, double radians)
-{
-	struct cg_matrix_t m;
-	cg_matrix_init_rotate(&m, radians);
-	cg_matrix_multiply(matrix, &m, matrix);
-}
-
-void cg_matrix_rotate_translate(struct cg_matrix_t * matrix, double radians, double x, double y)
-{
-	struct cg_matrix_t m;
-	cg_matrix_init_rotate_translate(&m, radians, x, y);
-	cg_matrix_multiply(matrix, &m, matrix);
-}
-
-void cg_matrix_multiply(struct cg_matrix_t * matrix, struct cg_matrix_t * a, struct cg_matrix_t * b)
-{
-	double m00 = a->m00 * b->m00 + a->m10 * b->m01;
-	double m10 = a->m00 * b->m10 + a->m10 * b->m11;
-	double m01 = a->m01 * b->m00 + a->m11 * b->m01;
-	double m11 = a->m01 * b->m10 + a->m11 * b->m11;
-	double m02 = a->m02 * b->m00 + a->m12 * b->m01 + b->m02;
-	double m12 = a->m02 * b->m10 + a->m12 * b->m11 + b->m12;
-	cg_matrix_init(matrix, m00, m10, m01, m11, m02, m12);
-}
-
-int cg_matrix_invert(struct cg_matrix_t * matrix)
-{
-	double det = (matrix->m00 * matrix->m11 - matrix->m10 * matrix->m01);
-	if(det == 0.0)
-		return 0;
-	double inv_det = 1.0 / det;
-	double m00 = matrix->m00 * inv_det;
-	double m10 = matrix->m10 * inv_det;
-	double m01 = matrix->m01 * inv_det;
-	double m11 = matrix->m11 * inv_det;
-	double m02 = (matrix->m01 * matrix->m12 - matrix->m11 * matrix->m02) * inv_det;
-	double m12 = (matrix->m10 * matrix->m02 - matrix->m00 * matrix->m12) * inv_det;
-	cg_matrix_init(matrix, m11, -m10, -m01, m00, m02, m12);
-	return 1;
-}
-
-void cg_matrix_map_point(struct cg_matrix_t * matrix, struct cg_point_t * src, struct cg_point_t * dst)
-{
-	dst->x = src->x * matrix->m00 + src->y * matrix->m01 + matrix->m02;
-	dst->y = src->x * matrix->m10 + src->y * matrix->m11 + matrix->m12;
-}
-
-void cg_matrix_map_rect(struct cg_matrix_t * matrix, struct cg_rect_t * src, struct cg_rect_t * dst)
-{
-	struct cg_point_t p[4];
-
-	p[0].x = src->x;
-	p[0].y = src->y;
-	p[1].x = src->x + src->w;
-	p[1].y = src->y;
-	p[2].x = src->x + src->w;
-	p[2].y = src->y + src->h;
-	p[3].x = src->x;
-	p[3].y = src->y + src->h;
-	cg_matrix_map_point(matrix, &p[0], &p[0]);
-	cg_matrix_map_point(matrix, &p[1], &p[1]);
-	cg_matrix_map_point(matrix, &p[2], &p[2]);
-	cg_matrix_map_point(matrix, &p[3], &p[3]);
-	double l = p[0].x;
-	double t = p[0].y;
-	double r = p[0].x;
-	double b = p[0].y;
-	for(int i = 1; i < 4; i++)
-	{
-		if(p[i].x < l)
-			l = p[i].x;
-		if(p[i].x > r)
-			r = p[i].x;
-		if(p[i].y < t)
-			t = p[i].y;
-		if(p[i].y > b)
-			b = p[i].y;
-	}
-	dst->x = l;
-	dst->y = t;
-	dst->w = r - l;
-	dst->h = b - t;
-}
-
-struct cg_surface_t * cg_surface_create(int width, int height)
-{
-	struct cg_surface_t * surface = malloc(sizeof(struct cg_surface_t));
-	surface->ref = 1;
-	surface->width = width;
-	surface->height = height;
-	surface->stride = width << 2;
-	surface->owndata = 1;
-	surface->pixels = calloc(1, (size_t)(height * surface->stride));
-	return surface;
-}
-
-struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * pixels)
-{
-	struct cg_surface_t * surface = malloc(sizeof(struct cg_surface_t));
-	surface->ref = 1;
-	surface->width = width;
-	surface->height = height;
-	surface->stride = width << 2;
-	surface->owndata = 0;
-	surface->pixels = pixels;
-	return surface;
-}
-
-void cg_surface_destroy(struct cg_surface_t * surface)
-{
-	if(surface)
-	{
-		if(--surface->ref == 0)
-		{
-			if(surface->owndata)
-				free(surface->pixels);
-			free(surface);
-		}
-	}
-}
-
-struct cg_surface_t * cg_surface_reference(struct cg_surface_t * surface)
-{
-	if(surface)
-	{
-		++surface->ref;
-		return surface;
-	}
-	return NULL;
-}
-
-struct cg_path_t * cg_path_create(void)
-{
-	struct cg_path_t * path = malloc(sizeof(struct cg_path_t));
-	path->ref = 1;
-	path->contours = 0;
-	path->start.x = 0.0;
-	path->start.y = 0.0;
-	cg_array_init(path->elements);
-	cg_array_init(path->points);
-	return path;
-}
-
-void cg_path_destroy(struct cg_path_t * path)
-{
-	if(path)
-	{
-		if(--path->ref == 0)
-		{
-			if(path->elements.data)
-				free(path->elements.data);
-			if(path->points.data)
-				free(path->points.data);
-			free(path);
-		}
-	}
-}
-
-struct cg_path_t * cg_path_reference(struct cg_path_t * path)
-{
-	if(path)
-	{
-		++path->ref;
-		return path;
-	}
-	return NULL;
-}
-
-void cg_path_move_to(struct cg_path_t * path, double x, double y)
-{
-	cg_array_ensure(path->elements, 1);
-	cg_array_ensure(path->points, 1);
-
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_MOVE_TO;
-	path->elements.size += 1;
-	path->contours += 1;
-	path->points.data[path->points.size].x = x;
-	path->points.data[path->points.size].y = y;
-	path->points.size += 1;
-	path->start.x = x;
-	path->start.y = y;
-}
-
-void cg_path_line_to(struct cg_path_t * path, double x, double y)
-{
-	cg_array_ensure(path->elements, 1);
-	cg_array_ensure(path->points, 1);
-
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_LINE_TO;
-	path->elements.size += 1;
-	path->points.data[path->points.size].x = x;
-	path->points.data[path->points.size].y = y;
-	path->points.size += 1;
-}
-
-void cg_path_curve_to(struct cg_path_t * path, double x1, double y1, double x2, double y2, double x3, double y3)
-{
-	cg_array_ensure(path->elements, 1);
-	cg_array_ensure(path->points, 3);
-
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_CURVE_TO;
-	path->elements.size += 1;
-	path->points.data[path->points.size].x = x1;
-	path->points.data[path->points.size].y = y1;
-	path->points.size += 1;
-	path->points.data[path->points.size].x = x2;
-	path->points.data[path->points.size].y = y2;
-	path->points.size += 1;
-	path->points.data[path->points.size].x = x3;
-	path->points.data[path->points.size].y = y3;
-	path->points.size += 1;
-}
-
-void cg_path_quad_to(struct cg_path_t * path, double x1, double y1, double x2, double y2)
-{
-	double x, y;
-	cg_path_get_current_point(path, &x, &y);
-
-	double cx = 2.0 / 3.0 * x1 + 1.0 / 3.0 * x;
-	double cy = 2.0 / 3.0 * y1 + 1.0 / 3.0 * y;
-	double cx1 = 2.0 / 3.0 * x1 + 1.0 / 3.0 * x2;
-	double cy1 = 2.0 / 3.0 * y1 + 1.0 / 3.0 * y2;
-	cg_path_curve_to(path, cx, cy, cx1, cy1, x2, y2);
-}
-
-void cg_path_arc_to(struct cg_path_t * path, double x1, double y1, double x2, double y2, double radius)
-{
-	double x0, y0;
-	cg_path_get_current_point(path, &x0, &y0);
-	if((x0 == x1 && y0 == y1) || (x1 == x2 && y1 == y2) || radius == 0.0)
-	{
-		cg_path_line_to(path, x1, y2);
-		return;
-	}
-
-	double dir = (x2 - x1) * (y0 - y1) + (y2 - y1) * (x1 - x0);
-	if(dir == 0.0)
-	{
-		cg_path_line_to(path, x1, y2);
-		return;
-	}
-
-	double a2 = (x0 - x1) * (x0 - x1) + (y0 - y1) * (y0 - y1);
-	double b2 = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-	double c2 = (x0 - x2) * (x0 - x2) + (y0 - y2) * (y0 - y2);
-
-	double cosx = (a2 + b2 - c2) / (2 * sqrt(a2 * b2));
-	double sinx = sqrt(1 - cosx * cosx);
-	double d = radius / ((1 - cosx) / sinx);
-
-	double anx = (x1 - x0) / sqrt(a2);
-	double any = (y1 - y0) / sqrt(a2);
-	double bnx = (x1 - x2) / sqrt(b2);
-	double bny = (y1 - y2) / sqrt(b2);
-
-	double x3 = x1 - anx * d;
-	double y3 = y1 - any * d;
-	double x4 = x1 - bnx * d;
-	double y4 = y1 - bny * d;
-
-	int ccw = dir < 0.0;
-	double cx = x3 + any * radius * (ccw ? 1 : -1);
-	double cy = y3 - anx * radius * (ccw ? 1 : -1);
-	double a0 = atan2(y3 - cy, x3 - cx);
-	double a1 = atan2(y4 - cy, x4 - cx);
-
-	cg_path_line_to(path, x3, y3);
-	cg_path_add_arc(path, cx, cy, radius, a0, a1, ccw);
-}
-
-void cg_path_close(struct cg_path_t * path)
-{
-	if(path->elements.size == 0)
-		return;
-	if(path->elements.data[path->elements.size - 1] == XVG_PATH_ELEMENT_CLOSE)
-		return;
-	cg_array_ensure(path->elements, 1);
-	cg_array_ensure(path->points, 1);
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_CLOSE;
-	path->elements.size += 1;
-	path->points.data[path->points.size].x = path->start.x;
-	path->points.data[path->points.size].y = path->start.y;
-	path->points.size += 1;
-}
-
-static inline void rel_to_abs(struct cg_path_t * path, double * x, double * y)
-{
-	double _x, _y;
-	cg_path_get_current_point(path, &_x, &_y);
-	*x += _x;
-	*y += _y;
-}
-
-void cg_path_rel_move_to(struct cg_path_t * path, double dx, double dy)
-{
-	rel_to_abs(path, &dx, &dy);
-	cg_path_move_to(path, dx, dy);
-}
-
-void cg_path_rel_line_to(struct cg_path_t * path, double dx, double dy)
-{
-	rel_to_abs(path, &dx, &dy);
-	cg_path_line_to(path, dx, dy);
-}
-
-void cg_path_rel_curve_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3)
-{
-	rel_to_abs(path, &dx1, &dy1);
-	rel_to_abs(path, &dx2, &dy2);
-	rel_to_abs(path, &dx3, &dy3);
-	cg_path_curve_to(path, dx1, dy1, dx2, dy2, dx3, dy3);
-}
-
-void cg_path_rel_quad_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2)
-{
-	rel_to_abs(path, &dx1, &dy1);
-	rel_to_abs(path, &dx2, &dy2);
-	cg_path_quad_to(path, dx1, dy1, dx2, dy2);
-}
-
-void cg_path_rel_arc_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2, double radius)
-{
-	rel_to_abs(path, &dx1, &dy1);
-	rel_to_abs(path, &dx2, &dy2);
-	cg_path_arc_to(path, dx1, dy1, dx2, dy2, radius);
-}
-
-void cg_path_add_rectangle(struct cg_path_t * path, double x, double y, double w, double h)
-{
-	cg_path_move_to(path, x, y);
-	cg_path_line_to(path, x + w, y);
-	cg_path_line_to(path, x + w, y + h);
-	cg_path_line_to(path, x, y + h);
-	cg_path_line_to(path, x, y);
-	cg_path_close(path);
-}
-
-void cg_path_add_round_rectangle(struct cg_path_t * path, double x, double y, double w, double h, double rx, double ry)
-{
-	rx = min(rx, w * 0.5);
-	ry = min(ry, h * 0.5);
-
-	double right = x + w;
-	double bottom = y + h;
-	double cpx = rx * 0.55228474983079339840;
-	double cpy = ry * 0.55228474983079339840;
-
-	cg_path_move_to(path, x, y + ry);
-	cg_path_curve_to(path, x, y + ry - cpy, x + rx - cpx, y, x + rx, y);
-	cg_path_line_to(path, right - rx, y);
-	cg_path_curve_to(path, right - rx + cpx, y, right, y + ry - cpy, right, y + ry);
-	cg_path_line_to(path, right, bottom - ry);
-	cg_path_curve_to(path, right, bottom - ry + cpy, right - rx + cpx, bottom, right - rx, bottom);
-	cg_path_line_to(path, x + rx, bottom);
-	cg_path_curve_to(path, x + rx - cpx, bottom, x, bottom - ry + cpy, x, bottom - ry);
-	cg_path_line_to(path, x, y + ry);
-	cg_path_close(path);
-}
-
-void cg_path_add_ellipse(struct cg_path_t * path, double cx, double cy, double rx, double ry)
-{
-	double left = cx - rx;
-	double top = cy - ry;
-	double right = cx + rx;
-	double bottom = cy + ry;
-	double cpx = rx * 0.55228474983079339840;
-	double cpy = ry * 0.55228474983079339840;
-
-	cg_path_move_to(path, cx, top);
-	cg_path_curve_to(path, cx + cpx, top, right, cy - cpy, right, cy);
-	cg_path_curve_to(path, right, cy + cpy, cx + cpx, bottom, cx, bottom);
-	cg_path_curve_to(path, cx - cpx, bottom, left, cy + cpy, left, cy);
-	cg_path_curve_to(path, left, cy - cpy, cx - cpx, top, cx, top);
-	cg_path_close(path);
-}
-
-void cg_path_add_circle(struct cg_path_t * path, double cx, double cy, double r)
-{
-	cg_path_add_ellipse(path, cx, cy, r, r);
-}
-
-void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, double a0, double a1, int ccw)
-{
-	double da = a1 - a0;
-	if(ccw == 0)
-	{
-		if(fabs(da) >= M_PI * 2)
-		{
-			da = M_PI * 2;
-		}
-		else
-		{
-			while(da < 0.0)
-				da += M_PI * 2;
-		}
-	}
-	else
-	{
-		if(fabs(da) >= M_PI * 2)
-		{
-			da = -M_PI * 2;
-		}
-		else
-		{
-			while(da > 0.0)
-				da -= M_PI * 2;
-		}
-	}
-	int ndivs = max(1, min((int)(fabs(da) / (M_PI * 0.5) + 0.5), 5));
-	double hda = (da / (double)ndivs) / 2.0;
-	double kappa = fabs(4.0 / 3.0 * (1.0 - cos(hda)) / sin(hda));
-	if(ccw == 1)
-		kappa = -kappa;
-	double px = 0, py = 0;
-	double ptanx = 0, ptany = 0;
-	for(int i = 0; i <= ndivs; i++)
-	{
-		double a = a0 + da * (i / (double)ndivs);
-		double dx = cos(a);
-		double dy = sin(a);
-		double x = cx + dx * r;
-		double y = cy + dy * r;
-		double tanx = -dy * r * kappa;
-		double tany = dx * r * kappa;
-		if(i == 0)
-		{
-			if(path->elements.size == 0)
-				cg_path_move_to(path, x, y);
-			else
-				cg_path_line_to(path, x, y);
-			if(da == 0)
-				break;
-		}
-		else
-		{
-			cg_path_curve_to(path, px + ptanx, py + ptany, x - tanx, y - tany, x, y);
-		}
-		px = x;
-		py = y;
-		ptanx = tanx;
-		ptany = tany;
-	}
-}
-
-void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct cg_matrix_t * matrix)
-{
-	cg_array_ensure(path->elements, source->elements.size);
-	cg_array_ensure(path->points, source->points.size);
-
-	struct cg_point_t *points = path->points.data + path->points.size;
-	struct cg_point_t *data = source->points.data;
-	struct cg_point_t *end = data + source->points.size;
-	while(data < end)
-	{
-		if(matrix)
-			cg_matrix_map_point(matrix, data, points);
-		else
-			memcpy(points, data, sizeof(struct cg_point_t));
-		points += 1;
-		data += 1;
-	}
-
-	enum cg_path_element_t *elements = path->elements.data + path->elements.size;
-	memcpy(elements, source->elements.data, (size_t)source->elements.size * sizeof(enum cg_path_element_t));
-	path->elements.size += source->elements.size;
-	path->points.size += source->points.size;
-	path->contours += source->contours;
-	path->start = source->start;
-}
-
-void cg_path_transform(struct cg_path_t *path, struct cg_matrix_t *matrix)
-{
-	struct cg_point_t *points = path->points.data;
-	struct cg_point_t *end = points + path->points.size;
-	while(points < end)
-	{
-		cg_matrix_map_point(matrix, points, points);
-		points += 1;
-	}
-}
-
-void cg_path_get_current_point(struct cg_path_t * path, double * x, double * y)
-{
-	if(x)
-		*x = 0.0;
-	if(y)
-		*y = 0.0;
-	if(path->points.size == 0)
-		return;
-	if(x)
-		*x = path->points.data[path->points.size - 1].x;
-	if(y)
-		*y = path->points.data[path->points.size - 1].y;
-}
-
-int cg_path_get_element_count(struct cg_path_t * path)
-{
-	return path->elements.size;
-}
-
-enum cg_path_element_t * cg_path_get_elements(struct cg_path_t * path)
-{
-	return path->elements.data;
-}
-
-int cg_path_get_point_count(struct cg_path_t * path)
-{
-	return path->points.size;
-}
-
-struct cg_point_t * cg_path_get_points(struct cg_path_t * path)
-{
-	return path->points.data;
-}
-
-void cg_path_clear(struct cg_path_t * path)
-{
-	path->elements.size = 0;
-	path->points.size = 0;
-	path->contours = 0;
-	path->start.x = 0.0;
-	path->start.y = 0.0;
-}
-
-int cg_path_empty(struct cg_path_t * path)
-{
-	return (path->elements.size == 0);
-}
-
-struct cg_path_t * cg_path_clone(struct cg_path_t * path)
-{
-	struct cg_path_t * result = cg_path_create();
-	cg_array_ensure(result->elements, path->elements.size);
-	cg_array_ensure(result->points, path->points.size);
-
-	memcpy(result->elements.data, path->elements.data, (size_t)path->elements.size * sizeof(enum cg_path_element_t));
-	memcpy(result->points.data, path->points.data, (size_t)path->points.size * sizeof(struct cg_point_t));
-	result->elements.size = path->elements.size;
-	result->points.size = path->points.size;
-	result->contours = path->contours;
-	result->start = path->start;
-	return result;
-}
-
-struct bezier_t {
-	double x1; double y1;
-	double x2; double y2;
-	double x3; double y3;
-	double x4; double y4;
-};
-
-static inline void split(struct bezier_t * b, struct bezier_t * first, struct bezier_t * second)
-{
-	double c = (b->x2 + b->x3) * 0.5;
-	first->x2 = (b->x1 + b->x2) * 0.5;
-	second->x3 = (b->x3 + b->x4) * 0.5;
-	first->x1 = b->x1;
-	second->x4 = b->x4;
-	first->x3 = (first->x2 + c) * 0.5;
-	second->x2 = (second->x3 + c) * 0.5;
-	first->x4 = second->x1 = (first->x3 + second->x2) * 0.5;
-
-	c = (b->y2 + b->y3) * 0.5;
-	first->y2 = (b->y1 + b->y2) * 0.5;
-	second->y3 = (b->y3 + b->y4) * 0.5;
-	first->y1 = b->y1;
-	second->y4 = b->y4;
-	first->y3 = (first->y2 + c) * 0.5;
-	second->y2 = (second->y3 + c) * 0.5;
-	first->y4 = second->y1 = (first->y3 + second->y2) * 0.5;
-}
-
-static void flatten(struct cg_path_t * path, struct cg_point_t * p0, struct cg_point_t * p1, struct cg_point_t * p2, struct cg_point_t * p3)
-{
-	struct bezier_t beziers[32];
-	beziers[0].x1 = p0->x;
-	beziers[0].y1 = p0->y;
-	beziers[0].x2 = p1->x;
-	beziers[0].y2 = p1->y;
-	beziers[0].x3 = p2->x;
-	beziers[0].y3 = p2->y;
-	beziers[0].x4 = p3->x;
-	beziers[0].y4 = p3->y;
-
-	double threshold = 0.25;
-
-	struct bezier_t *b = beziers;
-	while(b >= beziers)
-	{
-		double y4y1 = b->y4 - b->y1;
-		double x4x1 = b->x4 - b->x1;
-		double l = fabs(x4x1) + fabs(y4y1);
-		double d;
-		if(l > 1.0)
-		{
-			d = fabs((x4x1) * (b->y1 - b->y2) - (y4y1) * (b->x1 - b->x2)) + fabs((x4x1) * (b->y1 - b->y3) - (y4y1) * (b->x1 - b->x3));
-		}
-		else
-		{
-			d = fabs(b->x1 - b->x2) + fabs(b->y1 - b->y2) + fabs(b->x1 - b->x3) + fabs(b->y1 - b->y3);
-			l = 1.0;
-		}
-
-		if(d < threshold * l || b == beziers + 31)
-		{
-			cg_path_line_to(path, b->x4, b->y4);
-			--b;
-		}
-		else
-		{
-			split(b, b + 1, b);
-			++b;
-		}
-	}
-}
-
-struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path)
-{
-	struct cg_path_t * result = cg_path_create();
-	cg_array_ensure(result->elements, path->elements.size);
-	cg_array_ensure(result->points, path->points.size);
-	struct cg_point_t *points = path->points.data;
-	for(int i = 0; i < path->elements.size; i++)
-	{
-		switch(path->elements.data[i])
-		{
-		case XVG_PATH_ELEMENT_MOVE_TO:
-			cg_path_move_to(result, points[0].x, points[0].y);
-			points += 1;
-			break;
-		case XVG_PATH_ELEMENT_LINE_TO:
-		case XVG_PATH_ELEMENT_CLOSE:
-			cg_path_line_to(result, points[0].x, points[0].y);
-			points += 1;
-			break;
-		case XVG_PATH_ELEMENT_CURVE_TO:
-		{
-			struct cg_point_t p0;
-			cg_path_get_current_point(result, &p0.x, &p0.y);
-			flatten(result, &p0, points, points + 1, points + 2);
-			points += 3;
-			break;
-		}
-		}
-	}
-	return result;
-}
-
-static inline void cg_color_init_rgba(struct cg_color_t * color, double r, double g, double b, double a)
-{
-	color->r = clamp(r, 0.0, 1.0);
-	color->g = clamp(g, 0.0, 1.0);
-	color->b = clamp(b, 0.0, 1.0);
-	color->a = clamp(a, 0.0, 1.0);
 }
 
 struct cg_gradient_t * cg_gradient_create_linear(double x1, double y1, double x2, double y2)
