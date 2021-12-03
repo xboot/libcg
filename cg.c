@@ -501,32 +501,6 @@ static inline void cg_path_add_arc(struct cg_path_t * path, double cx, double cy
 	}
 }
 
-static inline void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct cg_matrix_t * matrix)
-{
-	cg_array_ensure(path->elements, source->elements.size);
-	cg_array_ensure(path->points, source->points.size);
-
-	struct cg_point_t *points = path->points.data + path->points.size;
-	struct cg_point_t *data = source->points.data;
-	struct cg_point_t *end = data + source->points.size;
-	while(data < end)
-	{
-		if(matrix)
-			cg_matrix_map_point(matrix, data, points);
-		else
-			memcpy(points, data, sizeof(struct cg_point_t));
-		points += 1;
-		data += 1;
-	}
-
-	enum cg_path_element_t * elements = path->elements.data + path->elements.size;
-	memcpy(elements, source->elements.data, (size_t)source->elements.size * sizeof(enum cg_path_element_t));
-	path->elements.size += source->elements.size;
-	path->points.size += source->points.size;
-	path->contours += source->contours;
-	path->start = source->start;
-}
-
 static inline void cg_path_clear(struct cg_path_t * path)
 {
 	path->elements.size = 0;
@@ -2591,11 +2565,6 @@ void cg_arc(struct cg_ctx_t * ctx, double cx, double cy, double r, double a0, do
 void cg_arc_negative(struct cg_ctx_t * ctx, double cx, double cy, double r, double a0, double a1)
 {
 	cg_path_add_arc(ctx->path, cx, cy, r, a0, a1, 1);
-}
-
-void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
-{
-	cg_path_add_path(ctx->path, path, NULL);
 }
 
 void cg_new_path(struct cg_ctx_t * ctx)

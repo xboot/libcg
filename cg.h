@@ -313,7 +313,6 @@ void cg_ellipse(struct cg_ctx_t * ctx, double cx, double cy, double rx, double r
 void cg_circle(struct cg_ctx_t * ctx, double cx, double cy, double r);
 void cg_arc(struct cg_ctx_t * ctx, double cx, double cy, double r, double a0, double a1);
 void cg_arc_negative(struct cg_ctx_t * ctx, double cx, double cy, double r, double a0, double a1);
-void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path);
 void cg_new_path(struct cg_ctx_t * ctx);
 void cg_close_path(struct cg_ctx_t * ctx);
 void cg_reset_clip(struct cg_ctx_t * ctx);
