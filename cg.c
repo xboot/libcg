@@ -305,18 +305,18 @@ struct cg_path_t * cg_path_reference(struct cg_path_t * path)
 	return NULL;
 }
 
-static void cg_path_get_current_point(struct cg_path_t * path, double * x, double * y)
+static inline void cg_path_get_current_point(struct cg_path_t * path, double * x, double * y)
 {
-	if(x)
-		*x = 0.0;
-	if(y)
-		*y = 0.0;
 	if(path->points.size == 0)
-		return;
-	if(x)
+	{
+		*x = 0.0;
+		*y = 0.0;
+	}
+	else
+	{
 		*x = path->points.data[path->points.size - 1].x;
-	if(y)
 		*y = path->points.data[path->points.size - 1].y;
+	}
 }
 
 static void cg_path_move_to(struct cg_path_t * path, double x, double y)
