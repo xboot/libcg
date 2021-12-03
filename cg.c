@@ -584,21 +584,6 @@ static inline void cg_path_clear(struct cg_path_t * path)
 	path->start.y = 0.0;
 }
 
-static struct cg_path_t * cg_path_clone(struct cg_path_t * path)
-{
-	struct cg_path_t * result = cg_path_create();
-	cg_array_ensure(result->elements, path->elements.size);
-	cg_array_ensure(result->points, path->points.size);
-
-	memcpy(result->elements.data, path->elements.data, (size_t)path->elements.size * sizeof(enum cg_path_element_t));
-	memcpy(result->points.data, path->points.data, (size_t)path->points.size * sizeof(struct cg_point_t));
-	result->elements.size = path->elements.size;
-	result->points.size = path->points.size;
-	result->contours = path->contours;
-	result->start = path->start;
-	return result;
-}
-
 struct cg_bezier_t {
 	double x1; double y1;
 	double x2; double y2;
