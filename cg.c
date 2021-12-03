@@ -613,7 +613,7 @@ static void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source,
 		data += 1;
 	}
 
-	enum cg_path_element_t *elements = path->elements.data + path->elements.size;
+	enum cg_path_element_t * elements = path->elements.data + path->elements.size;
 	memcpy(elements, source->elements.data, (size_t)source->elements.size * sizeof(enum cg_path_element_t));
 	path->elements.size += source->elements.size;
 	path->points.size += source->points.size;
@@ -623,8 +623,8 @@ static void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source,
 
 static void cg_path_transform(struct cg_path_t *path, struct cg_matrix_t *matrix)
 {
-	struct cg_point_t *points = path->points.data;
-	struct cg_point_t *end = points + path->points.size;
+	struct cg_point_t * points = path->points.data;
+	struct cg_point_t * end = points + path->points.size;
 	while(points < end)
 	{
 		cg_matrix_map_point(matrix, points, points);
@@ -632,38 +632,13 @@ static void cg_path_transform(struct cg_path_t *path, struct cg_matrix_t *matrix
 	}
 }
 
-static int cg_path_get_element_count(struct cg_path_t * path)
-{
-	return path->elements.size;
-}
-
-static enum cg_path_element_t * cg_path_get_elements(struct cg_path_t * path)
-{
-	return path->elements.data;
-}
-
-static int cg_path_get_point_count(struct cg_path_t * path)
-{
-	return path->points.size;
-}
-
-static struct cg_point_t * cg_path_get_points(struct cg_path_t * path)
-{
-	return path->points.data;
-}
-
-static void cg_path_clear(struct cg_path_t * path)
+static inline void cg_path_clear(struct cg_path_t * path)
 {
 	path->elements.size = 0;
 	path->points.size = 0;
 	path->contours = 0;
 	path->start.x = 0.0;
 	path->start.y = 0.0;
-}
-
-static int cg_path_empty(struct cg_path_t * path)
-{
-	return (path->elements.size == 0);
 }
 
 static struct cg_path_t * cg_path_clone(struct cg_path_t * path)
