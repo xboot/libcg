@@ -564,17 +564,6 @@ static inline void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * 
 	path->start = source->start;
 }
 
-static void cg_path_transform(struct cg_path_t *path, struct cg_matrix_t *matrix)
-{
-	struct cg_point_t * points = path->points.data;
-	struct cg_point_t * end = points + path->points.size;
-	while(points < end)
-	{
-		cg_matrix_map_point(matrix, points, points);
-		points += 1;
-	}
-}
-
 static inline void cg_path_clear(struct cg_path_t * path)
 {
 	path->elements.size = 0;
