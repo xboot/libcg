@@ -57,10 +57,10 @@
 
 static inline void cg_color_init_rgba(struct cg_color_t * color, double r, double g, double b, double a)
 {
-	color->r = clamp(r, 0.0, 1.0);
-	color->g = clamp(g, 0.0, 1.0);
-	color->b = clamp(b, 0.0, 1.0);
-	color->a = clamp(a, 0.0, 1.0);
+	color->r = r;
+	color->g = g;
+	color->b = b;
+	color->a = a;
 }
 
 static inline void cg_rect_init(struct cg_rect_t * rect, double x, double y, double w, double h)
