@@ -298,7 +298,7 @@ void cg_scale(struct cg_ctx_t * ctx, double x, double y);
 void cg_rotate(struct cg_ctx_t * ctx, double radians);
 void cg_transform(struct cg_ctx_t * ctx, struct cg_matrix_t * matrix);
 void cg_set_matrix(struct cg_ctx_t * ctx, struct cg_matrix_t * matrix);
-void cg_set_matrix_identity(struct cg_ctx_t * ctx);
+void cg_identity_matrix(struct cg_ctx_t * ctx);
 void cg_move_to(struct cg_ctx_t * ctx, double x, double y);
 void cg_line_to(struct cg_ctx_t * ctx, double x, double y);
 void cg_curve_to(struct cg_ctx_t * ctx, double x1, double y1, double x2, double y2, double x3, double y3);

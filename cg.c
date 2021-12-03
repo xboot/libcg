@@ -2492,7 +2492,7 @@ void cg_set_matrix(struct cg_ctx_t * ctx, struct cg_matrix_t *matrix)
 	ctx->state->matrix = *matrix;
 }
 
-void cg_set_matrix_identity(struct cg_ctx_t * ctx)
+void cg_identity_matrix(struct cg_ctx_t * ctx)
 {
 	cg_matrix_init_identity(&ctx->state->matrix);
 }
