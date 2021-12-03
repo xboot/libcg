@@ -184,43 +184,6 @@ void cg_matrix_map_point(struct cg_matrix_t * matrix, struct cg_point_t * src, s
 	dst->y = src->x * matrix->m10 + src->y * matrix->m11 + matrix->m12;
 }
 
-void cg_matrix_map_rect(struct cg_matrix_t * matrix, struct cg_rect_t * src, struct cg_rect_t * dst)
-{
-	struct cg_point_t p[4];
-
-	p[0].x = src->x;
-	p[0].y = src->y;
-	p[1].x = src->x + src->w;
-	p[1].y = src->y;
-	p[2].x = src->x + src->w;
-	p[2].y = src->y + src->h;
-	p[3].x = src->x;
-	p[3].y = src->y + src->h;
-	cg_matrix_map_point(matrix, &p[0], &p[0]);
-	cg_matrix_map_point(matrix, &p[1], &p[1]);
-	cg_matrix_map_point(matrix, &p[2], &p[2]);
-	cg_matrix_map_point(matrix, &p[3], &p[3]);
-	double l = p[0].x;
-	double t = p[0].y;
-	double r = p[0].x;
-	double b = p[0].y;
-	for(int i = 1; i < 4; i++)
-	{
-		if(p[i].x < l)
-			l = p[i].x;
-		if(p[i].x > r)
-			r = p[i].x;
-		if(p[i].y < t)
-			t = p[i].y;
-		if(p[i].y > b)
-			b = p[i].y;
-	}
-	dst->x = l;
-	dst->y = t;
-	dst->w = r - l;
-	dst->h = b - t;
-}
-
 struct cg_surface_t * cg_surface_create(int width, int height)
 {
 	struct cg_surface_t * surface = malloc(sizeof(struct cg_surface_t));

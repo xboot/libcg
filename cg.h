@@ -214,7 +214,6 @@ void cg_matrix_rotate_translate(struct cg_matrix_t * matrix, double radians, dou
 void cg_matrix_multiply(struct cg_matrix_t * matrix, struct cg_matrix_t * a, struct cg_matrix_t * b);
 int cg_matrix_invert(struct cg_matrix_t * matrix);
 void cg_matrix_map_point(struct cg_matrix_t * matrix, struct cg_point_t * src, struct cg_point_t * dst);
-void cg_matrix_map_rect(struct cg_matrix_t * matrix, struct cg_rect_t * src, struct cg_rect_t * dst);
 
 struct cg_surface_t * cg_surface_create(int width, int height);
 struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * pixels);
