@@ -1,3 +1,4 @@
+#include <cat.h>
 #include <cg.h>
 
 static void png_save(const char * filename, int width, int height, void * pixels)
@@ -159,6 +160,24 @@ static void test_clip(const char * filename)
 	cg_line_to(ctx, 0, 256);
 	cg_set_line_width(ctx, 10.0);
 	cg_stroke(ctx);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
+static void test_clip_image(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	struct cg_surface_t *  img = cg_surface_create_for_data(128, 128, (void *)cat_img_128_128);
+	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI);
+	cg_clip(ctx);
+	cg_scale(ctx, 256.0 / img->width, 256.0 / img->height);
+	cg_set_source_surface(ctx, img, 0, 0);
+	cg_paint(ctx);
+	cg_surface_destroy(img);
 
 	cg_surface_write_to_png(surface, filename);
 	cg_destroy(ctx);
@@ -374,6 +393,25 @@ static void test_gradient(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void test_image(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	struct cg_surface_t * img = cg_surface_create_for_data(128, 128, (void *)cat_img_128_128);
+	cg_translate(ctx, 128.0, 128.0);
+	cg_rotate(ctx, 45 * M_PI / 180);
+	cg_scale(ctx, 256.0 / img->width, 256.0 / img->height);
+	cg_translate(ctx, -0.5 * img->width, -0.5 * img->height);
+	cg_set_source_surface(ctx, img, 0, 0);
+	cg_paint(ctx);
+	cg_surface_destroy(img);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 static void test_lines(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
@@ -558,12 +596,14 @@ int main(int argc, char * argv[])
 	test_arc("arc.png");
 	test_arc_negative("arc_negative.png");
 	test_clip("clip.png");
+	test_clip_image("clip_image.png");
 	test_curve_rectangle("curve_rectangle.png");
 	test_curve_to("curve_to.png");
 	test_dash("dash.png");
 	test_fill_and_stroke("fill_and_stroke.png");
 	test_fill_style("fill_style.png");
 	test_gradient("gradient.png");
+	test_image("image.png");
 	test_lines("lines.png");
 	test_multi_segment_caps("multi_segment_caps.png");
 	test_rounded_rectangle("rounded_rectangle.png");
