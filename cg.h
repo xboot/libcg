@@ -73,7 +73,7 @@ enum cg_line_join_t {
 };
 
 enum cg_fill_rule_t {
-	XVG_FILL_RULE_WINDING,
+	XVG_FILL_RULE_NON_ZERO,
 	XVG_FILL_RULE_EVEN_ODD,
 };
 
