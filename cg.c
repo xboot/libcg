@@ -71,63 +71,74 @@ static inline void cg_rect_init(struct cg_rect_t * rect, double x, double y, dou
 	rect->h = h;
 }
 
-static inline void cg_matrix_init(struct cg_matrix_t * m, double a, double b, double c, double d, double tx, double ty)
+void cg_matrix_init(struct cg_matrix_t * m, double a, double b, double c, double d, double tx, double ty)
 {
-	m->a = a; m->b = b;
-	m->c = c; m->d = d;
+	m->a = a;   m->b = b;
+	m->c = c;   m->d = d;
 	m->tx = tx; m->ty = ty;
 }
 
 void cg_matrix_init_identity(struct cg_matrix_t * m)
 {
-	m->a = 1.0; m->b = 0.0;
-	m->c = 0.0; m->d = 1.0;
-	m->tx = 0.0; m->ty = 0.0;
+	m->a = 1;  m->b = 0;
+	m->c = 0;  m->d = 1;
+	m->tx = 0; m->ty = 0;
 }
 
-void cg_matrix_init_translate(struct cg_matrix_t * m, double x, double y)
+void cg_matrix_init_translate(struct cg_matrix_t * m, double tx, double ty)
 {
-	cg_matrix_init(m, 1.0, 0.0, 0.0, 1.0, x, y);
+	m->a = 1;   m->b = 0;
+	m->c = 0;   m->d = 1;
+	m->tx = tx; m->ty = ty;
 }
 
-void cg_matrix_init_scale(struct cg_matrix_t * m, double x, double y)
+void cg_matrix_init_scale(struct cg_matrix_t * m, double sx, double sy)
 {
-	cg_matrix_init(m, x, 0.0, 0.0, y, 0.0, 0.0);
+	m->a = sx; m->b = 0;
+	m->c = 0;  m->d = sy;
+	m->tx = 0; m->ty = 0;
 }
 
 void cg_matrix_init_shear(struct cg_matrix_t * m, double x, double y)
 {
-	cg_matrix_init(m, 1.0, tan(y), tan(x), 1.0, 0.0, 0.0);
+	m->a = 1;      m->b = tan(y);
+	m->c = tan(x); m->d = 1;
+	m->tx = 0;     m->ty = 0;
 }
 
-void cg_matrix_init_rotate(struct cg_matrix_t * m, double radians)
+void cg_matrix_init_rotate(struct cg_matrix_t * m, double r)
 {
-	double c = cos(radians);
-	double s = sin(radians);
-	cg_matrix_init(m, c, s, -s, c, 0.0, 0.0);
+	double s = sin(r);
+	double c = cos(r);
+
+	m->a = c;   m->b = s;
+	m->c = -s;  m->d = c;
+	m->tx = 0;  m->ty = 0;
 }
 
-void cg_matrix_init_rotate_translate(struct cg_matrix_t * m, double radians, double x, double y)
+void cg_matrix_init_rotate_translate(struct cg_matrix_t * m, double r, double tx, double ty)
 {
-	double c = cos(radians);
-	double s = sin(radians);
-	double cx = x * (1 - c) + y * s;
-	double cy = y * (1 - c) - x * s;
-	cg_matrix_init(m, c, s, -s, c, cx, cy);
+	double s = sin(r);
+	double c = cos(r);
+
+	m->a = c;    m->b = s;
+	m->c = -s;   m->d = c;
+	m->tx = tx * (1 - c) + ty * s;
+	m->ty = ty * (1 - c) - tx * s;
 }
 
-void cg_matrix_translate(struct cg_matrix_t * m, double x, double y)
+void cg_matrix_translate(struct cg_matrix_t * m, double tx, double ty)
 {
-	struct cg_matrix_t tm;
-	cg_matrix_init_translate(&tm, x, y);
-	cg_matrix_multiply(m, &tm, m);
+	m->tx += m->a * tx + m->c * ty;
+	m->ty += m->b * tx + m->d * ty;
 }
 
-void cg_matrix_scale(struct cg_matrix_t * m, double x, double y)
+void cg_matrix_scale(struct cg_matrix_t * m, double sx, double sy)
 {
-	struct cg_matrix_t tm;
-	cg_matrix_init_scale(&tm, x, y);
-	cg_matrix_multiply(m, &tm, m);
+	m->a *= sx;
+	m->b *= sx;
+	m->c *= sy;
+	m->d *= sy;
 }
 
 void cg_matrix_shear(struct cg_matrix_t * m, double x, double y)
@@ -137,11 +148,23 @@ void cg_matrix_shear(struct cg_matrix_t * m, double x, double y)
 	cg_matrix_multiply(m, &tm, m);
 }
 
-void cg_matrix_rotate(struct cg_matrix_t * m, double radians)
+void cg_matrix_rotate(struct cg_matrix_t * m, double r)
 {
-	struct cg_matrix_t tm;
-	cg_matrix_init_rotate(&tm, radians);
-	cg_matrix_multiply(m, &tm, m);
+	double s = sin(r);
+	double c = cos(r);
+	double ca = c * m->a;
+	double cb = c * m->b;
+	double cc = c * m->c;
+	double cd = c * m->d;
+	double sa = s * m->a;
+	double sb = s * m->b;
+	double sc = s * m->c;
+	double sd = s * m->d;
+
+	m->a = ca + sc;
+	m->b = cb + sd;
+	m->c = cc - sa;
+	m->d = cd - sb;
 }
 
 void cg_matrix_rotate_translate(struct cg_matrix_t * m, double radians, double x, double y)
@@ -153,35 +176,75 @@ void cg_matrix_rotate_translate(struct cg_matrix_t * m, double radians, double x
 
 void cg_matrix_multiply(struct cg_matrix_t * m, struct cg_matrix_t * m1, struct cg_matrix_t * m2)
 {
-	double a = m1->a * m2->a + m1->b * m2->c;
-	double b = m1->a * m2->b + m1->b * m2->d;
-	double c = m1->c * m2->a + m1->d * m2->c;
-	double d = m1->c * m2->b + m1->d * m2->d;
-	double tx = m1->tx * m2->a + m1->ty * m2->c + m2->tx;
-	double ty = m1->tx * m2->b + m1->ty * m2->d + m2->ty;
-	cg_matrix_init(m, a, b, c, d, tx, ty);
+	struct cg_matrix_t t;
+
+	t.a = m1->a * m2->a;
+	t.b = 0.0;
+	t.c = 0.0;
+	t.d = m1->d * m2->d;
+	t.tx = m1->tx * m2->a + m2->tx;
+	t.ty = m1->ty * m2->d + m2->ty;
+	if(m1->b != 0.0 || m1->c != 0.0 || m2->b != 0.0 || m2->c != 0.0)
+	{
+		t.a += m1->b * m2->c;
+		t.b += m1->a * m2->b + m1->b * m2->d;
+		t.c += m1->c * m2->a + m1->d * m2->c;
+		t.d += m1->c * m2->b;
+		t.tx += m1->ty * m2->c;
+		t.ty += m1->tx * m2->b;
+	}
+	memcpy(m, &t, sizeof(struct cg_matrix_t));
 }
 
-int cg_matrix_invert(struct cg_matrix_t * m)
+void cg_matrix_invert(struct cg_matrix_t * m)
 {
-	double det = (m->a * m->d - m->b * m->c);
-	if(det == 0.0)
-		return 0;
-	double inv_det = 1.0 / det;
-	double a = m->a * inv_det;
-	double b = m->b * inv_det;
-	double c = m->c * inv_det;
-	double d = m->d * inv_det;
-	double tx = (m->c * m->ty - m->d * m->tx) * inv_det;
-	double ty = (m->b * m->tx - m->a * m->ty) * inv_det;
-	cg_matrix_init(m, d, -b, -c, a, tx, ty);
-	return 1;
+	double a, b, c, d, tx, ty;
+	double det;
+
+	if((m->c == 0.0) && (m->b == 0.0))
+	{
+		m->tx = -m->tx;
+		m->ty = -m->ty;
+		if(m->a != 1.0)
+		{
+			if(m->a == 0.0)
+				return;
+			m->a = 1.0 / m->a;
+			m->tx *= m->a;
+		}
+		if(m->d != 1.0)
+		{
+			if(m->d == 0.0)
+				return;
+			m->d = 1.0 / m->d;
+			m->ty *= m->d;
+		}
+	}
+	else
+	{
+		det = m->a * m->d - m->b * m->c;
+		if(det != 0.0)
+		{
+			a  = m->a;
+			b  = m->b;
+			c  = m->c;
+			d  = m->d;
+			tx = m->tx;
+			ty = m->ty;
+			m->a = d / det;
+			m->b = -b / det;
+			m->c = -c / det;
+			m->d = a / det;
+			m->tx = (c * ty - d * tx) / det;
+			m->ty = (b * tx - a * ty) / det;
+		}
+	}
 }
 
-void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * src, struct cg_point_t * dst)
+void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * p1, struct cg_point_t * p2)
 {
-	dst->x = src->x * m->a + src->y * m->c + m->tx;
-	dst->y = src->x * m->b + src->y * m->d + m->ty;
+	p2->x = p1->x * m->a + p1->y * m->c + m->tx;
+	p2->y = p1->x * m->b + p1->y * m->d + m->ty;
 }
 
 struct cg_surface_t * cg_surface_create(int width, int height)
