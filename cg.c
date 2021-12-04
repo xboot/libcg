@@ -538,7 +538,7 @@ static inline void split(struct cg_bezier_t * b, struct cg_bezier_t * first, str
 	first->y4 = second->y1 = (first->y3 + second->y2) * 0.5;
 }
 
-static void flatten(struct cg_path_t * path, struct cg_point_t * p0, struct cg_point_t * p1, struct cg_point_t * p2, struct cg_point_t * p3)
+static inline void flatten(struct cg_path_t * path, struct cg_point_t * p0, struct cg_point_t * p1, struct cg_point_t * p2, struct cg_point_t * p3)
 {
 	struct cg_bezier_t beziers[32];
 	struct cg_bezier_t * b = beziers;
