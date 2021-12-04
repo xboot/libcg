@@ -385,39 +385,32 @@ static void cg_path_close(struct cg_path_t * path)
 	path->points.size += 1;
 }
 
-static inline void rel_to_abs(struct cg_path_t * path, double * x, double * y)
-{
-	double _x, _y;
-	cg_path_get_current_point(path, &_x, &_y);
-	*x += _x;
-	*y += _y;
-}
-
 static void cg_path_rel_move_to(struct cg_path_t * path, double dx, double dy)
 {
-	rel_to_abs(path, &dx, &dy);
-	cg_path_move_to(path, dx, dy);
+	double x, y;
+	cg_path_get_current_point(path, &x, &y);
+	cg_path_move_to(path, dx + x, dy + y);
 }
 
 static void cg_path_rel_line_to(struct cg_path_t * path, double dx, double dy)
 {
-	rel_to_abs(path, &dx, &dy);
-	cg_path_line_to(path, dx, dy);
+	double x, y;
+	cg_path_get_current_point(path, &x, &y);
+	cg_path_line_to(path, dx + x, dy + y);
 }
 
 static void cg_path_rel_curve_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2, double dx3, double dy3)
 {
-	rel_to_abs(path, &dx1, &dy1);
-	rel_to_abs(path, &dx2, &dy2);
-	rel_to_abs(path, &dx3, &dy3);
-	cg_path_curve_to(path, dx1, dy1, dx2, dy2, dx3, dy3);
+	double x, y;
+	cg_path_get_current_point(path, &x, &y);
+	cg_path_curve_to(path, dx1 + x, dy1 + y, dx2 + x, dy2 + y, dx3 + x, dy3 + y);
 }
 
 static void cg_path_rel_quad_to(struct cg_path_t * path, double dx1, double dy1, double dx2, double dy2)
 {
-	rel_to_abs(path, &dx1, &dy1);
-	rel_to_abs(path, &dx2, &dy2);
-	cg_path_quad_to(path, dx1, dy1, dx2, dy2);
+	double x, y;
+	cg_path_get_current_point(path, &x, &y);
+	cg_path_quad_to(path, dx1 + x, dy1 + y, dx2 + x, dy2 + y);
 }
 
 static inline void cg_path_add_rectangle(struct cg_path_t * path, double x, double y, double w, double h)
