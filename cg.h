@@ -20,9 +20,9 @@ struct cg_rect_t {
 };
 
 struct cg_matrix_t {
-	double m00; double m10;
-	double m01; double m11;
-	double m02; double m12;
+	double a; double b;
+	double c; double d;
+	double tx; double ty;
 };
 
 struct cg_color_t {
@@ -200,20 +200,20 @@ struct cg_ctx_t {
 	struct cg_rect_t clip;
 };
 
-void cg_matrix_init_identity(struct cg_matrix_t * matrix);
-void cg_matrix_init_translate(struct cg_matrix_t * matrix, double x, double y);
-void cg_matrix_init_scale(struct cg_matrix_t * matrix, double x, double y);
-void cg_matrix_init_shear(struct cg_matrix_t * matrix, double x, double y);
-void cg_matrix_init_rotate(struct cg_matrix_t * matrix, double radians);
-void cg_matrix_init_rotate_translate(struct cg_matrix_t * matrix, double radians, double x, double y);
-void cg_matrix_translate(struct cg_matrix_t * matrix, double x, double y);
-void cg_matrix_scale(struct cg_matrix_t * matrix, double x, double y);
-void cg_matrix_shear(struct cg_matrix_t * matrix, double x, double y);
-void cg_matrix_rotate(struct cg_matrix_t * matrix, double radians);
-void cg_matrix_rotate_translate(struct cg_matrix_t * matrix, double radians, double x, double y);
-void cg_matrix_multiply(struct cg_matrix_t * matrix, struct cg_matrix_t * a, struct cg_matrix_t * b);
-int cg_matrix_invert(struct cg_matrix_t * matrix);
-void cg_matrix_map_point(struct cg_matrix_t * matrix, struct cg_point_t * src, struct cg_point_t * dst);
+void cg_matrix_init_identity(struct cg_matrix_t * m);
+void cg_matrix_init_translate(struct cg_matrix_t * m, double x, double y);
+void cg_matrix_init_scale(struct cg_matrix_t * m, double x, double y);
+void cg_matrix_init_shear(struct cg_matrix_t * m, double x, double y);
+void cg_matrix_init_rotate(struct cg_matrix_t * m, double radians);
+void cg_matrix_init_rotate_translate(struct cg_matrix_t * m, double radians, double x, double y);
+void cg_matrix_translate(struct cg_matrix_t * m, double x, double y);
+void cg_matrix_scale(struct cg_matrix_t * m, double x, double y);
+void cg_matrix_shear(struct cg_matrix_t * m, double x, double y);
+void cg_matrix_rotate(struct cg_matrix_t * m, double radians);
+void cg_matrix_rotate_translate(struct cg_matrix_t * m, double radians, double x, double y);
+void cg_matrix_multiply(struct cg_matrix_t * m, struct cg_matrix_t * m1, struct cg_matrix_t * m2);
+int cg_matrix_invert(struct cg_matrix_t * m);
+void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * src, struct cg_point_t * dst);
 
 struct cg_surface_t * cg_surface_create(int width, int height);
 struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * pixels);

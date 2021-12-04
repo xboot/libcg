@@ -71,117 +71,117 @@ static inline void cg_rect_init(struct cg_rect_t * rect, double x, double y, dou
 	rect->h = h;
 }
 
-static inline void cg_matrix_init(struct cg_matrix_t * matrix, double m00, double m10, double m01, double m11, double m02, double m12)
+static inline void cg_matrix_init(struct cg_matrix_t * m, double a, double b, double c, double d, double tx, double ty)
 {
-	matrix->m00 = m00; matrix->m10 = m10;
-	matrix->m01 = m01; matrix->m11 = m11;
-	matrix->m02 = m02; matrix->m12 = m12;
+	m->a = a; m->b = b;
+	m->c = c; m->d = d;
+	m->tx = tx; m->ty = ty;
 }
 
-void cg_matrix_init_identity(struct cg_matrix_t * matrix)
+void cg_matrix_init_identity(struct cg_matrix_t * m)
 {
-	matrix->m00 = 1.0; matrix->m10 = 0.0;
-	matrix->m01 = 0.0; matrix->m11 = 1.0;
-	matrix->m02 = 0.0; matrix->m12 = 0.0;
+	m->a = 1.0; m->b = 0.0;
+	m->c = 0.0; m->d = 1.0;
+	m->tx = 0.0; m->ty = 0.0;
 }
 
-void cg_matrix_init_translate(struct cg_matrix_t * matrix, double x, double y)
+void cg_matrix_init_translate(struct cg_matrix_t * m, double x, double y)
 {
-	cg_matrix_init(matrix, 1.0, 0.0, 0.0, 1.0, x, y);
+	cg_matrix_init(m, 1.0, 0.0, 0.0, 1.0, x, y);
 }
 
-void cg_matrix_init_scale(struct cg_matrix_t * matrix, double x, double y)
+void cg_matrix_init_scale(struct cg_matrix_t * m, double x, double y)
 {
-	cg_matrix_init(matrix, x, 0.0, 0.0, y, 0.0, 0.0);
+	cg_matrix_init(m, x, 0.0, 0.0, y, 0.0, 0.0);
 }
 
-void cg_matrix_init_shear(struct cg_matrix_t * matrix, double x, double y)
+void cg_matrix_init_shear(struct cg_matrix_t * m, double x, double y)
 {
-	cg_matrix_init(matrix, 1.0, tan(y), tan(x), 1.0, 0.0, 0.0);
+	cg_matrix_init(m, 1.0, tan(y), tan(x), 1.0, 0.0, 0.0);
 }
 
-void cg_matrix_init_rotate(struct cg_matrix_t * matrix, double radians)
+void cg_matrix_init_rotate(struct cg_matrix_t * m, double radians)
 {
 	double c = cos(radians);
 	double s = sin(radians);
-	cg_matrix_init(matrix, c, s, -s, c, 0.0, 0.0);
+	cg_matrix_init(m, c, s, -s, c, 0.0, 0.0);
 }
 
-void cg_matrix_init_rotate_translate(struct cg_matrix_t * matrix, double radians, double x, double y)
+void cg_matrix_init_rotate_translate(struct cg_matrix_t * m, double radians, double x, double y)
 {
 	double c = cos(radians);
 	double s = sin(radians);
 	double cx = x * (1 - c) + y * s;
 	double cy = y * (1 - c) - x * s;
-	cg_matrix_init(matrix, c, s, -s, c, cx, cy);
+	cg_matrix_init(m, c, s, -s, c, cx, cy);
 }
 
-void cg_matrix_translate(struct cg_matrix_t * matrix, double x, double y)
+void cg_matrix_translate(struct cg_matrix_t * m, double x, double y)
 {
-	struct cg_matrix_t m;
-	cg_matrix_init_translate(&m, x, y);
-	cg_matrix_multiply(matrix, &m, matrix);
+	struct cg_matrix_t tm;
+	cg_matrix_init_translate(&tm, x, y);
+	cg_matrix_multiply(m, &tm, m);
 }
 
-void cg_matrix_scale(struct cg_matrix_t * matrix, double x, double y)
+void cg_matrix_scale(struct cg_matrix_t * m, double x, double y)
 {
-	struct cg_matrix_t m;
-	cg_matrix_init_scale(&m, x, y);
-	cg_matrix_multiply(matrix, &m, matrix);
+	struct cg_matrix_t tm;
+	cg_matrix_init_scale(&tm, x, y);
+	cg_matrix_multiply(m, &tm, m);
 }
 
-void cg_matrix_shear(struct cg_matrix_t * matrix, double x, double y)
+void cg_matrix_shear(struct cg_matrix_t * m, double x, double y)
 {
-	struct cg_matrix_t m;
-	cg_matrix_init_shear(&m, x, y);
-	cg_matrix_multiply(matrix, &m, matrix);
+	struct cg_matrix_t tm;
+	cg_matrix_init_shear(&tm, x, y);
+	cg_matrix_multiply(m, &tm, m);
 }
 
-void cg_matrix_rotate(struct cg_matrix_t * matrix, double radians)
+void cg_matrix_rotate(struct cg_matrix_t * m, double radians)
 {
-	struct cg_matrix_t m;
-	cg_matrix_init_rotate(&m, radians);
-	cg_matrix_multiply(matrix, &m, matrix);
+	struct cg_matrix_t tm;
+	cg_matrix_init_rotate(&tm, radians);
+	cg_matrix_multiply(m, &tm, m);
 }
 
-void cg_matrix_rotate_translate(struct cg_matrix_t * matrix, double radians, double x, double y)
+void cg_matrix_rotate_translate(struct cg_matrix_t * m, double radians, double x, double y)
 {
-	struct cg_matrix_t m;
-	cg_matrix_init_rotate_translate(&m, radians, x, y);
-	cg_matrix_multiply(matrix, &m, matrix);
+	struct cg_matrix_t tm;
+	cg_matrix_init_rotate_translate(&tm, radians, x, y);
+	cg_matrix_multiply(m, &tm, m);
 }
 
-void cg_matrix_multiply(struct cg_matrix_t * matrix, struct cg_matrix_t * a, struct cg_matrix_t * b)
+void cg_matrix_multiply(struct cg_matrix_t * m, struct cg_matrix_t * m1, struct cg_matrix_t * m2)
 {
-	double m00 = a->m00 * b->m00 + a->m10 * b->m01;
-	double m10 = a->m00 * b->m10 + a->m10 * b->m11;
-	double m01 = a->m01 * b->m00 + a->m11 * b->m01;
-	double m11 = a->m01 * b->m10 + a->m11 * b->m11;
-	double m02 = a->m02 * b->m00 + a->m12 * b->m01 + b->m02;
-	double m12 = a->m02 * b->m10 + a->m12 * b->m11 + b->m12;
-	cg_matrix_init(matrix, m00, m10, m01, m11, m02, m12);
+	double a = m1->a * m2->a + m1->b * m2->c;
+	double b = m1->a * m2->b + m1->b * m2->d;
+	double c = m1->c * m2->a + m1->d * m2->c;
+	double d = m1->c * m2->b + m1->d * m2->d;
+	double tx = m1->tx * m2->a + m1->ty * m2->c + m2->tx;
+	double ty = m1->tx * m2->b + m1->ty * m2->d + m2->ty;
+	cg_matrix_init(m, a, b, c, d, tx, ty);
 }
 
-int cg_matrix_invert(struct cg_matrix_t * matrix)
+int cg_matrix_invert(struct cg_matrix_t * m)
 {
-	double det = (matrix->m00 * matrix->m11 - matrix->m10 * matrix->m01);
+	double det = (m->a * m->d - m->b * m->c);
 	if(det == 0.0)
 		return 0;
 	double inv_det = 1.0 / det;
-	double m00 = matrix->m00 * inv_det;
-	double m10 = matrix->m10 * inv_det;
-	double m01 = matrix->m01 * inv_det;
-	double m11 = matrix->m11 * inv_det;
-	double m02 = (matrix->m01 * matrix->m12 - matrix->m11 * matrix->m02) * inv_det;
-	double m12 = (matrix->m10 * matrix->m02 - matrix->m00 * matrix->m12) * inv_det;
-	cg_matrix_init(matrix, m11, -m10, -m01, m00, m02, m12);
+	double a = m->a * inv_det;
+	double b = m->b * inv_det;
+	double c = m->c * inv_det;
+	double d = m->d * inv_det;
+	double tx = (m->c * m->ty - m->d * m->tx) * inv_det;
+	double ty = (m->b * m->tx - m->a * m->ty) * inv_det;
+	cg_matrix_init(m, d, -b, -c, a, tx, ty);
 	return 1;
 }
 
-void cg_matrix_map_point(struct cg_matrix_t * matrix, struct cg_point_t * src, struct cg_point_t * dst)
+void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * src, struct cg_point_t * dst)
 {
-	dst->x = src->x * matrix->m00 + src->y * matrix->m01 + matrix->m02;
-	dst->y = src->x * matrix->m10 + src->y * matrix->m11 + matrix->m12;
+	dst->x = src->x * m->a + src->y * m->c + m->tx;
+	dst->y = src->x * m->b + src->y * m->d + m->ty;
 }
 
 struct cg_surface_t * cg_surface_create(int width, int height)
@@ -1624,10 +1624,10 @@ static void fetch_linear_gradient(uint32_t * buffer, struct linear_gradient_valu
 	}
 	else
 	{
-		rx = gradient->matrix.m01 * (y + 0.5) + gradient->matrix.m00 * (x + 0.5) + gradient->matrix.m02;
-		ry = gradient->matrix.m11 * (y + 0.5) + gradient->matrix.m10 * (x + 0.5) + gradient->matrix.m12;
+		rx = gradient->matrix.c * (y + 0.5) + gradient->matrix.a * (x + 0.5) + gradient->matrix.tx;
+		ry = gradient->matrix.d * (y + 0.5) + gradient->matrix.b * (x + 0.5) + gradient->matrix.ty;
 		t = v->dx * rx + v->dy * ry + v->off;
-		inc = v->dx * gradient->matrix.m00 + v->dy * gradient->matrix.m10;
+		inc = v->dx * gradient->matrix.a + v->dy * gradient->matrix.b;
 		t *= (1024 - 1);
 		inc *= (1024 - 1);
 	}
@@ -1669,14 +1669,14 @@ static void fetch_radial_gradient(uint32_t * buffer, struct radial_gradient_valu
 		return;
 	}
 
-	double rx = gradient->matrix.m01 * (y + 0.5) + gradient->matrix.m02 + gradient->matrix.m00 * (x + 0.5);
-	double ry = gradient->matrix.m11 * (y + 0.5) + gradient->matrix.m12 + gradient->matrix.m10 * (x + 0.5);
+	double rx = gradient->matrix.c * (y + 0.5) + gradient->matrix.tx + gradient->matrix.a * (x + 0.5);
+	double ry = gradient->matrix.d * (y + 0.5) + gradient->matrix.ty + gradient->matrix.b * (x + 0.5);
 	rx -= gradient->radial.fx;
 	ry -= gradient->radial.fy;
 
 	double inv_a = 1.0 / (2.0 * v->a);
-	double delta_rx = gradient->matrix.m00;
-	double delta_ry = gradient->matrix.m10;
+	double delta_rx = gradient->matrix.a;
+	double delta_ry = gradient->matrix.b;
 
 	double b = 2 * (v->dr * gradient->radial.fr + rx * v->dx + ry * v->dy);
 	double delta_b = 2 * (delta_rx * v->dx + delta_ry * v->dy);
@@ -1960,8 +1960,8 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 
 	int image_width = texture->width;
 	int image_height = texture->height;
-	int fdx = (int)(texture->matrix.m00 * FIXED_SCALE);
-	int fdy = (int)(texture->matrix.m10 * FIXED_SCALE);
+	int fdx = (int)(texture->matrix.a * FIXED_SCALE);
+	int fdy = (int)(texture->matrix.b * FIXED_SCALE);
 	int count = rle->spans.size;
 	struct cg_span_t * spans = rle->spans.data;
 	while(count--)
@@ -1970,8 +1970,8 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 
 		double cx = spans->x + 0.5;
 		double cy = spans->y + 0.5;
-		int x = (int)((texture->matrix.m01 * cy + texture->matrix.m00 * cx + texture->matrix.m02) * FIXED_SCALE);
-		int y = (int)((texture->matrix.m11 * cy + texture->matrix.m10 * cx + texture->matrix.m12) * FIXED_SCALE);
+		int x = (int)((texture->matrix.c * cy + texture->matrix.a * cx + texture->matrix.tx) * FIXED_SCALE);
+		int y = (int)((texture->matrix.d * cy + texture->matrix.b * cx + texture->matrix.ty) * FIXED_SCALE);
 		int length = spans->len;
 		int coverage = (spans->coverage * texture->const_alpha) >> 8;
 		while(length)
@@ -2003,8 +2003,8 @@ static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_oper
 
 	int image_width = texture->width;
 	int image_height = texture->height;
-	int xoff = (int)(texture->matrix.m02);
-	int yoff = (int)(texture->matrix.m12);
+	int xoff = (int)(texture->matrix.tx);
+	int yoff = (int)(texture->matrix.ty);
 	int count = rle->spans.size;
 	struct cg_span_t * spans = rle->spans.data;
 	while(count--)
@@ -2041,8 +2041,8 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 
 	int image_width = texture->width;
 	int image_height = texture->height;
-	int xoff = (int)(texture->matrix.m02) % image_width;
-	int yoff = (int)(texture->matrix.m12) % image_height;
+	int xoff = (int)(texture->matrix.tx) % image_width;
+	int yoff = (int)(texture->matrix.ty) % image_height;
 	if(xoff < 0)
 		xoff += image_width;
 	if(yoff < 0)
@@ -2084,8 +2084,8 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 	int image_width = texture->width;
 	int image_height = texture->height;
 	int scanline_offset = texture->stride / 4;
-	int fdx = (int)(texture->matrix.m00 * FIXED_SCALE);
-	int fdy = (int)(texture->matrix.m10 * FIXED_SCALE);
+	int fdx = (int)(texture->matrix.a * FIXED_SCALE);
+	int fdy = (int)(texture->matrix.b * FIXED_SCALE);
 	int count = rle->spans.size;
 	struct cg_span_t * spans = rle->spans.data;
 	while(count--)
@@ -2094,8 +2094,8 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 		uint32_t * image_bits = (uint32_t *)texture->pixels;
 		double cx = spans->x + 0.5;
 		double cy = spans->y + 0.5;
-		int x = (int)((texture->matrix.m01 * cy + texture->matrix.m00 * cx + texture->matrix.m02) * FIXED_SCALE);
-		int y = (int)((texture->matrix.m11 * cy + texture->matrix.m10 * cx + texture->matrix.m12) * FIXED_SCALE);
+		int x = (int)((texture->matrix.c * cy + texture->matrix.a * cx + texture->matrix.tx) * FIXED_SCALE);
+		int y = (int)((texture->matrix.d * cy + texture->matrix.b * cx + texture->matrix.ty) * FIXED_SCALE);
 		int coverage = (spans->coverage * texture->const_alpha) >> 8;
 		int length = spans->len;
 		while(length)
@@ -2243,7 +2243,7 @@ static inline void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_rle_t * rle
 		cg_matrix_invert(&data.matrix);
 
 		struct cg_matrix_t * matrix = &data.matrix;
-		int translating = (matrix->m00 == 1.0 && matrix->m10 == 0.0 && matrix->m01 == 0.0 && matrix->m11 == 1.0);
+		int translating = (matrix->a == 1.0 && matrix->b == 0.0 && matrix->c == 0.0 && matrix->d == 1.0);
 		if(translating)
 		{
 			if(texture->type == XVG_TEXTURE_TYPE_PLAIN)
