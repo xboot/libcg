@@ -318,7 +318,7 @@ static void cg_path_move_to(struct cg_path_t * path, double x, double y)
 	cg_array_ensure(path->elements, 1);
 	cg_array_ensure(path->points, 1);
 
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_MOVE_TO;
+	path->elements.data[path->elements.size] = CG_PATH_ELEMENT_MOVE_TO;
 	path->elements.size += 1;
 	path->contours += 1;
 	path->points.data[path->points.size].x = x;
@@ -333,7 +333,7 @@ static void cg_path_line_to(struct cg_path_t * path, double x, double y)
 	cg_array_ensure(path->elements, 1);
 	cg_array_ensure(path->points, 1);
 
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_LINE_TO;
+	path->elements.data[path->elements.size] = CG_PATH_ELEMENT_LINE_TO;
 	path->elements.size += 1;
 	path->points.data[path->points.size].x = x;
 	path->points.data[path->points.size].y = y;
@@ -345,7 +345,7 @@ static void cg_path_curve_to(struct cg_path_t * path, double x1, double y1, doub
 	cg_array_ensure(path->elements, 1);
 	cg_array_ensure(path->points, 3);
 
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_CURVE_TO;
+	path->elements.data[path->elements.size] = CG_PATH_ELEMENT_CURVE_TO;
 	path->elements.size += 1;
 	path->points.data[path->points.size].x = x1;
 	path->points.data[path->points.size].y = y1;
@@ -374,11 +374,11 @@ static void cg_path_close(struct cg_path_t * path)
 {
 	if(path->elements.size == 0)
 		return;
-	if(path->elements.data[path->elements.size - 1] == XVG_PATH_ELEMENT_CLOSE)
+	if(path->elements.data[path->elements.size - 1] == CG_PATH_ELEMENT_CLOSE)
 		return;
 	cg_array_ensure(path->elements, 1);
 	cg_array_ensure(path->points, 1);
-	path->elements.data[path->elements.size] = XVG_PATH_ELEMENT_CLOSE;
+	path->elements.data[path->elements.size] = CG_PATH_ELEMENT_CLOSE;
 	path->elements.size += 1;
 	path->points.data[path->points.size].x = path->start.x;
 	path->points.data[path->points.size].y = path->start.y;
@@ -615,20 +615,20 @@ static inline struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path)
 	{
 		switch(path->elements.data[i])
 		{
-		case XVG_PATH_ELEMENT_MOVE_TO:
+		case CG_PATH_ELEMENT_MOVE_TO:
 			cg_path_move_to(result, points[0].x, points[0].y);
 			points += 1;
 			break;
-		case XVG_PATH_ELEMENT_LINE_TO:
+		case CG_PATH_ELEMENT_LINE_TO:
 			cg_path_line_to(result, points[0].x, points[0].y);
 			points += 1;
 			break;
-		case XVG_PATH_ELEMENT_CURVE_TO:
+		case CG_PATH_ELEMENT_CURVE_TO:
 			cg_path_get_current_point(result, &p0.x, &p0.y);
 			flatten(result, &p0, points, points + 1, points + 2);
 			points += 3;
 			break;
-		case XVG_PATH_ELEMENT_CLOSE:
+		case CG_PATH_ELEMENT_CLOSE:
 			cg_path_line_to(result, points[0].x, points[0].y);
 			points += 1;
 			break;
@@ -701,7 +701,7 @@ static inline struct cg_path_t * cg_dash_path(struct cg_dash_t * dash, struct cg
 			cg_path_move_to(result, x0, y0);
 		++elements;
 		++points;
-		while((elements < end) && (*elements == XVG_PATH_ELEMENT_LINE_TO))
+		while((elements < end) && (*elements == CG_PATH_ELEMENT_LINE_TO))
 		{
 			double dx = points->x - x0;
 			double dy = points->y - y0;
@@ -830,24 +830,24 @@ static SW_FT_Outline * sw_ft_outline_convert(struct cg_path_t *path, struct cg_m
 	{
 		switch(elements[i])
 		{
-		case XVG_PATH_ELEMENT_MOVE_TO:
+		case CG_PATH_ELEMENT_MOVE_TO:
 			cg_matrix_map_point(m, &points[0], &p[0]);
 			sw_ft_outline_move_to(outline, p[0].x, p[0].y);
 			points += 1;
 			break;
-		case XVG_PATH_ELEMENT_LINE_TO:
+		case CG_PATH_ELEMENT_LINE_TO:
 			cg_matrix_map_point(m, &points[0], &p[0]);
 			sw_ft_outline_line_to(outline, p[0].x, p[0].y);
 			points += 1;
 			break;
-		case XVG_PATH_ELEMENT_CURVE_TO:
+		case CG_PATH_ELEMENT_CURVE_TO:
 			cg_matrix_map_point(m, &points[0], &p[0]);
 			cg_matrix_map_point(m, &points[1], &p[1]);
 			cg_matrix_map_point(m, &points[2], &p[2]);
 			sw_ft_outline_curve_to(outline, p[0].x, p[0].y, p[1].x, p[1].y, p[2].x, p[2].y);
 			points += 3;
 			break;
-		case XVG_PATH_ELEMENT_CLOSE:
+		case CG_PATH_ELEMENT_CLOSE:
 			sw_ft_outline_close(outline);
 			points += 1;
 			break;
@@ -943,10 +943,10 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 
 		switch(stroke->cap)
 		{
-		case XVG_LINE_CAP_ROUND:
+		case CG_LINE_CAP_ROUND:
 			ftCap = SW_FT_STROKER_LINECAP_ROUND;
 			break;
-		case XVG_LINE_CAP_SQUARE:
+		case CG_LINE_CAP_SQUARE:
 			ftCap = SW_FT_STROKER_LINECAP_SQUARE;
 			break;
 		default:
@@ -955,10 +955,10 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 		}
 		switch(stroke->join)
 		{
-		case XVG_LINE_JOIN_ROUND:
+		case CG_LINE_JOIN_ROUND:
 			ftJoin = SW_FT_STROKER_LINEJOIN_ROUND;
 			break;
-		case XVG_LINE_JOIN_BEVEL:
+		case CG_LINE_JOIN_BEVEL:
 			ftJoin = SW_FT_STROKER_LINEJOIN_BEVEL;
 			break;
 		default:
@@ -988,7 +988,7 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 	else
 	{
 		SW_FT_Outline * outline = sw_ft_outline_convert(path, m);
-		outline->flags = (winding == XVG_FILL_RULE_EVEN_ODD) ? SW_FT_OUTLINE_EVEN_ODD_FILL : SW_FT_OUTLINE_NONE;
+		outline->flags = (winding == CG_FILL_RULE_EVEN_ODD) ? SW_FT_OUTLINE_EVEN_ODD_FILL : SW_FT_OUTLINE_NONE;
 		params.source = outline;
 		sw_ft_grays_raster.raster_render(NULL, &params);
 		sw_ft_outline_destroy(outline);
@@ -1128,8 +1128,8 @@ struct cg_gradient_t * cg_gradient_create_linear(double x1, double y1, double x2
 	struct cg_gradient_t * gradient = malloc(sizeof(struct cg_gradient_t));
 
 	gradient->ref = 1;
-	gradient->type = XVG_GRADIENT_TYPE_LINEAR;
-	gradient->spread = XVG_SPREAD_METHOD_PAD;
+	gradient->type = CG_GRADIENT_TYPE_LINEAR;
+	gradient->spread = CG_SPREAD_METHOD_PAD;
 	gradient->opacity = 1.0;
 	cg_array_init(gradient->stops);
 	cg_matrix_init_identity(&gradient->matrix);
@@ -1145,8 +1145,8 @@ struct cg_gradient_t * cg_gradient_create_radial(double cx, double cy, double cr
 	struct cg_gradient_t * gradient = malloc(sizeof(struct cg_gradient_t));
 
 	gradient->ref = 1;
-	gradient->type = XVG_GRADIENT_TYPE_RADIAL;
-	gradient->spread = XVG_SPREAD_METHOD_PAD;
+	gradient->type = CG_GRADIENT_TYPE_RADIAL;
+	gradient->spread = CG_SPREAD_METHOD_PAD;
 	gradient->opacity = 1.0;
 	cg_array_init(gradient->stops);
 	cg_matrix_init_identity(&gradient->matrix);
@@ -1244,7 +1244,7 @@ struct cg_texture_t * cg_texture_create(struct cg_surface_t * surface)
 {
 	struct cg_texture_t * texture = malloc(sizeof(struct cg_texture_t));
 	texture->ref = 1;
-	texture->type = XVG_TEXTURE_TYPE_PLAIN;
+	texture->type = CG_TEXTURE_TYPE_PLAIN;
 	texture->surface = cg_surface_reference(surface);
 	texture->opacity = 1.0;
 	cg_matrix_init_identity(&texture->matrix);
@@ -1304,7 +1304,7 @@ struct cg_paint_t * cg_paint_create_rgba(double r, double g, double b, double a)
 {
 	struct cg_paint_t * paint = malloc(sizeof(struct cg_paint_t));
 	paint->ref = 1;
-	paint->type = XVG_PAINT_TYPE_COLOR;
+	paint->type = CG_PAINT_TYPE_COLOR;
 	paint->color = malloc(sizeof(struct cg_color_t));
 	cg_color_init_rgba(paint->color, r, g, b, a);
 	return paint;
@@ -1343,7 +1343,7 @@ struct cg_paint_t * cg_paint_create_gradient(struct cg_gradient_t * gradient)
 {
 	struct cg_paint_t * paint = malloc(sizeof(struct cg_paint_t));
 	paint->ref = 1;
-	paint->type = XVG_PAINT_TYPE_GRADIENT;
+	paint->type = CG_PAINT_TYPE_GRADIENT;
 	paint->gradient = cg_gradient_reference(gradient);
 	return paint;
 }
@@ -1352,7 +1352,7 @@ struct cg_paint_t * cg_paint_create_texture(struct cg_texture_t * texture)
 {
 	struct cg_paint_t * paint = malloc(sizeof(struct cg_paint_t));
 	paint->ref = 1;
-	paint->type = XVG_PAINT_TYPE_TEXTURE;
+	paint->type = CG_PAINT_TYPE_TEXTURE;
 	paint->texture = cg_texture_reference(texture);
 	return paint;
 }
@@ -1365,13 +1365,13 @@ void cg_paint_destroy(struct cg_paint_t * paint)
 		{
 			switch(paint->type)
 			{
-			case XVG_PAINT_TYPE_COLOR:
+			case CG_PAINT_TYPE_COLOR:
 				free(paint->color);
 				break;
-			case XVG_PAINT_TYPE_GRADIENT:
+			case CG_PAINT_TYPE_GRADIENT:
 				cg_gradient_destroy(paint->gradient);
 				break;
-			case XVG_PAINT_TYPE_TEXTURE:
+			case CG_PAINT_TYPE_TEXTURE:
 				cg_texture_destroy(paint->texture);
 				break;
 			default:
@@ -1399,17 +1399,17 @@ enum cg_paint_type_t cg_paint_get_type(struct cg_paint_t * paint)
 
 struct cg_color_t * cg_paint_get_color(struct cg_paint_t * paint)
 {
-	return (paint->type == XVG_PAINT_TYPE_COLOR) ? paint->color : NULL;
+	return (paint->type == CG_PAINT_TYPE_COLOR) ? paint->color : NULL;
 }
 
 struct cg_gradient_t * cg_paint_get_gradient(struct cg_paint_t * paint)
 {
-	return (paint->type == XVG_PAINT_TYPE_GRADIENT) ? paint->gradient : NULL;
+	return (paint->type == CG_PAINT_TYPE_GRADIENT) ? paint->gradient : NULL;
 }
 
 struct cg_texture_t * cg_paint_get_texture(struct cg_paint_t * paint)
 {
-	return (paint->type == XVG_PAINT_TYPE_TEXTURE) ? paint->texture : NULL;
+	return (paint->type == CG_PAINT_TYPE_TEXTURE) ? paint->texture : NULL;
 }
 
 #define cg_alpha(c)		((c) >> 24)
@@ -1523,18 +1523,18 @@ static inline int gradient_clamp(struct gradient_data_t * gradient, int ipos)
 {
 	switch(gradient->spread)
 	{
-	case XVG_SPREAD_METHOD_PAD:
+	case CG_SPREAD_METHOD_PAD:
 		if(ipos < 0)
 			ipos = 0;
 		else if(ipos >= 1024)
 			ipos = 1024 - 1;
 		break;
-	case XVG_SPREAD_METHOD_REFLECT:
+	case CG_SPREAD_METHOD_REFLECT:
 		ipos = ipos % 2048;
 		ipos = ipos < 0 ? 2048 + ipos : ipos;
 		ipos = ipos >= 1024 ? 2048 - 1 - ipos : ipos;
 		break;
-	case XVG_SPREAD_METHOD_REPEAT:
+	case CG_SPREAD_METHOD_REPEAT:
 		ipos = ipos % 1024;
 		ipos = ipos < 0 ? 1024 + ipos : ipos;
 		break;
@@ -2089,8 +2089,8 @@ static inline void cg_blend_color(struct cg_ctx_t * ctx, struct cg_rle_t * rle, 
 		struct cg_state_t * state = ctx->state;
 		uint32_t solid = premultiply_color(color, state->opacity);
 		uint32_t alpha = cg_alpha(solid);
-		if((alpha == 255) && (state->op == XVG_OPERATOR_SRC_OVER))
-			blend_solid(ctx->surface, XVG_OPERATOR_SRC, rle, solid);
+		if((alpha == 255) && (state->op == CG_OPERATOR_SRC_OVER))
+			blend_solid(ctx->surface, CG_OPERATOR_SRC, rle, solid);
 		else
 			blend_solid(ctx->surface, state->op, rle, solid);
 	}
@@ -2152,7 +2152,7 @@ static inline void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_rle_t * rl
 		cg_matrix_multiply(&data.matrix, &data.matrix, &state->matrix);
 		cg_matrix_invert(&data.matrix);
 
-		if(gradient->type == XVG_GRADIENT_TYPE_LINEAR)
+		if(gradient->type == CG_GRADIENT_TYPE_LINEAR)
 		{
 			data.linear.x1 = gradient->values[0];
 			data.linear.y1 = gradient->values[1];
@@ -2190,14 +2190,14 @@ static inline void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_rle_t * rle
 		struct cg_matrix_t * m = &data.matrix;
 		if((m->a == 1.0) && (m->b == 0.0) && (m->c == 0.0) && (m->d == 1.0))
 		{
-			if(texture->type == XVG_TEXTURE_TYPE_PLAIN)
+			if(texture->type == CG_TEXTURE_TYPE_PLAIN)
 				blend_untransformed_argb(ctx->surface, state->op, rle, &data);
 			else
 				blend_untransformed_tiled_argb(ctx->surface, state->op, rle, &data);
 		}
 		else
 		{
-			if(texture->type == XVG_TEXTURE_TYPE_PLAIN)
+			if(texture->type == CG_TEXTURE_TYPE_PLAIN)
 				blend_transformed_argb(ctx->surface, state->op, rle, &data);
 			else
 				blend_transformed_tiled_argb(ctx->surface, state->op, rle, &data);
@@ -2212,13 +2212,13 @@ static void cg_blend(struct cg_ctx_t * ctx, struct cg_rle_t * rle)
 		struct cg_paint_t * source = ctx->state->source;
 		switch(source->type)
 		{
-		case XVG_PAINT_TYPE_COLOR:
+		case CG_PAINT_TYPE_COLOR:
 			cg_blend_color(ctx, rle, source->color);
 			break;
-		case XVG_PAINT_TYPE_GRADIENT:
+		case CG_PAINT_TYPE_GRADIENT:
 			cg_blend_gradient(ctx, rle, source->gradient);
 			break;
-		case XVG_PAINT_TYPE_TEXTURE:
+		case CG_PAINT_TYPE_TEXTURE:
 			cg_blend_texture(ctx, rle, source->texture);
 			break;
 		default:
@@ -2233,13 +2233,13 @@ static struct cg_state_t * cg_state_create(void)
 	state->clippath = NULL;
 	state->source = cg_paint_create_rgba(0, 0, 0, 1.0);
 	cg_matrix_init_identity(&state->matrix);
-	state->winding = XVG_FILL_RULE_NON_ZERO;
+	state->winding = CG_FILL_RULE_NON_ZERO;
 	state->stroke.width = 1.0;
 	state->stroke.miterlimit = 10.0;
-	state->stroke.cap = XVG_LINE_CAP_BUTT;
-	state->stroke.join = XVG_LINE_JOIN_MITER;
+	state->stroke.cap = CG_LINE_CAP_BUTT;
+	state->stroke.join = CG_LINE_JOIN_MITER;
 	state->stroke.dash = NULL;
-	state->op = XVG_OPERATOR_SRC_OVER;
+	state->op = CG_OPERATOR_SRC_OVER;
 	state->opacity = 1.0;
 	state->next = NULL;
 	return state;
@@ -2568,7 +2568,7 @@ void cg_stroke_preserve(struct cg_ctx_t * ctx)
 {
 	struct cg_state_t * state = ctx->state;
 	cg_rle_clear(ctx->rle);
-	cg_rle_rasterize(ctx->rle, ctx->path, &state->matrix, &ctx->clip, &state->stroke, XVG_FILL_RULE_NON_ZERO);
+	cg_rle_rasterize(ctx->rle, ctx->path, &state->matrix, &ctx->clip, &state->stroke, CG_FILL_RULE_NON_ZERO);
 	cg_rle_intersect(ctx->rle, state->clippath);
 	cg_blend(ctx, ctx->rle);
 }
@@ -2583,7 +2583,7 @@ void cg_paint(struct cg_ctx_t * ctx)
 		struct cg_matrix_t matrix;
 		cg_matrix_init_identity(&matrix);
 		ctx->clippath = cg_rle_create();
-		cg_rle_rasterize(ctx->clippath, path, &matrix, &ctx->clip, NULL, XVG_FILL_RULE_NON_ZERO);
+		cg_rle_rasterize(ctx->clippath, path, &matrix, &ctx->clip, NULL, CG_FILL_RULE_NON_ZERO);
 		cg_path_destroy(path);
 	}
 	struct cg_rle_t * rle = state->clippath ? state->clippath : ctx->clippath;

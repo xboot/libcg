@@ -324,7 +324,7 @@ static void test_fill_style(const char * filename)
 	cg_rectangle(ctx, 12, 12, 232, 70);
 	cg_circle(ctx, 64, 64, 40);
 	cg_circle(ctx, 192, 64, 40);
-	cg_set_fill_rule(ctx, XVG_FILL_RULE_EVEN_ODD);
+	cg_set_fill_rule(ctx, CG_FILL_RULE_EVEN_ODD);
 	cg_set_source_rgb(ctx, 0, 0.7, 0);
 	cg_fill_preserve(ctx);
 	cg_set_source_rgb(ctx, 0, 0, 0);
@@ -335,7 +335,7 @@ static void test_fill_style(const char * filename)
 	cg_rectangle(ctx, 12, 12, 232, 70);
 	cg_circle(ctx, 64, 64, 40);
 	cg_circle(ctx, 192, 64, 40);
-	cg_set_fill_rule(ctx, XVG_FILL_RULE_NON_ZERO);
+	cg_set_fill_rule(ctx, CG_FILL_RULE_NON_ZERO);
 	cg_set_source_rgb(ctx, 0, 0, 0.9);
 	cg_fill_preserve(ctx);
 	cg_set_source_rgb(ctx, 0, 0, 0);
@@ -381,7 +381,7 @@ static void test_lines(const char * filename)
 
 	for(int i = 1; i < 16; i++)
 	{
-		cg_set_line_cap(ctx, XVG_LINE_CAP_ROUND);
+		cg_set_line_cap(ctx, CG_LINE_CAP_ROUND);
 		cg_set_line_width(ctx, i * 0.5);
 		cg_set_source_rgb(ctx, 0, 0, 0);
 		cg_move_to(ctx, 16 * i + 8, 16);
@@ -409,7 +409,7 @@ static void test_multi_segment_caps(const char * filename)
 	cg_line_to(ctx, 200.0, 175.0);
 
 	cg_set_line_width(ctx, 30.0);
-	cg_set_line_cap(ctx, XVG_LINE_CAP_ROUND);
+	cg_set_line_cap(ctx, CG_LINE_CAP_ROUND);
 	cg_stroke(ctx);
 
 	cg_surface_write_to_png(surface, filename);
@@ -455,15 +455,15 @@ static void test_set_line_cap(const char * filename)
 	struct cg_ctx_t * ctx = cg_create(surface);
 
 	cg_set_line_width(ctx, 30.0);
-	cg_set_line_cap(ctx, XVG_LINE_CAP_BUTT);
+	cg_set_line_cap(ctx, CG_LINE_CAP_BUTT);
 	cg_move_to(ctx, 64.0, 50.0);
 	cg_line_to(ctx, 64.0, 200.0);
 	cg_stroke(ctx);
-	cg_set_line_cap(ctx, XVG_LINE_CAP_ROUND);
+	cg_set_line_cap(ctx, CG_LINE_CAP_ROUND);
 	cg_move_to(ctx, 128.0, 50.0);
 	cg_line_to(ctx, 128.0, 200.0);
 	cg_stroke(ctx);
-	cg_set_line_cap(ctx, XVG_LINE_CAP_SQUARE);
+	cg_set_line_cap(ctx, CG_LINE_CAP_SQUARE);
 	cg_move_to(ctx, 192.0, 50.0);
 	cg_line_to(ctx, 192.0, 200.0);
 	cg_stroke(ctx);
@@ -492,19 +492,19 @@ static void test_set_line_join(const char * filename)
 	cg_move_to(ctx, 76.8, 84.48);
 	cg_rel_line_to(ctx, 51.2, -51.2);
 	cg_rel_line_to(ctx, 51.2, 51.2);
-	cg_set_line_join(ctx, XVG_LINE_JOIN_MITER);
+	cg_set_line_join(ctx, CG_LINE_JOIN_MITER);
 	cg_stroke(ctx);
 
 	cg_move_to(ctx, 76.8, 161.28);
 	cg_rel_line_to(ctx, 51.2, -51.2);
 	cg_rel_line_to(ctx, 51.2, 51.2);
-	cg_set_line_join(ctx, XVG_LINE_JOIN_BEVEL);
+	cg_set_line_join(ctx, CG_LINE_JOIN_BEVEL);
 	cg_stroke(ctx);
 
 	cg_move_to(ctx, 76.8, 238.08);
 	cg_rel_line_to(ctx, 51.2, -51.2);
 	cg_rel_line_to(ctx, 51.2, 51.2);
-	cg_set_line_join(ctx, XVG_LINE_JOIN_ROUND);
+	cg_set_line_join(ctx, CG_LINE_JOIN_ROUND);
 	cg_stroke(ctx);
 
 	cg_surface_write_to_png(surface, filename);
