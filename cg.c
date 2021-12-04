@@ -99,13 +99,6 @@ void cg_matrix_init_scale(struct cg_matrix_t * m, double sx, double sy)
 	m->tx = 0; m->ty = 0;
 }
 
-void cg_matrix_init_shear(struct cg_matrix_t * m, double x, double y)
-{
-	m->a = 1;      m->b = tan(y);
-	m->c = tan(x); m->d = 1;
-	m->tx = 0;     m->ty = 0;
-}
-
 void cg_matrix_init_rotate(struct cg_matrix_t * m, double r)
 {
 	double s = sin(r);
@@ -114,17 +107,6 @@ void cg_matrix_init_rotate(struct cg_matrix_t * m, double r)
 	m->a = c;   m->b = s;
 	m->c = -s;  m->d = c;
 	m->tx = 0;  m->ty = 0;
-}
-
-void cg_matrix_init_rotate_translate(struct cg_matrix_t * m, double r, double tx, double ty)
-{
-	double s = sin(r);
-	double c = cos(r);
-
-	m->a = c;    m->b = s;
-	m->c = -s;   m->d = c;
-	m->tx = tx * (1 - c) + ty * s;
-	m->ty = ty * (1 - c) - tx * s;
 }
 
 void cg_matrix_translate(struct cg_matrix_t * m, double tx, double ty)
@@ -139,13 +121,6 @@ void cg_matrix_scale(struct cg_matrix_t * m, double sx, double sy)
 	m->b *= sx;
 	m->c *= sy;
 	m->d *= sy;
-}
-
-void cg_matrix_shear(struct cg_matrix_t * m, double x, double y)
-{
-	struct cg_matrix_t tm;
-	cg_matrix_init_shear(&tm, x, y);
-	cg_matrix_multiply(m, &tm, m);
 }
 
 void cg_matrix_rotate(struct cg_matrix_t * m, double r)
@@ -165,13 +140,6 @@ void cg_matrix_rotate(struct cg_matrix_t * m, double r)
 	m->b = cb + sd;
 	m->c = cc - sa;
 	m->d = cd - sb;
-}
-
-void cg_matrix_rotate_translate(struct cg_matrix_t * m, double radians, double x, double y)
-{
-	struct cg_matrix_t tm;
-	cg_matrix_init_rotate_translate(&tm, radians, x, y);
-	cg_matrix_multiply(m, &tm, m);
 }
 
 void cg_matrix_multiply(struct cg_matrix_t * m, struct cg_matrix_t * m1, struct cg_matrix_t * m2)

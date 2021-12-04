@@ -204,14 +204,10 @@ void cg_matrix_init(struct cg_matrix_t * m, double a, double b, double c, double
 void cg_matrix_init_identity(struct cg_matrix_t * m);
 void cg_matrix_init_translate(struct cg_matrix_t * m, double tx, double ty);
 void cg_matrix_init_scale(struct cg_matrix_t * m, double sx, double sy);
-void cg_matrix_init_shear(struct cg_matrix_t * m, double x, double y);
 void cg_matrix_init_rotate(struct cg_matrix_t * m, double r);
-void cg_matrix_init_rotate_translate(struct cg_matrix_t * m, double r, double x, double y);
 void cg_matrix_translate(struct cg_matrix_t * m, double tx, double ty);
 void cg_matrix_scale(struct cg_matrix_t * m, double sx, double sy);
-void cg_matrix_shear(struct cg_matrix_t * m, double x, double y);
 void cg_matrix_rotate(struct cg_matrix_t * m, double r);
-void cg_matrix_rotate_translate(struct cg_matrix_t * m, double radians, double x, double y);
 void cg_matrix_multiply(struct cg_matrix_t * m, struct cg_matrix_t * m1, struct cg_matrix_t * m2);
 void cg_matrix_invert(struct cg_matrix_t * m);
 void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * p1, struct cg_point_t * p2);
