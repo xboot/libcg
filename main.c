@@ -591,6 +591,26 @@ static void test_smile(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void test_texture_tiled(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	struct cg_texture_t * tex = cg_texture_create(cg_surface_create_for_data(128, 128, (void *)cat_img_128_128));
+	cg_texture_set_type(tex, CG_TEXTURE_TYPE_TILED);
+	cg_translate(ctx, 128.0, 128.0);
+	cg_rotate(ctx, -45 * M_PI / 180);
+	cg_scale(ctx, 0.8, 0.8);
+	cg_translate(ctx, -0.5 * tex->surface->width, -0.5 * tex->surface->height);
+	cg_set_source_texture(ctx, tex);
+	cg_paint(ctx);
+	cg_texture_destroy(tex);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 int main(int argc, char * argv[])
 {
 	test_arc("arc.png");
@@ -610,5 +630,6 @@ int main(int argc, char * argv[])
 	test_set_line_cap("set_line_cap.png");
 	test_set_line_join("set_line_join.png");
 	test_smile("smile.png");
+	test_texture_tiled("texture_tiled.png");
 	return 0;
 }
