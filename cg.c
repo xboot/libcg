@@ -827,7 +827,7 @@ static void sw_ft_outline_end(SW_FT_Outline * ft)
 	}
 }
 
-static SW_FT_Outline * sw_ft_outline_convert(struct cg_path_t *path, struct cg_matrix_t *  matrix)
+static SW_FT_Outline * sw_ft_outline_convert(struct cg_path_t *path, struct cg_matrix_t *  m)
 {
 	SW_FT_Outline * outline = sw_ft_outline_create(path->points.size, path->contours);
 	enum cg_path_element_t * elements = path->elements.data;
@@ -838,19 +838,19 @@ static SW_FT_Outline * sw_ft_outline_convert(struct cg_path_t *path, struct cg_m
 		switch(elements[i])
 		{
 		case XVG_PATH_ELEMENT_MOVE_TO:
-			cg_matrix_map_point(matrix, &points[0], &p[0]);
+			cg_matrix_map_point(m, &points[0], &p[0]);
 			sw_ft_outline_move_to(outline, p[0].x, p[0].y);
 			points += 1;
 			break;
 		case XVG_PATH_ELEMENT_LINE_TO:
-			cg_matrix_map_point(matrix, &points[0], &p[0]);
+			cg_matrix_map_point(m, &points[0], &p[0]);
 			sw_ft_outline_line_to(outline, p[0].x, p[0].y);
 			points += 1;
 			break;
 		case XVG_PATH_ELEMENT_CURVE_TO:
-			cg_matrix_map_point(matrix, &points[0], &p[0]);
-			cg_matrix_map_point(matrix, &points[1], &p[1]);
-			cg_matrix_map_point(matrix, &points[2], &p[2]);
+			cg_matrix_map_point(m, &points[0], &p[0]);
+			cg_matrix_map_point(m, &points[1], &p[1]);
+			cg_matrix_map_point(m, &points[2], &p[2]);
 			sw_ft_outline_curve_to(outline, p[0].x, p[0].y, p[1].x, p[1].y, p[2].x, p[2].y);
 			points += 3;
 			break;
@@ -864,10 +864,10 @@ static SW_FT_Outline * sw_ft_outline_convert(struct cg_path_t *path, struct cg_m
 	return outline;
 }
 
-static SW_FT_Outline * sw_ft_outline_convert_dash(struct cg_path_t * path, struct cg_matrix_t * matrix, struct cg_dash_t * dash)
+static SW_FT_Outline * sw_ft_outline_convert_dash(struct cg_path_t * path, struct cg_matrix_t * m, struct cg_dash_t * dash)
 {
 	struct cg_path_t * dashed = cg_dash_path(dash, path);
-	SW_FT_Outline * outline = sw_ft_outline_convert(dashed, matrix);
+	SW_FT_Outline * outline = sw_ft_outline_convert(dashed, m);
 	cg_path_destroy(dashed);
 	return outline;
 }
@@ -910,7 +910,7 @@ static void cg_rle_destroy(struct cg_rle_t * rle)
 	}
 }
 
-static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, struct cg_matrix_t * matrix, struct cg_rect_t * clip, struct cg_stroke_data_t * stroke, enum cg_fill_rule_t winding)
+static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, struct cg_matrix_t * m, struct cg_rect_t * clip, struct cg_stroke_data_t * stroke, enum cg_fill_rule_t winding)
 {
 	SW_FT_Raster_Params params;
 	params.flags = SW_FT_RASTER_FLAG_DIRECT | SW_FT_RASTER_FLAG_AA;
@@ -936,8 +936,8 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 		struct cg_point_t p1 = { 0, 0 };
 		struct cg_point_t p2 = { M_SQRT2, M_SQRT2 };
 
-		cg_matrix_map_point(matrix, &p1, &p1);
-		cg_matrix_map_point(matrix, &p2, &p2);
+		cg_matrix_map_point(m, &p1, &p1);
+		cg_matrix_map_point(m, &p2, &p2);
 
 		double dx = p2.x - p1.x;
 		double dy = p2.y - p1.y;
@@ -972,7 +972,7 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 			ftJoin = SW_FT_STROKER_LINEJOIN_MITER_FIXED;
 			break;
 		}
-		SW_FT_Outline * outline = stroke->dash ? sw_ft_outline_convert_dash(path, matrix, stroke->dash) : sw_ft_outline_convert(path, matrix);
+		SW_FT_Outline * outline = stroke->dash ? sw_ft_outline_convert_dash(path, m, stroke->dash) : sw_ft_outline_convert(path, m);
 		SW_FT_Stroker stroker;
 		SW_FT_Stroker_New(&stroker);
 		SW_FT_Stroker_Set(stroker, ftWidth, ftCap, ftJoin, ftMiterLimit);
@@ -994,7 +994,7 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 	}
 	else
 	{
-		SW_FT_Outline * outline = sw_ft_outline_convert(path, matrix);
+		SW_FT_Outline * outline = sw_ft_outline_convert(path, m);
 		outline->flags = (winding == XVG_FILL_RULE_EVEN_ODD) ? SW_FT_OUTLINE_EVEN_ODD_FILL : SW_FT_OUTLINE_NONE;
 		params.source = outline;
 		sw_ft_grays_raster.raster_render(NULL, &params);
@@ -1188,14 +1188,14 @@ enum cg_spread_method_t cg_gradient_get_spread(struct cg_gradient_t * gradient)
 	return gradient->spread;
 }
 
-void cg_gradient_set_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * matrix)
+void cg_gradient_set_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * m)
 {
-	gradient->matrix = *matrix;
+	memcpy(&gradient->matrix, m, sizeof(struct cg_matrix_t));
 }
 
-void cg_gradient_get_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * matrix)
+void cg_gradient_get_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * m)
 {
-	*matrix = gradient->matrix;
+	memcpy(m, &gradient->matrix, sizeof(struct cg_matrix_t));
 }
 
 void cg_gradient_add_stop_rgb(struct cg_gradient_t * gradient, double offset, double r, double g, double b)
@@ -1232,7 +1232,7 @@ void cg_gradient_add_stop_color(struct cg_gradient_t * gradient, double offset, 
 	cg_gradient_add_stop_rgba(gradient, offset, color->r, color->g, color->b, color->a);
 }
 
-void cg_gradient_add_stop(struct cg_gradient_t * gradient, struct cg_gradient_stop_t *stop)
+void cg_gradient_add_stop(struct cg_gradient_t * gradient, struct cg_gradient_stop_t * stop)
 {
 	cg_gradient_add_stop_rgba(gradient, stop->offset, stop->color.r, stop->color.g, stop->color.b, stop->color.a);
 }
@@ -1257,7 +1257,7 @@ enum cg_gradient_type_t cg_gradient_get_type(struct cg_gradient_t * gradient)
 	return gradient->type;
 }
 
-void cg_gradient_get_values_linear(struct cg_gradient_t * gradient, double *x1, double *y1, double *x2, double *y2)
+void cg_gradient_get_values_linear(struct cg_gradient_t * gradient, double * x1, double * y1, double * x2, double * y2)
 {
 	if(x1)
 		*x1 = gradient->values[0];
@@ -1269,7 +1269,7 @@ void cg_gradient_get_values_linear(struct cg_gradient_t * gradient, double *x1, 
 		*y2 = gradient->values[3];
 }
 
-void cg_gradient_get_values_radial(struct cg_gradient_t * gradient, double *cx, double *cy, double *cr, double *fx, double *fy, double *fr)
+void cg_gradient_get_values_radial(struct cg_gradient_t * gradient, double * cx, double * cy, double * cr, double * fx, double * fy, double * fr)
 {
 	if(cx)
 		*cx = gradient->values[0];
@@ -1356,14 +1356,14 @@ enum cg_texture_type_t cg_texture_get_type(struct cg_texture_t * texture)
 	return texture->type;
 }
 
-void cg_texture_set_matrix(struct cg_texture_t * texture, struct cg_matrix_t * matrix)
+void cg_texture_set_matrix(struct cg_texture_t * texture, struct cg_matrix_t * m)
 {
-	texture->matrix = *matrix;
+	memcpy(&texture->matrix, m, sizeof(struct cg_matrix_t));
 }
 
-void cg_texture_get_matrix(struct cg_texture_t * texture, struct cg_matrix_t * matrix)
+void cg_texture_get_matrix(struct cg_texture_t * texture, struct cg_matrix_t * m)
 {
-	*matrix = texture->matrix;
+	memcpy(m, &texture->matrix, sizeof(struct cg_matrix_t));
 }
 
 void cg_texture_set_surface(struct cg_texture_t * texture, struct cg_surface_t * surface)
@@ -2492,29 +2492,29 @@ void cg_set_dash(struct cg_ctx_t * ctx, double * dashes, int ndash, double offse
 	ctx->state->stroke.dash = cg_dash_create(dashes, ndash, offset);
 }
 
-void cg_translate(struct cg_ctx_t * ctx, double x, double y)
+void cg_translate(struct cg_ctx_t * ctx, double tx, double ty)
 {
-	cg_matrix_translate(&ctx->state->matrix, x, y);
+	cg_matrix_translate(&ctx->state->matrix, tx, ty);
 }
 
-void cg_scale(struct cg_ctx_t * ctx, double x, double y)
+void cg_scale(struct cg_ctx_t * ctx, double sx, double sy)
 {
-	cg_matrix_scale(&ctx->state->matrix, x, y);
+	cg_matrix_scale(&ctx->state->matrix, sx, sy);
 }
 
-void cg_rotate(struct cg_ctx_t * ctx, double radians)
+void cg_rotate(struct cg_ctx_t * ctx, double r)
 {
-	cg_matrix_rotate(&ctx->state->matrix, radians);
+	cg_matrix_rotate(&ctx->state->matrix, r);
 }
 
-void cg_transform(struct cg_ctx_t * ctx, struct cg_matrix_t *matrix)
+void cg_transform(struct cg_ctx_t * ctx, struct cg_matrix_t * m)
 {
-	cg_matrix_multiply(&ctx->state->matrix, matrix, &ctx->state->matrix);
+	cg_matrix_multiply(&ctx->state->matrix, m, &ctx->state->matrix);
 }
 
-void cg_set_matrix(struct cg_ctx_t * ctx, struct cg_matrix_t *matrix)
+void cg_set_matrix(struct cg_ctx_t * ctx, struct cg_matrix_t * m)
 {
-	ctx->state->matrix = *matrix;
+	memcpy(&ctx->state->matrix, m, sizeof(struct cg_matrix_t));
 }
 
 void cg_identity_matrix(struct cg_ctx_t * ctx)
