@@ -54,7 +54,7 @@ all : $(NAME)
 
 $(NAME) : $(OBJS)
 	@echo [LD] Linking $@
-	@$(CC) $(LDFLAGS) $(LIBDIRS) $^ -o $@ $(LIBS) -static
+	@$(CC) $(LDFLAGS) $(LIBDIRS) $^ -o $@ $(LIBS)
 
 $(SOBJS) : %.o : %.S
 	@echo [AS] $<
