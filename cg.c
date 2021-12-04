@@ -920,11 +920,11 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 
 		switch(stroke->cap)
 		{
-		case XVG_LINE_CAP_SQUARE:
-			ftCap = SW_FT_STROKER_LINECAP_SQUARE;
-			break;
 		case XVG_LINE_CAP_ROUND:
 			ftCap = SW_FT_STROKER_LINECAP_ROUND;
+			break;
+		case XVG_LINE_CAP_SQUARE:
+			ftCap = SW_FT_STROKER_LINECAP_SQUARE;
 			break;
 		default:
 			ftCap = SW_FT_STROKER_LINECAP_BUTT;
@@ -932,17 +932,16 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 		}
 		switch(stroke->join)
 		{
-		case XVG_LINE_JOIN_BEVEL:
-			ftJoin = SW_FT_STROKER_LINEJOIN_BEVEL;
-			break;
 		case XVG_LINE_JOIN_ROUND:
 			ftJoin = SW_FT_STROKER_LINEJOIN_ROUND;
+			break;
+		case XVG_LINE_JOIN_BEVEL:
+			ftJoin = SW_FT_STROKER_LINEJOIN_BEVEL;
 			break;
 		default:
 			ftJoin = SW_FT_STROKER_LINEJOIN_MITER_FIXED;
 			break;
 		}
-
 		SW_FT_Outline * outline = stroke->dash ? sw_ft_outline_convert_dash(path, matrix, stroke->dash) : sw_ft_outline_convert(path, matrix);
 		SW_FT_Stroker stroker;
 		SW_FT_Stroker_New(&stroker);
@@ -965,7 +964,7 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 	}
 	else
 	{
-		SW_FT_Outline *outline = sw_ft_outline_convert(path, matrix);
+		SW_FT_Outline * outline = sw_ft_outline_convert(path, matrix);
 		outline->flags = (winding == XVG_FILL_RULE_EVEN_ODD) ? SW_FT_OUTLINE_EVEN_ODD_FILL : SW_FT_OUTLINE_NONE;
 		params.source = outline;
 		sw_ft_grays_raster.raster_render(NULL, &params);
