@@ -2381,16 +2381,16 @@ void cg_destroy(struct cg_ctx_t * ctx)
 
 void cg_save(struct cg_ctx_t * ctx)
 {
-	struct cg_state_t *newstate = cg_state_clone(ctx->state);
-	newstate->next = ctx->state;
-	ctx->state = newstate;
+	struct cg_state_t * state = cg_state_clone(ctx->state);
+	state->next = ctx->state;
+	ctx->state = state;
 }
 
 void cg_restore(struct cg_ctx_t * ctx)
 {
-	struct cg_state_t *oldstate = ctx->state;
-	ctx->state = oldstate->next;
-	cg_state_destroy(oldstate);
+	struct cg_state_t * state = ctx->state;
+	ctx->state = state->next;
+	cg_state_destroy(state);
 }
 
 void cg_set_source_rgb(struct cg_ctx_t * ctx, double r, double g, double b)
