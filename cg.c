@@ -421,7 +421,7 @@ static inline void cg_path_add_round_rectangle(struct cg_path_t * path, double x
 	cg_path_close(path);
 }
 
-static inline void cg_path_add_ellipse(struct cg_path_t * path, double cx, double cy, double rx, double ry)
+static void cg_path_add_ellipse(struct cg_path_t * path, double cx, double cy, double rx, double ry)
 {
 	double left = cx - rx;
 	double top = cy - ry;
@@ -438,7 +438,7 @@ static inline void cg_path_add_ellipse(struct cg_path_t * path, double cx, doubl
 	cg_path_close(path);
 }
 
-static inline void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, double a0, double a1, int ccw)
+static void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, double r, double a0, double a1, int ccw)
 {
 	double da = a1 - a0;
 	if(ccw == 0)
