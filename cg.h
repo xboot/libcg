@@ -248,13 +248,9 @@ struct cg_texture_t * cg_texture_create(struct cg_surface_t * surface);
 void cg_texture_destroy(struct cg_texture_t * texture);
 struct cg_texture_t * cg_texture_reference(struct cg_texture_t * texture);
 void cg_texture_set_type(struct cg_texture_t * texture, enum cg_texture_type_t type);
-enum cg_texture_type_t cg_texture_get_type(struct cg_texture_t * texture);
 void cg_texture_set_matrix(struct cg_texture_t * texture, struct cg_matrix_t * m);
-void cg_texture_get_matrix(struct cg_texture_t * texture, struct cg_matrix_t * m);
 void cg_texture_set_surface(struct cg_texture_t * texture, struct cg_surface_t * surface);
-struct cg_surface_t * cg_texture_get_surface(struct cg_texture_t * texture);
 void cg_texture_set_opacity(struct cg_texture_t * texture, double opacity);
-double cg_texture_get_opacity(struct cg_texture_t * texture);
 
 struct cg_paint_t * cg_paint_create_rgb(double r, double g, double b);
 struct cg_paint_t * cg_paint_create_rgba(double r, double g, double b, double a);
