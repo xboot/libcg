@@ -663,10 +663,9 @@ static struct cg_path_t * cg_dash_path(struct cg_dash_t * dash, struct cg_path_t
 		if(offset == dash->size)
 			offset = 0;
 	}
-
-	enum cg_path_element_t *elements = flat->elements.data;
-	enum cg_path_element_t *end = elements + flat->elements.size;
-	struct cg_point_t *points = flat->points.data;
+	enum cg_path_element_t * elements = flat->elements.data;
+	enum cg_path_element_t * end = elements + flat->elements.size;
+	struct cg_point_t * points = flat->points.data;
 	while(elements < end)
 	{
 		int itoggle = toggle;
@@ -674,12 +673,11 @@ static struct cg_path_t * cg_dash_path(struct cg_dash_t * dash, struct cg_path_t
 		double iphase = phase;
 		double x0 = points->x;
 		double y0 = points->y;
-
 		if(itoggle)
 			cg_path_move_to(result, x0, y0);
 		++elements;
 		++points;
-		while(elements < end && *elements == XVG_PATH_ELEMENT_LINE_TO)
+		while((elements < end) && (*elements == XVG_PATH_ELEMENT_LINE_TO))
 		{
 			double dx = points->x - x0;
 			double dy = points->y - y0;
@@ -691,12 +689,10 @@ static struct cg_path_t * cg_dash_path(struct cg_dash_t * dash, struct cg_path_t
 				double a = dist1 / dist0;
 				double x = x0 + a * dx;
 				double y = y0 + a * dy;
-
 				if(itoggle)
 					cg_path_line_to(result, x, y);
 				else
 					cg_path_move_to(result, x, y);
-
 				itoggle = !itoggle;
 				iphase = 0;
 				ioffset += 1;
