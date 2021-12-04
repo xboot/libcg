@@ -2272,10 +2272,8 @@ static inline void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_rle_t * rle
 		data.matrix = texture->matrix;
 		cg_matrix_multiply(&data.matrix, &data.matrix, &state->matrix);
 		cg_matrix_invert(&data.matrix);
-
-		struct cg_matrix_t * matrix = &data.matrix;
-		int translating = (matrix->a == 1.0 && matrix->b == 0.0 && matrix->c == 0.0 && matrix->d == 1.0);
-		if(translating)
+		struct cg_matrix_t * m = &data.matrix;
+		if((m->a == 1.0) && (m->b == 0.0) && (m->c == 0.0) && (m->d == 1.0))
 		{
 			if(texture->type == XVG_TEXTURE_TYPE_PLAIN)
 				blend_untransformed_argb(ctx->surface, state->op, rle, &data);
