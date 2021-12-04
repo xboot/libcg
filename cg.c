@@ -1449,12 +1449,20 @@ void cg_paint_destroy(struct cg_paint_t * paint)
 	{
 		if(--paint->ref == 0)
 		{
-			if(paint->type == XVG_PAINT_TYPE_COLOR)
+			switch(paint->type)
+			{
+			case XVG_PAINT_TYPE_COLOR:
 				free(paint->color);
-			if(paint->type == XVG_PAINT_TYPE_GRADIENT)
+				break;
+			case XVG_PAINT_TYPE_GRADIENT:
 				cg_gradient_destroy(paint->gradient);
-			if(paint->type == XVG_PAINT_TYPE_TEXTURE)
+				break;
+			case XVG_PAINT_TYPE_TEXTURE:
 				cg_texture_destroy(paint->texture);
+				break;
+			default:
+				break;
+			}
 			free(paint);
 		}
 	}
