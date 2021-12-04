@@ -272,7 +272,7 @@ static void test_dash(const char * filename)
 
 	double dashes[] = { 50.0, 10.0, 10.0, 10.0 };
 	int ndash = sizeof(dashes) / sizeof(dashes[0]);
-	double offset = -50.0;
+	double offset = 30.0;
 	cg_set_dash(ctx, dashes, ndash, offset);
 	cg_set_line_width(ctx, 10.0);
 	cg_move_to(ctx, 128.0, 25.6);
