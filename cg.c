@@ -48,8 +48,8 @@
 	do { \
 		if(array.size + count > array.capacity) { \
 			int capacity = array.size + count; \
-			int newcapacity = array.capacity == 0 ? 8 : array.capacity; \
-			while(newcapacity < capacity) { newcapacity *= 2; } \
+			int newcapacity = (array.capacity == 0) ? 8 : array.capacity; \
+			while(newcapacity < capacity) { newcapacity <<= 1; } \
 			array.data = realloc(array.data, (size_t)newcapacity * sizeof(array.data[0])); \
 			array.capacity = newcapacity; \
 		} \
