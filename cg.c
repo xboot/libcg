@@ -2331,9 +2331,9 @@ void cg_set_source_surface(struct cg_ctx_t * ctx, struct cg_surface_t * surface,
 {
 	struct cg_paint_t * source = cg_paint_create_for_surface(surface);
 	struct cg_texture_t * texture = cg_paint_get_texture(source);
-	struct cg_matrix_t matrix;
-	cg_matrix_init_translate(&matrix, x, y);
-	cg_texture_set_matrix(texture, &matrix);
+	struct cg_matrix_t m;
+	cg_matrix_init_translate(&m, x, y);
+	cg_texture_set_matrix(texture, &m);
 	cg_set_source(ctx, source);
 	cg_paint_destroy(source);
 }
@@ -2580,10 +2580,10 @@ void cg_paint(struct cg_ctx_t * ctx)
 	{
 		struct cg_path_t * path = cg_path_create();
 		cg_path_add_rectangle(path, ctx->clip.x, ctx->clip.y, ctx->clip.w, ctx->clip.h);
-		struct cg_matrix_t matrix;
-		cg_matrix_init_identity(&matrix);
+		struct cg_matrix_t m;
+		cg_matrix_init_identity(&m);
 		ctx->clippath = cg_rle_create();
-		cg_rle_rasterize(ctx->clippath, path, &matrix, &ctx->clip, NULL, CG_FILL_RULE_NON_ZERO);
+		cg_rle_rasterize(ctx->clippath, path, &m, &ctx->clip, NULL, CG_FILL_RULE_NON_ZERO);
 		cg_path_destroy(path);
 	}
 	struct cg_rle_t * rle = state->clippath ? state->clippath : ctx->clippath;
