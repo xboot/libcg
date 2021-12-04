@@ -1176,19 +1176,9 @@ void cg_gradient_set_spread(struct cg_gradient_t * gradient, enum cg_spread_meth
 	gradient->spread = spread;
 }
 
-enum cg_spread_method_t cg_gradient_get_spread(struct cg_gradient_t * gradient)
-{
-	return gradient->spread;
-}
-
 void cg_gradient_set_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * m)
 {
 	memcpy(&gradient->matrix, m, sizeof(struct cg_matrix_t));
-}
-
-void cg_gradient_get_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * m)
-{
-	memcpy(m, &gradient->matrix, sizeof(struct cg_matrix_t));
 }
 
 void cg_gradient_add_stop_rgb(struct cg_gradient_t * gradient, double offset, double r, double g, double b)
@@ -1203,7 +1193,7 @@ void cg_gradient_add_stop_rgba(struct cg_gradient_t * gradient, double offset, d
 	if(offset > 1.0)
 		offset = 1.0;
 	cg_array_ensure(gradient->stops, 1);
-	struct cg_gradient_stop_t *stops = gradient->stops.data;
+	struct cg_gradient_stop_t * stops = gradient->stops.data;
 	int nstops = gradient->stops.size;
 	int i;
 	for(i = 0; i < nstops; i++)
@@ -1235,49 +1225,6 @@ void cg_gradient_clear_stops(struct cg_gradient_t * gradient)
 	gradient->stops.size = 0;
 }
 
-int cg_gradient_get_stop_count(struct cg_gradient_t * gradient)
-{
-	return gradient->stops.size;
-}
-
-struct cg_gradient_stop_t * cg_gradient_get_stops(struct cg_gradient_t * gradient)
-{
-	return gradient->stops.data;
-}
-
-enum cg_gradient_type_t cg_gradient_get_type(struct cg_gradient_t * gradient)
-{
-	return gradient->type;
-}
-
-void cg_gradient_get_values_linear(struct cg_gradient_t * gradient, double * x1, double * y1, double * x2, double * y2)
-{
-	if(x1)
-		*x1 = gradient->values[0];
-	if(y1)
-		*y1 = gradient->values[1];
-	if(x2)
-		*x2 = gradient->values[2];
-	if(y2)
-		*y2 = gradient->values[3];
-}
-
-void cg_gradient_get_values_radial(struct cg_gradient_t * gradient, double * cx, double * cy, double * cr, double * fx, double * fy, double * fr)
-{
-	if(cx)
-		*cx = gradient->values[0];
-	if(cy)
-		*cy = gradient->values[1];
-	if(cr)
-		*cr = gradient->values[2];
-	if(fx)
-		*fx = gradient->values[3];
-	if(fy)
-		*fy = gradient->values[4];
-	if(fr)
-		*fr = gradient->values[5];
-}
-
 void cg_gradient_set_values_linear(struct cg_gradient_t * gradient, double x1, double y1, double x2, double y2)
 {
 	gradient->values[0] = x1;
@@ -1299,11 +1246,6 @@ void cg_gradient_set_values_radial(struct cg_gradient_t * gradient, double cx, d
 void cg_gradient_set_opacity(struct cg_gradient_t * gradient, double opacity)
 {
 	gradient->opacity = clamp(opacity, 0.0, 1.0);
-}
-
-double cg_gradient_get_opacity(struct cg_gradient_t * gradient)
-{
-	return gradient->opacity;
 }
 
 struct cg_texture_t * cg_texture_create(struct cg_surface_t * surface)

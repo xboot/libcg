@@ -226,23 +226,15 @@ struct cg_gradient_t * cg_gradient_create_radial(double cx, double cy, double cr
 void cg_gradient_destroy(struct cg_gradient_t * gradient);
 struct cg_gradient_t * cg_gradient_reference(struct cg_gradient_t * gradient);
 void cg_gradient_set_spread(struct cg_gradient_t * gradient, enum cg_spread_method_t spread);
-enum cg_spread_method_t cg_gradient_get_spread(struct cg_gradient_t * gradient);
 void cg_gradient_set_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * m);
-void cg_gradient_get_matrix(struct cg_gradient_t * gradient, struct cg_matrix_t * m);
 void cg_gradient_add_stop_rgb(struct cg_gradient_t * gradient, double offset, double r, double g, double b);
 void cg_gradient_add_stop_rgba(struct cg_gradient_t * gradient, double offset, double r, double g, double b, double a);
 void cg_gradient_add_stop_color(struct cg_gradient_t * gradient, double offset, struct cg_color_t * color);
 void cg_gradient_add_stop(struct cg_gradient_t * gradient, struct cg_gradient_stop_t * stop);
 void cg_gradient_clear_stops(struct cg_gradient_t * gradient);
-int cg_gradient_get_stop_count(struct cg_gradient_t * gradient);
-struct cg_gradient_stop_t* cg_gradient_get_stops(struct cg_gradient_t * gradient);
-enum cg_gradient_type_t cg_gradient_get_type(struct cg_gradient_t * gradient);
-void cg_gradient_get_values_linear(struct cg_gradient_t * gradient, double * x1, double * y1, double * x2, double * y2);
-void cg_gradient_get_values_radial(struct cg_gradient_t * gradient, double * cx, double * cy, double * cr, double * fx, double * fy, double * fr);
 void cg_gradient_set_values_linear(struct cg_gradient_t * gradient, double x1, double y1, double x2, double y2);
 void cg_gradient_set_values_radial(struct cg_gradient_t * gradient, double cx, double cy, double cr, double fx, double fy, double fr);
 void cg_gradient_set_opacity(struct cg_gradient_t * paint, double opacity);
-double cg_gradient_get_opacity(struct cg_gradient_t * paint);
 
 struct cg_texture_t * cg_texture_create(struct cg_surface_t * surface);
 void cg_texture_destroy(struct cg_texture_t * texture);
