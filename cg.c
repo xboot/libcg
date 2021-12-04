@@ -1126,26 +1126,36 @@ static inline void cg_rle_clear(struct cg_rle_t * rle)
 struct cg_gradient_t * cg_gradient_create_linear(double x1, double y1, double x2, double y2)
 {
 	struct cg_gradient_t * gradient = malloc(sizeof(struct cg_gradient_t));
+
 	gradient->ref = 1;
 	gradient->type = XVG_GRADIENT_TYPE_LINEAR;
 	gradient->spread = XVG_SPREAD_METHOD_PAD;
 	gradient->opacity = 1.0;
 	cg_array_init(gradient->stops);
 	cg_matrix_init_identity(&gradient->matrix);
-	cg_gradient_set_values_linear(gradient, x1, y1, x2, y2);
+	gradient->values[0] = x1;
+	gradient->values[1] = y1;
+	gradient->values[2] = x2;
+	gradient->values[3] = y2;
 	return gradient;
 }
 
 struct cg_gradient_t * cg_gradient_create_radial(double cx, double cy, double cr, double fx, double fy, double fr)
 {
 	struct cg_gradient_t * gradient = malloc(sizeof(struct cg_gradient_t));
+
 	gradient->ref = 1;
 	gradient->type = XVG_GRADIENT_TYPE_RADIAL;
 	gradient->spread = XVG_SPREAD_METHOD_PAD;
 	gradient->opacity = 1.0;
 	cg_array_init(gradient->stops);
 	cg_matrix_init_identity(&gradient->matrix);
-	cg_gradient_set_values_radial(gradient, cx, cy, cr, fx, fy, fr);
+	gradient->values[0] = cx;
+	gradient->values[1] = cy;
+	gradient->values[2] = cr;
+	gradient->values[3] = fx;
+	gradient->values[4] = fy;
+	gradient->values[5] = fr;
 	return gradient;
 }
 
@@ -1223,24 +1233,6 @@ void cg_gradient_add_stop(struct cg_gradient_t * gradient, struct cg_gradient_st
 void cg_gradient_clear_stops(struct cg_gradient_t * gradient)
 {
 	gradient->stops.size = 0;
-}
-
-void cg_gradient_set_values_linear(struct cg_gradient_t * gradient, double x1, double y1, double x2, double y2)
-{
-	gradient->values[0] = x1;
-	gradient->values[1] = y1;
-	gradient->values[2] = x2;
-	gradient->values[3] = y2;
-}
-
-void cg_gradient_set_values_radial(struct cg_gradient_t * gradient, double cx, double cy, double cr, double fx, double fy, double fr)
-{
-	gradient->values[0] = cx;
-	gradient->values[1] = cy;
-	gradient->values[2] = cr;
-	gradient->values[3] = fx;
-	gradient->values[4] = fy;
-	gradient->values[5] = fr;
 }
 
 void cg_gradient_set_opacity(struct cg_gradient_t * gradient, double opacity)

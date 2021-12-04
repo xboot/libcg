@@ -232,8 +232,6 @@ void cg_gradient_add_stop_rgba(struct cg_gradient_t * gradient, double offset, d
 void cg_gradient_add_stop_color(struct cg_gradient_t * gradient, double offset, struct cg_color_t * color);
 void cg_gradient_add_stop(struct cg_gradient_t * gradient, struct cg_gradient_stop_t * stop);
 void cg_gradient_clear_stops(struct cg_gradient_t * gradient);
-void cg_gradient_set_values_linear(struct cg_gradient_t * gradient, double x1, double y1, double x2, double y2);
-void cg_gradient_set_values_radial(struct cg_gradient_t * gradient, double cx, double cy, double cr, double fx, double fy, double fr);
 void cg_gradient_set_opacity(struct cg_gradient_t * paint, double opacity);
 
 struct cg_texture_t * cg_texture_create(struct cg_surface_t * surface);
