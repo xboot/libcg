@@ -579,7 +579,7 @@ static inline void flatten(struct cg_path_t * path, struct cg_point_t * p0, stru
 	}
 }
 
-static struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path)
+static inline struct cg_path_t * cg_path_clone_flat(struct cg_path_t * path)
 {
 	struct cg_point_t * points = path->points.data;
 	struct cg_path_t * result = cg_path_create();
@@ -645,7 +645,7 @@ static void cg_dash_destroy(struct cg_dash_t * dash)
 	}
 }
 
-static struct cg_path_t * cg_dash_path(struct cg_dash_t * dash, struct cg_path_t * path)
+static inline struct cg_path_t * cg_dash_path(struct cg_dash_t * dash, struct cg_path_t * path)
 {
 	struct cg_path_t * flat = cg_path_clone_flat(path);
 	struct cg_path_t * result = cg_path_create();
@@ -711,7 +711,6 @@ static struct cg_path_t * cg_dash_path(struct cg_dash_t * dash, struct cg_path_t
 	cg_path_destroy(flat);
 	return result;
 }
-
 
 static SW_FT_Outline * sw_ft_outline_create(int points, int contours)
 {
