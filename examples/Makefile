@@ -13,9 +13,9 @@ OC			:= $(CROSS_COMPILE)objcopy
 OD			:= $(CROSS_COMPILE)objdump
 RM			:= rm -fr
 
-ASFLAGS		:= -g -ggdb -Wall -O3
-CFLAGS		:= -g -ggdb -Wall -O3
-CXXFLAGS	:= -g -ggdb -Wall -O3
+ASFLAGS		:= -g -ggdb -Wall -O3 -ffunction-sections -fdata-sections -ffreestanding -std=gnu99
+CFLAGS		:= -g -ggdb -Wall -O3 -ffunction-sections -fdata-sections -ffreestanding -std=gnu99
+CXXFLAGS	:= -g -ggdb -Wall -O3 -ffunction-sections -fdata-sections -ffreestanding -std=gnu99
 LDFLAGS		:=
 OCFLAGS		:= -v -O binary
 ODFLAGS		:=
