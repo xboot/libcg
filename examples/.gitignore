@@ -4,6 +4,7 @@
 *.map
 *.elf
 *.bin
+*.png
 *.rej
 *.orig
 *.d
@@ -15,6 +16,4 @@
 #
 # Generated files
 #
-/.cproject
-/.project
-/.settings
+/examples

@@ -5,8 +5,7 @@ The tiny `C` library of 2D computer graphics.
 
 ## Getting Started
 
-The library's .c and .h files can be dropped into a project and compiled along with it.
-Just type `make` at the root directory, you will see a  example binary file.
+The library's .c and .h files can be dropped into a project and compiled along with it. Just type `make` at the root directory, you will see a static library and some binary of [examples](examples) for usage.
 
 ```shell
 cd libcg
