@@ -820,7 +820,7 @@ static void sw_ft_outline_end(SW_FT_Outline * ft)
 	}
 }
 
-static SW_FT_Outline * sw_ft_outline_convert(struct cg_path_t *path, struct cg_matrix_t *  m)
+static SW_FT_Outline * sw_ft_outline_convert(struct cg_path_t * path, struct cg_matrix_t *  m)
 {
 	SW_FT_Outline * outline = sw_ft_outline_create(path->points.size, path->contours);
 	enum cg_path_element_t * elements = path->elements.data;
