@@ -2883,12 +2883,16 @@ Do_Conic:
 Close:
 		if(error)
 			goto Exit;
-		if(!stroker->first_point)
+		if(stroker->first_point)
 		{
-			error = SW_FT_Stroker_EndSubPath(stroker);
+			stroker->subpath_open = TRUE;
+			error = ft_stroker_subpath_start(stroker, 0, 0);
 			if(error)
 				goto Exit;
 		}
+		error = SW_FT_Stroker_EndSubPath(stroker);
+		if(error)
+			goto Exit;
 		first = last + 1;
 	}
 	return 0;
