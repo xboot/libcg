@@ -1417,7 +1417,7 @@ struct cg_texture_t * cg_paint_get_texture(struct cg_paint_t * paint)
 #define cg_green(c)		(((c) >> 8) & 0xff)
 #define cg_blue(c)		(((c) >> 0) & 0xff)
 
-struct gradient_data_t {
+struct cg_gradient_data_t {
 	enum cg_spread_method_t spread;
 	struct cg_matrix_t matrix;
 	uint32_t colortable[1024];
@@ -1433,7 +1433,7 @@ struct gradient_data_t {
 	};
 };
 
-struct texture_data_t {
+struct cg_texture_data_t {
 	struct cg_matrix_t matrix;
 	int width;
 	int height;
@@ -1442,14 +1442,14 @@ struct texture_data_t {
 	void * pixels;
 };
 
-struct linear_gradient_values_t {
+struct cg_linear_gradient_values_t {
 	double dx;
 	double dy;
 	double l;
 	double off;
 };
 
-struct radial_gradient_values_t {
+struct cg_radial_gradient_values_t {
 	double dx;
 	double dy;
 	double dr;
@@ -1519,7 +1519,7 @@ static inline void memfill32(uint32_t * dest, uint32_t value, int length)
 		dest[i] = value;
 }
 
-static inline int gradient_clamp(struct gradient_data_t * gradient, int ipos)
+static inline int gradient_clamp(struct cg_gradient_data_t * gradient, int ipos)
 {
 	switch(gradient->spread)
 	{
@@ -1547,19 +1547,19 @@ static inline int gradient_clamp(struct gradient_data_t * gradient, int ipos)
 #define FIXPT_BITS	(8)
 #define FIXPT_SIZE	(1 << FIXPT_BITS)
 
-static inline uint32_t gradient_pixel_fixed(struct gradient_data_t * gradient, int fixed_pos)
+static inline uint32_t gradient_pixel_fixed(struct cg_gradient_data_t * gradient, int fixed_pos)
 {
 	int ipos = (fixed_pos + (FIXPT_SIZE / 2)) >> FIXPT_BITS;
 	return gradient->colortable[gradient_clamp(gradient, ipos)];
 }
 
-static inline uint32_t gradient_pixel(struct gradient_data_t * gradient, double pos)
+static inline uint32_t gradient_pixel(struct cg_gradient_data_t * gradient, double pos)
 {
 	int ipos = (int)(pos * (1024 - 1) + 0.5);
 	return gradient->colortable[gradient_clamp(gradient, ipos)];
 }
 
-static void fetch_linear_gradient(uint32_t * buffer, struct linear_gradient_values_t * v, struct gradient_data_t * gradient, int y, int x, int length)
+static void fetch_linear_gradient(uint32_t * buffer, struct cg_linear_gradient_values_t * v, struct cg_gradient_data_t * gradient, int y, int x, int length)
 {
 	double t, inc;
 	double rx = 0, ry = 0;
@@ -1607,7 +1607,7 @@ static void fetch_linear_gradient(uint32_t * buffer, struct linear_gradient_valu
 	}
 }
 
-static void fetch_radial_gradient(uint32_t * buffer, struct radial_gradient_values_t * v, struct gradient_data_t * gradient, int y, int x, int length)
+static void fetch_radial_gradient(uint32_t * buffer, struct cg_radial_gradient_values_t * v, struct cg_gradient_data_t * gradient, int y, int x, int length)
 {
 	if(v->a == 0.0)
 	{
@@ -1829,12 +1829,12 @@ static void blend_solid(struct cg_surface_t * surface, enum cg_operator_t op, st
 	}
 }
 
-static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct gradient_data_t * gradient)
+static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_gradient_data_t * gradient)
 {
 	composition_function_t func = composition_map[op];
 	unsigned int buffer[1024];
 
-	struct linear_gradient_values_t v;
+	struct cg_linear_gradient_values_t v;
 	v.dx = gradient->linear.x2 - gradient->linear.x1;
 	v.dy = gradient->linear.y2 - gradient->linear.y1;
 	v.l = v.dx * v.dx + v.dy * v.dy;
@@ -1865,12 +1865,12 @@ static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operato
 	}
 }
 
-static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct gradient_data_t * gradient)
+static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_gradient_data_t * gradient)
 {
 	composition_function_t func = composition_map[op];
 	unsigned int buffer[1024];
 
-	struct radial_gradient_values_t v;
+	struct cg_radial_gradient_values_t v;
 	v.dx = gradient->radial.cx - gradient->radial.fx;
 	v.dy = gradient->radial.cy - gradient->radial.fy;
 	v.dr = gradient->radial.cr - gradient->radial.fr;
@@ -1899,7 +1899,7 @@ static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operato
 }
 
 #define FIXED_SCALE (1 << 16)
-static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
+static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 
@@ -1937,7 +1937,7 @@ static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_oper
 	}
 }
 
-static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
+static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 	uint32_t buffer[1024];
@@ -1981,7 +1981,7 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 	}
 }
 
-static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
+static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 
@@ -2022,7 +2022,7 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 	}
 }
 
-static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct texture_data_t * texture)
+static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 	uint32_t buffer[1024];
@@ -2101,7 +2101,7 @@ static inline void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_rle_t * rl
 	if(gradient && (gradient->stops.size > 0))
 	{
 		struct cg_state_t * state = ctx->state;
-		struct gradient_data_t data;
+		struct cg_gradient_data_t data;
 		int i, pos = 0, nstop = gradient->stops.size;
 		struct cg_gradient_stop_t *curr, *next, *start, *last;
 		uint32_t curr_color, next_color, last_color;
@@ -2178,7 +2178,7 @@ static inline void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_rle_t * rle
 	if(texture)
 	{
 		struct cg_state_t * state = ctx->state;
-		struct texture_data_t data;
+		struct cg_texture_data_t data;
 		data.width = texture->surface->width;
 		data.height = texture->surface->height;
 		data.stride = texture->surface->stride;
