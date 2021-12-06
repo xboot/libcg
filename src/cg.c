@@ -1036,7 +1036,7 @@ static struct cg_rle_t * cg_rle_intersection(struct cg_rle_t * a, struct cg_rle_
 		int len = min(ax2, bx2) - x;
 		if(len)
 		{
-			struct cg_span_t *span = result->spans.data + result->spans.size;
+			struct cg_span_t * span = result->spans.data + result->spans.size;
 			span->x = x;
 			span->len = len;
 			span->y = a_spans->y;
@@ -1438,7 +1438,7 @@ struct texture_data_t {
 	int width;
 	int height;
 	int stride;
-	int const_alpha;
+	int alpha;
 	void * pixels;
 };
 
@@ -1677,66 +1677,66 @@ static void fetch_radial_gradient(uint32_t * buffer, struct radial_gradient_valu
 	}
 }
 
-static void composition_solid_source(uint32_t * dest, int length, uint32_t color, uint32_t const_alpha)
+static void composition_solid_source(uint32_t * dest, int length, uint32_t color, uint32_t alpha)
 {
-	if(const_alpha == 255)
+	if(alpha == 255)
 	{
 		memfill32(dest, color, length);
 	}
 	else
 	{
-		uint32_t ialpha = 255 - const_alpha;
-		color = BYTE_MUL(color, const_alpha);
+		uint32_t ialpha = 255 - alpha;
+		color = BYTE_MUL(color, alpha);
 		for(int i = 0; i < length; i++)
 			dest[i] = color + BYTE_MUL(dest[i], ialpha);
 	}
 }
 
-static void composition_solid_source_over(uint32_t * dest, int length, uint32_t color, uint32_t const_alpha)
+static void composition_solid_source_over(uint32_t * dest, int length, uint32_t color, uint32_t alpha)
 {
-	if(const_alpha != 255)
-		color = BYTE_MUL(color, const_alpha);
+	if(alpha != 255)
+		color = BYTE_MUL(color, alpha);
 	uint32_t ialpha = 255 - cg_alpha(color);
 	for(int i = 0; i < length; i++)
 		dest[i] = color + BYTE_MUL(dest[i], ialpha);
 }
 
-static void composition_solid_destination_in(uint32_t * dest, int length, uint32_t color, uint32_t const_alpha)
+static void composition_solid_destination_in(uint32_t * dest, int length, uint32_t color, uint32_t alpha)
 {
 	uint32_t a = cg_alpha(color);
-	if(const_alpha != 255)
-		a = BYTE_MUL(a, const_alpha) + 255 - const_alpha;
+	if(alpha != 255)
+		a = BYTE_MUL(a, alpha) + 255 - alpha;
 	for(int i = 0; i < length; i++)
 		dest[i] = BYTE_MUL(dest[i], a);
 }
 
-static void composition_solid_destination_out(uint32_t * dest, int length, uint32_t color, uint32_t const_alpha)
+static void composition_solid_destination_out(uint32_t * dest, int length, uint32_t color, uint32_t alpha)
 {
 	uint32_t a = cg_alpha(~color);
-	if(const_alpha != 255)
-		a = BYTE_MUL(a, const_alpha) + 255 - const_alpha;
+	if(alpha != 255)
+		a = BYTE_MUL(a, alpha) + 255 - alpha;
 	for(int i = 0; i < length; i++)
 		dest[i] = BYTE_MUL(dest[i], a);
 }
 
-static void composition_source(uint32_t * dest, int length, uint32_t * src, uint32_t const_alpha)
+static void composition_source(uint32_t * dest, int length, uint32_t * src, uint32_t alpha)
 {
-	if(const_alpha == 255)
+	if(alpha == 255)
 	{
 		memcpy(dest, src, (size_t)(length) * sizeof(uint32_t));
 	}
 	else
 	{
-		uint32_t ialpha = 255 - const_alpha;
+		uint32_t ialpha = 255 - alpha;
 		for(int i = 0; i < length; i++)
-			dest[i] = interpolate_pixel(src[i], const_alpha, dest[i], ialpha);
+			dest[i] = interpolate_pixel(src[i], alpha, dest[i], ialpha);
 	}
 }
 
-static void composition_source_over(uint32_t * dest, int length, uint32_t * src, uint32_t const_alpha)
+static void composition_source_over(uint32_t * dest, int length, uint32_t * src, uint32_t alpha)
 {
 	uint32_t s, sia;
-	if(const_alpha == 255)
+	if(alpha == 255)
 	{
 		for(int i = 0; i < length; i++)
 		{
@@ -1754,53 +1754,53 @@ static void composition_source_over(uint32_t * dest, int length, uint32_t * src,
 	{
 		for(int i = 0; i < length; i++)
 		{
-			s = BYTE_MUL(src[i], const_alpha);
+			s = BYTE_MUL(src[i], alpha);
 			sia = cg_alpha(~s);
 			dest[i] = s + BYTE_MUL(dest[i], sia);
 		}
 	}
 }
 
-static void composition_destination_in(uint32_t * dest, int length, uint32_t * src, uint32_t const_alpha)
+static void composition_destination_in(uint32_t * dest, int length, uint32_t * src, uint32_t alpha)
 {
-	if(const_alpha == 255)
+	if(alpha == 255)
 	{
 		for(int i = 0; i < length; i++)
 			dest[i] = BYTE_MUL(dest[i], cg_alpha(src[i]));
 	}
 	else
 	{
-		uint32_t cia = 255 - const_alpha;
+		uint32_t cia = 255 - alpha;
 		uint32_t a;
 		for(int i = 0; i < length; i++)
 		{
-			a = BYTE_MUL(cg_alpha(src[i]), const_alpha) + cia;
+			a = BYTE_MUL(cg_alpha(src[i]), alpha) + cia;
 			dest[i] = BYTE_MUL(dest[i], a);
 		}
 	}
 }
 
-static void composition_destination_out(uint32_t * dest, int length, uint32_t * src, uint32_t const_alpha)
+static void composition_destination_out(uint32_t * dest, int length, uint32_t * src, uint32_t alpha)
 {
-	if(const_alpha == 255)
+	if(alpha == 255)
 	{
 		for(int i = 0; i < length; i++)
 			dest[i] = BYTE_MUL(dest[i], cg_alpha(~src[i]));
 	}
 	else
 	{
-		uint32_t cia = 255 - const_alpha;
+		uint32_t cia = 255 - alpha;
 		uint32_t sia;
 		for(int i = 0; i < length; i++)
 		{
-			sia = BYTE_MUL(cg_alpha(~src[i]), const_alpha) + cia;
+			sia = BYTE_MUL(cg_alpha(~src[i]), alpha) + cia;
 			dest[i] = BYTE_MUL(dest[i], sia);
 		}
 	}
 }
 
-typedef void (*composition_solid_function_t)(uint32_t * dest, int length, uint32_t color, uint32_t const_alpha);
-typedef void (*composition_function_t)(uint32_t * dest, int length, uint32_t * src, uint32_t const_alpha);
+typedef void (*composition_solid_function_t)(uint32_t * dest, int length, uint32_t color, uint32_t alpha);
+typedef void (*composition_function_t)(uint32_t * dest, int length, uint32_t * src, uint32_t alpha);
 
 static composition_solid_function_t composition_solid_map[] = {
 	composition_solid_source,
@@ -1927,7 +1927,7 @@ static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_oper
 				length = image_width - sx;
 			if(length > 0)
 			{
-				int coverage = (spans->coverage * texture->const_alpha) >> 8;
+				int coverage = (spans->coverage * texture->alpha) >> 8;
 				uint32_t * src = (uint32_t *)(texture->pixels + sy * texture->stride) + sx;
 				uint32_t * dest = (uint32_t *)(surface->pixels + spans->y * surface->stride) + x;
 				func(dest, length, src, coverage);
@@ -1957,7 +1957,7 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 		int x = (int)((texture->matrix.c * cy + texture->matrix.a * cx + texture->matrix.tx) * FIXED_SCALE);
 		int y = (int)((texture->matrix.d * cy + texture->matrix.b * cx + texture->matrix.ty) * FIXED_SCALE);
 		int length = spans->len;
-		int coverage = (spans->coverage * texture->const_alpha) >> 8;
+		int coverage = (spans->coverage * texture->alpha) >> 8;
 		while(length)
 		{
 			int l = min(length, 1024);
@@ -2005,7 +2005,7 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 			sx += image_width;
 		if(sy < 0)
 			sy += image_height;
-		int coverage = (spans->coverage * texture->const_alpha) >> 8;
+		int coverage = (spans->coverage * texture->alpha) >> 8;
 		while(length)
 		{
 			int l = min(image_width - sx, length);
@@ -2042,7 +2042,7 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 		double cy = spans->y + 0.5;
 		int x = (int)((texture->matrix.c * cy + texture->matrix.a * cx + texture->matrix.tx) * FIXED_SCALE);
 		int y = (int)((texture->matrix.d * cy + texture->matrix.b * cx + texture->matrix.ty) * FIXED_SCALE);
-		int coverage = (spans->coverage * texture->const_alpha) >> 8;
+		int coverage = (spans->coverage * texture->alpha) >> 8;
 		int length = spans->len;
 		while(length)
 		{
@@ -2182,7 +2182,7 @@ static inline void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_rle_t * rle
 		data.width = texture->surface->width;
 		data.height = texture->surface->height;
 		data.stride = texture->surface->stride;
-		data.const_alpha = (int)(state->opacity * texture->opacity * 256.0);
+		data.alpha = (int)(state->opacity * texture->opacity * 256.0);
 		data.pixels = texture->surface->pixels;
 		data.matrix = texture->matrix;
 		cg_matrix_multiply(&data.matrix, &data.matrix, &state->matrix);
