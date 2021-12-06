@@ -36,6 +36,12 @@
 #ifndef clamp
 #define clamp(v, a, b)	min(max(a, v), b)
 #endif
+#ifndef DIV255
+#define DIV255(x)		(((x) + ((x) >> 8) + 0x80) >> 8)
+#endif
+#ifndef BYTE_MUL
+#define BYTE_MUL(x, a)	((((((x) >> 8) & 0x00ff00ff) * (a)) & 0xff00ff00) + (((((x) & 0x00ff00ff) * (a)) >> 8) & 0x00ff00ff))
+#endif
 
 #define cg_array_init(array) \
 	do { \
@@ -995,7 +1001,6 @@ static void cg_rle_rasterize(struct cg_rle_t * rle, struct cg_path_t * path, str
 	}
 }
 
-#define DIV255(x) (((x) + ((x) >> 8) + 0x80) >> 8)
 static struct cg_rle_t * cg_rle_intersection(struct cg_rle_t * a, struct cg_rle_t * b)
 {
 	struct cg_rle_t * result = malloc(sizeof(struct cg_rle_t));
@@ -1495,18 +1500,6 @@ static inline uint32_t interpolate_pixel(uint32_t x, uint32_t a, uint32_t y, uin
 	t = (t + ((t >> 8) & 0xff00ff) + 0x800080) >> 8;
 	t &= 0xff00ff;
 	x = ((x >> 8) & 0xff00ff) * a + ((y >> 8) & 0xff00ff) * b;
-	x = (x + ((x >> 8) & 0xff00ff) + 0x800080);
-	x &= 0xff00ff00;
-	x |= t;
-	return x;
-}
-
-static inline uint32_t BYTE_MUL(uint32_t x, uint32_t a)
-{
-	uint32_t t = (x & 0xff00ff) * a;
-	t = (t + ((t >> 8) & 0xff00ff) + 0x800080) >> 8;
-	t &= 0xff00ff;
-	x = ((x >> 8) & 0xff00ff) * a;
 	x = (x + ((x >> 8) & 0xff00ff) + 0x800080);
 	x &= 0xff00ff00;
 	x |= t;
