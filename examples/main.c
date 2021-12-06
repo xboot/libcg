@@ -403,6 +403,8 @@ static void test_image(const char * filename)
 	cg_rotate(ctx, 45 * M_PI / 180);
 	cg_scale(ctx, 256.0 / img->width, 256.0 / img->height);
 	cg_translate(ctx, -0.5 * img->width, -0.5 * img->height);
+	cg_rectangle(ctx, 0, 0, img->width, img->height);
+	cg_clip(ctx);
 	cg_set_source_surface(ctx, img, 0, 0);
 	cg_paint(ctx);
 	cg_surface_destroy(img);
