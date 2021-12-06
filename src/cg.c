@@ -1809,7 +1809,7 @@ static composition_function_t composition_map[] = {
 	composition_destination_out,
 };
 
-static void blend_solid(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, uint32_t solid)
+static inline void blend_solid(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, uint32_t solid)
 {
 	composition_solid_function_t func = composition_solid_map[op];
 	int count = rle->spans.size;
@@ -1822,7 +1822,7 @@ static void blend_solid(struct cg_surface_t * surface, enum cg_operator_t op, st
 	}
 }
 
-static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_gradient_data_t * gradient)
+static inline void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_gradient_data_t * gradient)
 {
 	composition_function_t func = composition_map[op];
 	unsigned int buffer[1024];
@@ -1858,7 +1858,7 @@ static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operato
 	}
 }
 
-static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_gradient_data_t * gradient)
+static inline void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_gradient_data_t * gradient)
 {
 	composition_function_t func = composition_map[op];
 	unsigned int buffer[1024];
@@ -1892,7 +1892,7 @@ static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operato
 }
 
 #define FIXED_SCALE (1 << 16)
-static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
+static inline void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 
@@ -1930,7 +1930,7 @@ static void blend_untransformed_argb(struct cg_surface_t * surface, enum cg_oper
 	}
 }
 
-static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
+static inline void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 	uint32_t buffer[1024];
@@ -1974,7 +1974,7 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 	}
 }
 
-static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
+static inline void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 
@@ -2015,7 +2015,7 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 	}
 }
 
-static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
+static inline void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_operator_t op, struct cg_rle_t * rle, struct cg_texture_data_t * texture)
 {
 	composition_function_t func = composition_map[op];
 	uint32_t buffer[1024];
