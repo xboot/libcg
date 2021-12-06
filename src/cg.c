@@ -27,14 +27,14 @@
 
 #include <cg.h>
 
-#ifndef min
-#define min(a, b)		({typeof(a) _amin = (a); typeof(b) _bmin = (b); (void)(&_amin == &_bmin); _amin < _bmin ? _amin : _bmin;})
+#ifndef MIN
+#define MIN(a, b)		({typeof(a) _amin = (a); typeof(b) _bmin = (b); (void)(&_amin == &_bmin); _amin < _bmin ? _amin : _bmin;})
 #endif
-#ifndef max
-#define max(a, b)		({typeof(a) _amax = (a); typeof(b) _bmax = (b); (void)(&_amax == &_bmax); _amax > _bmax ? _amax : _bmax;})
+#ifndef MAX
+#define MAX(a, b)		({typeof(a) _amax = (a); typeof(b) _bmax = (b); (void)(&_amax == &_bmax); _amax > _bmax ? _amax : _bmax;})
 #endif
-#ifndef clamp
-#define clamp(v, a, b)	min(max(a, v), b)
+#ifndef CLAMP
+#define CLAMP(v, a, b)	MIN(MAX(a, v), b)
 #endif
 #ifndef DIV255
 #define DIV255(x)		(((x) + ((x) >> 8) + 0x80) >> 8)
@@ -431,8 +431,8 @@ static inline void cg_path_add_rectangle(struct cg_path_t * path, double x, doub
 
 static inline void cg_path_add_round_rectangle(struct cg_path_t * path, double x, double y, double w, double h, double rx, double ry)
 {
-	rx = min(rx, w * 0.5);
-	ry = min(ry, h * 0.5);
+	rx = MIN(rx, w * 0.5);
+	ry = MIN(ry, h * 0.5);
 
 	double right = x + w;
 	double bottom = y + h;
@@ -495,7 +495,7 @@ static void cg_path_add_arc(struct cg_path_t * path, double cx, double cy, doubl
 				da -= M_PI * 2;
 		}
 	}
-	int ndivs = max(1, min((int)(fabs(da) / (M_PI * 0.5) + 0.5), 5));
+	int ndivs = MAX(1, MIN((int)(fabs(da) / (M_PI * 0.5) + 0.5), 5));
 	double hda = (da / (double)ndivs) / 2.0;
 	double kappa = fabs(4.0 / 3.0 * (1.0 - cos(hda)) / sin(hda));
 	if(ccw == 1)
@@ -1005,7 +1005,7 @@ static struct cg_rle_t * cg_rle_intersection(struct cg_rle_t * a, struct cg_rle_
 {
 	struct cg_rle_t * result = malloc(sizeof(struct cg_rle_t));
 	cg_array_init(result->spans);
-	cg_array_ensure(result->spans, max(a->spans.size, b->spans.size));
+	cg_array_ensure(result->spans, MAX(a->spans.size, b->spans.size));
 
 	struct cg_span_t * a_spans = a->spans.data;
 	struct cg_span_t * a_end = a_spans + a->spans.size;
@@ -1037,8 +1037,8 @@ static struct cg_rle_t * cg_rle_intersection(struct cg_rle_t * a, struct cg_rle_
 			++a_spans;
 			continue;
 		}
-		int x = max(ax1, bx1);
-		int len = min(ax2, bx2) - x;
+		int x = MAX(ax1, bx1);
+		int len = MIN(ax2, bx2) - x;
 		if(len)
 		{
 			struct cg_span_t * span = result->spans.data + result->spans.size;
@@ -1242,7 +1242,7 @@ void cg_gradient_clear_stops(struct cg_gradient_t * gradient)
 
 void cg_gradient_set_opacity(struct cg_gradient_t * gradient, double opacity)
 {
-	gradient->opacity = clamp(opacity, 0.0, 1.0);
+	gradient->opacity = CLAMP(opacity, 0.0, 1.0);
 }
 
 struct cg_texture_t * cg_texture_create(struct cg_surface_t * surface)
@@ -1297,7 +1297,7 @@ void cg_texture_set_surface(struct cg_texture_t * texture, struct cg_surface_t *
 
 void cg_texture_set_opacity(struct cg_texture_t * texture, double opacity)
 {
-	texture->opacity = clamp(opacity, 0.0, 1.0);
+	texture->opacity = CLAMP(opacity, 0.0, 1.0);
 }
 
 struct cg_paint_t * cg_paint_create_rgb(double r, double g, double b)
@@ -1847,7 +1847,7 @@ static void blend_linear_gradient(struct cg_surface_t * surface, enum cg_operato
 		int x = spans->x;
 		while(length)
 		{
-			int l = min(length, 1024);
+			int l = MIN(length, 1024);
 			fetch_linear_gradient(buffer, &v, gradient, spans->y, x, l);
 			uint32_t * target = (uint32_t *)(surface->pixels + spans->y * surface->stride) + x;
 			func(target, l, buffer, spans->coverage);
@@ -1880,7 +1880,7 @@ static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operato
 		int x = spans->x;
 		while(length)
 		{
-			int l = min(length, 1024);
+			int l = MIN(length, 1024);
 			fetch_radial_gradient(buffer, &v, gradient, spans->y, x, l);
 			uint32_t * target = (uint32_t *)(surface->pixels + spans->y * surface->stride) + x;
 			func(target, l, buffer, spans->coverage);
@@ -1953,13 +1953,13 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 		int coverage = (spans->coverage * texture->alpha) >> 8;
 		while(length)
 		{
-			int l = min(length, 1024);
+			int l = MIN(length, 1024);
 			uint32_t * end = buffer + l;
 			uint32_t * b = buffer;
 			while(b < end)
 			{
-				int px = clamp(x >> 16, 0, image_width - 1);
-				int py = clamp(y >> 16, 0, image_height - 1);
+				int px = CLAMP(x >> 16, 0, image_width - 1);
+				int py = CLAMP(y >> 16, 0, image_height - 1);
 				*b = ((uint32_t *)(texture->pixels + py * texture->stride))[px];
 
 				x += fdx;
@@ -2001,7 +2001,7 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 		int coverage = (spans->coverage * texture->alpha) >> 8;
 		while(length)
 		{
-			int l = min(image_width - sx, length);
+			int l = MIN(image_width - sx, length);
 			if(1024 < l)
 				l = 1024;
 			uint32_t * src = (uint32_t *)(texture->pixels + sy * texture->stride) + sx;
@@ -2039,9 +2039,9 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 		int length = spans->len;
 		while(length)
 		{
-			int l = min(length, 1024);
-			uint32_t *end = buffer + l;
-			uint32_t *b = buffer;
+			int l = MIN(length, 1024);
+			uint32_t * end = buffer + l;
+			uint32_t * b = buffer;
 			int px16 = x % (image_width << 16);
 			int py16 = y % (image_height << 16);
 			int px_delta = fdx % (image_width << 16);
@@ -2364,7 +2364,7 @@ void cg_set_operator(struct cg_ctx_t * ctx, enum cg_operator_t op)
 
 void cg_set_opacity(struct cg_ctx_t * ctx, double opacity)
 {
-	ctx->state->opacity = clamp(opacity, 0.0, 1.0);
+	ctx->state->opacity = CLAMP(opacity, 0.0, 1.0);
 }
 
 void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t winding)
