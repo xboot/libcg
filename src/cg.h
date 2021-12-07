@@ -200,6 +200,16 @@ struct cg_ctx_t {
 	struct cg_rect_t clip;
 };
 
+void cg_memfill32(uint32_t * dst, uint32_t val, int len);
+void cg_comp_solid_source(uint32_t * dst, int len, uint32_t color, uint32_t alpha);
+void cg_comp_solid_source_over(uint32_t * dst, int len, uint32_t color, uint32_t alpha);
+void cg_comp_solid_destination_in(uint32_t * dst, int len, uint32_t color, uint32_t alpha);
+void cg_comp_solid_destination_out(uint32_t * dst, int len, uint32_t color, uint32_t alpha);
+void cg_comp_source(uint32_t * dst, int len, uint32_t * src, uint32_t alpha);
+void cg_comp_source_over(uint32_t * dst, int len, uint32_t * src, uint32_t alpha);
+void cg_comp_destination_in(uint32_t * dst, int len, uint32_t * src, uint32_t alpha);
+void cg_comp_destination_out(uint32_t * dst, int len, uint32_t * src, uint32_t alpha);
+
 void cg_matrix_init(struct cg_matrix_t * m, double a, double b, double c, double d, double tx, double ty);
 void cg_matrix_init_identity(struct cg_matrix_t * m);
 void cg_matrix_init_translate(struct cg_matrix_t * m, double tx, double ty);
