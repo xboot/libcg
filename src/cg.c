@@ -1671,9 +1671,6 @@ static inline void fetch_radial_gradient(uint32_t * buffer, struct cg_radial_gra
 	}
 }
 
-/*
- * dst = s * ca + d * cia
- */
 static void __cg_comp_solid_source(uint32_t * dst, int len, uint32_t color, uint32_t alpha)
 {
 	if(alpha == 255)
@@ -1690,12 +1687,6 @@ static void __cg_comp_solid_source(uint32_t * dst, int len, uint32_t color, uint
 }
 extern __typeof(__cg_comp_solid_source) cg_comp_solid_source __attribute__((weak, alias("__cg_comp_solid_source")));
 
-/*
- * dst = (s + d * sia) * ca + d * cia
- *     = s * ca + d * (sia * ca + cia)
- *     = s * ca + d * (1 - sa*ca)
- *     = s' + d ( 1 - s'a)
- */
 static void __cg_comp_solid_source_over(uint32_t * dst, int len, uint32_t color, uint32_t alpha)
 {
 	if(alpha != 255)
@@ -1706,10 +1697,6 @@ static void __cg_comp_solid_source_over(uint32_t * dst, int len, uint32_t color,
 }
 extern __typeof(__cg_comp_solid_source_over) cg_comp_solid_source_over __attribute__((weak, alias("__cg_comp_solid_source_over")));
 
-/*
- * dst = d * sa * ca + d * cia
- *     = d * (sa * ca + cia)
- */
 static void __cg_comp_solid_destination_in(uint32_t * dst, int len, uint32_t color, uint32_t alpha)
 {
 	uint32_t a = cg_alpha(color);
@@ -1720,10 +1707,6 @@ static void __cg_comp_solid_destination_in(uint32_t * dst, int len, uint32_t col
 }
 extern __typeof(__cg_comp_solid_destination_in) cg_comp_solid_destination_in __attribute__((weak, alias("__cg_comp_solid_destination_in")));
 
-/*
- * dst = d * sia * ca + d * cia
- *     = d * (sia * ca + cia)
- */
 static void __cg_comp_solid_destination_out(uint32_t * dst, int len, uint32_t color, uint32_t alpha)
 {
 	uint32_t a = cg_alpha(~color);

@@ -84,10 +84,10 @@ enum cg_paint_type_t {
 };
 
 enum cg_operator_t {
-	CG_OPERATOR_SRC				= 0,
-	CG_OPERATOR_SRC_OVER		= 1,
-	CG_OPERATOR_DST_IN			= 2,
-	CG_OPERATOR_DST_OUT			= 3,
+	CG_OPERATOR_SRC				= 0, /* r = s * ca + d * cia */
+	CG_OPERATOR_SRC_OVER		= 1, /* r = (s + d * sia) * ca + d * cia */
+	CG_OPERATOR_DST_IN			= 2, /* r = d * sa * ca + d * cia */
+	CG_OPERATOR_DST_OUT			= 3, /* r = d * sia * ca + d * cia */
 };
 
 struct cg_surface_t {
