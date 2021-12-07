@@ -1552,7 +1552,7 @@ static inline uint32_t gradient_pixel(struct cg_gradient_data_t * gradient, doub
 	return gradient->colortable[gradient_clamp(gradient, ipos)];
 }
 
-static void fetch_linear_gradient(uint32_t * buffer, struct cg_linear_gradient_values_t * v, struct cg_gradient_data_t * gradient, int y, int x, int length)
+static inline void fetch_linear_gradient(uint32_t * buffer, struct cg_linear_gradient_values_t * v, struct cg_gradient_data_t * gradient, int y, int x, int length)
 {
 	double t, inc;
 	double rx = 0, ry = 0;
@@ -1600,7 +1600,7 @@ static void fetch_linear_gradient(uint32_t * buffer, struct cg_linear_gradient_v
 	}
 }
 
-static void fetch_radial_gradient(uint32_t * buffer, struct cg_radial_gradient_values_t * v, struct cg_gradient_data_t * gradient, int y, int x, int length)
+static inline void fetch_radial_gradient(uint32_t * buffer, struct cg_radial_gradient_values_t * v, struct cg_gradient_data_t * gradient, int y, int x, int length)
 {
 	if(v->a == 0.0)
 	{
