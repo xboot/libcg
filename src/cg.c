@@ -1689,11 +1689,18 @@ extern __typeof(__cg_comp_solid_source) cg_comp_solid_source __attribute__((weak
 
 static void __cg_comp_solid_source_over(uint32_t * dst, int len, uint32_t color, uint32_t alpha)
 {
-	if(alpha != 255)
-		color = BYTE_MUL(color, alpha);
-	uint32_t ialpha = 255 - cg_alpha(color);
-	for(int i = 0; i < len; i++)
-		dst[i] = color + BYTE_MUL(dst[i], ialpha);
+	if((alpha & cg_alpha(color)) == 255)
+	{
+		cg_memfill32(dst, color, len);
+	}
+	else
+	{
+		if(alpha != 255)
+			color = BYTE_MUL(color, alpha);
+		uint32_t ialpha = 255 - cg_alpha(color);
+		for(int i = 0; i < len; i++)
+			dst[i] = color + BYTE_MUL(dst[i], ialpha);
+	}
 }
 extern __typeof(__cg_comp_solid_source_over) cg_comp_solid_source_over __attribute__((weak, alias("__cg_comp_solid_source_over")));
 
@@ -2089,11 +2096,7 @@ static inline void cg_blend_color(struct cg_ctx_t * ctx, struct cg_rle_t * rle, 
 	{
 		struct cg_state_t * state = ctx->state;
 		uint32_t solid = premultiply_color(color, state->opacity);
-		uint32_t alpha = cg_alpha(solid);
-		if((alpha == 255) && (state->op == CG_OPERATOR_SRC_OVER))
-			blend_solid(ctx->surface, CG_OPERATOR_SRC, rle, solid);
-		else
-			blend_solid(ctx->surface, state->op, rle, solid);
+		blend_solid(ctx->surface, state->op, rle, solid);
 	}
 }
 
