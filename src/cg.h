@@ -200,6 +200,25 @@ struct cg_ctx_t {
 	struct cg_rect_t clip;
 };
 
+#ifndef CG_MIN
+#define CG_MIN(a, b)		({typeof(a) _amin = (a); typeof(b) _bmin = (b); (void)(&_amin == &_bmin); _amin < _bmin ? _amin : _bmin;})
+#endif
+#ifndef CG_MAX
+#define CG_MAX(a, b)		({typeof(a) _amax = (a); typeof(b) _bmax = (b); (void)(&_amax == &_bmax); _amax > _bmax ? _amax : _bmax;})
+#endif
+#ifndef CG_CLAMP
+#define CG_CLAMP(v, a, b)	CG_MIN(CG_MAX(a, v), b)
+#endif
+#ifndef CG_ALPHA
+#define CG_ALPHA(c)			((c) >> 24)
+#endif
+#ifndef CG_DIV255
+#define CG_DIV255(x)		(((x) + ((x) >> 8) + 0x80) >> 8)
+#endif
+#ifndef CG_BYTE_MUL
+#define CG_BYTE_MUL(x, a)	((((((x) >> 8) & 0x00ff00ff) * (a)) & 0xff00ff00) + (((((x) & 0x00ff00ff) * (a)) >> 8) & 0x00ff00ff))
+#endif
+
 void cg_memfill32(uint32_t * dst, uint32_t val, int len);
 void cg_comp_solid_source(uint32_t * dst, int len, uint32_t color, uint32_t alpha);
 void cg_comp_solid_source_over(uint32_t * dst, int len, uint32_t color, uint32_t alpha);
