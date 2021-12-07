@@ -39,6 +39,9 @@
 #ifndef DIV255
 #define DIV255(x)		(((x) + ((x) >> 8) + 0x80) >> 8)
 #endif
+#ifndef CG_ALPHA
+#define CG_ALPHA(c)		((c) >> 24)
+#endif
 #ifndef BYTE_MUL
 #define BYTE_MUL(x, a)	((((((x) >> 8) & 0x00ff00ff) * (a)) & 0xff00ff00) + (((((x) & 0x00ff00ff) * (a)) >> 8) & 0x00ff00ff))
 #endif
@@ -1417,11 +1420,6 @@ struct cg_texture_t * cg_paint_get_texture(struct cg_paint_t * paint)
 	return (paint->type == CG_PAINT_TYPE_TEXTURE) ? paint->texture : NULL;
 }
 
-#define cg_alpha(c)		((c) >> 24)
-#define cg_red(c)		(((c) >> 16) & 0xff)
-#define cg_green(c)		(((c) >> 8) & 0xff)
-#define cg_blue(c)		(((c) >> 0) & 0xff)
-
 struct cg_gradient_data_t {
 	enum cg_spread_method_t spread;
 	struct cg_matrix_t matrix;
@@ -1484,10 +1482,10 @@ static inline uint32_t combine_opacity(struct cg_color_t * color, double opacity
 
 static inline uint32_t premultiply_pixel(uint32_t color)
 {
-	uint32_t a = cg_alpha(color);
-	uint32_t r = cg_red(color);
-	uint32_t g = cg_green(color);
-	uint32_t b = cg_blue(color);
+	uint32_t a = CG_ALPHA(color);
+	uint32_t r = (color >> 16) & 0xff;
+	uint32_t g = (color >>  8) & 0xff;
+	uint32_t b = (color >>  0) & 0xff;
 	uint32_t pr = (r * a) / 255;
 	uint32_t pg = (g * a) / 255;
 	uint32_t pb = (b * a) / 255;
@@ -1689,7 +1687,7 @@ extern __typeof(__cg_comp_solid_source) cg_comp_solid_source __attribute__((weak
 
 static void __cg_comp_solid_source_over(uint32_t * dst, int len, uint32_t color, uint32_t alpha)
 {
-	if((alpha & cg_alpha(color)) == 255)
+	if((alpha & CG_ALPHA(color)) == 255)
 	{
 		cg_memfill32(dst, color, len);
 	}
@@ -1697,7 +1695,7 @@ static void __cg_comp_solid_source_over(uint32_t * dst, int len, uint32_t color,
 	{
 		if(alpha != 255)
 			color = BYTE_MUL(color, alpha);
-		uint32_t ialpha = 255 - cg_alpha(color);
+		uint32_t ialpha = 255 - CG_ALPHA(color);
 		for(int i = 0; i < len; i++)
 			dst[i] = color + BYTE_MUL(dst[i], ialpha);
 	}
@@ -1706,7 +1704,7 @@ extern __typeof(__cg_comp_solid_source_over) cg_comp_solid_source_over __attribu
 
 static void __cg_comp_solid_destination_in(uint32_t * dst, int len, uint32_t color, uint32_t alpha)
 {
-	uint32_t a = cg_alpha(color);
+	uint32_t a = CG_ALPHA(color);
 	if(alpha != 255)
 		a = BYTE_MUL(a, alpha) + 255 - alpha;
 	for(int i = 0; i < len; i++)
@@ -1716,7 +1714,7 @@ extern __typeof(__cg_comp_solid_destination_in) cg_comp_solid_destination_in __a
 
 static void __cg_comp_solid_destination_out(uint32_t * dst, int len, uint32_t color, uint32_t alpha)
 {
-	uint32_t a = cg_alpha(~color);
+	uint32_t a = CG_ALPHA(~color);
 	if(alpha != 255)
 		a = BYTE_MUL(a, alpha) + 255 - alpha;
 	for(int i = 0; i < len; i++)
@@ -1751,7 +1749,7 @@ static void __cg_comp_source_over(uint32_t * dst, int len, uint32_t * src, uint3
 				dst[i] = s;
 			else if(s != 0)
 			{
-				sia = cg_alpha(~s);
+				sia = CG_ALPHA(~s);
 				dst[i] = s + BYTE_MUL(dst[i], sia);
 			}
 		}
@@ -1761,7 +1759,7 @@ static void __cg_comp_source_over(uint32_t * dst, int len, uint32_t * src, uint3
 		for(int i = 0; i < len; i++)
 		{
 			s = BYTE_MUL(src[i], alpha);
-			sia = cg_alpha(~s);
+			sia = CG_ALPHA(~s);
 			dst[i] = s + BYTE_MUL(dst[i], sia);
 		}
 	}
@@ -1773,7 +1771,7 @@ static void __cg_comp_destination_in(uint32_t * dst, int len, uint32_t * src, ui
 	if(alpha == 255)
 	{
 		for(int i = 0; i < len; i++)
-			dst[i] = BYTE_MUL(dst[i], cg_alpha(src[i]));
+			dst[i] = BYTE_MUL(dst[i], CG_ALPHA(src[i]));
 	}
 	else
 	{
@@ -1781,7 +1779,7 @@ static void __cg_comp_destination_in(uint32_t * dst, int len, uint32_t * src, ui
 		uint32_t a;
 		for(int i = 0; i < len; i++)
 		{
-			a = BYTE_MUL(cg_alpha(src[i]), alpha) + cia;
+			a = BYTE_MUL(CG_ALPHA(src[i]), alpha) + cia;
 			dst[i] = BYTE_MUL(dst[i], a);
 		}
 	}
@@ -1793,7 +1791,7 @@ static void __cg_comp_destination_out(uint32_t * dst, int len, uint32_t * src, u
 	if(alpha == 255)
 	{
 		for(int i = 0; i < len; i++)
-			dst[i] = BYTE_MUL(dst[i], cg_alpha(~src[i]));
+			dst[i] = BYTE_MUL(dst[i], CG_ALPHA(~src[i]));
 	}
 	else
 	{
@@ -1801,7 +1799,7 @@ static void __cg_comp_destination_out(uint32_t * dst, int len, uint32_t * src, u
 		uint32_t sia;
 		for(int i = 0; i < len; i++)
 		{
-			sia = BYTE_MUL(cg_alpha(~src[i]), alpha) + cia;
+			sia = BYTE_MUL(CG_ALPHA(~src[i]), alpha) + cia;
 			dst[i] = BYTE_MUL(dst[i], sia);
 		}
 	}
