@@ -1954,8 +1954,10 @@ static inline void blend_transformed_argb(struct cg_surface_t * surface, enum cg
 			{
 				int px = CG_CLAMP(x >> 16, 0, image_width - 1);
 				int py = CG_CLAMP(y >> 16, 0, image_height - 1);
-				*b = ((uint32_t *)(texture->pixels + py * texture->stride))[px];
-
+				if((px == (x >> 16)) && (py == (y >> 16)))
+					*b = ((uint32_t *)(texture->pixels + py * texture->stride))[px];
+				else
+					*b = 0;
 				x += fdx;
 				y += fdy;
 				++b;
