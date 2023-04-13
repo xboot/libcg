@@ -1974,7 +1974,7 @@ static void ft_stroke_border_export(SW_FT_StrokeBorder border, SW_FT_Outline *ou
 			}
 		}
 	}
-	outline->n_points = (short)(outline->n_points + border->num_points);
+	outline->n_points = (int)(outline->n_points + border->num_points);
 	SW_FT_Outline_Check(outline);
 }
 
