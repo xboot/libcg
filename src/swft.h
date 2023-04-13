@@ -58,11 +58,11 @@ typedef struct SW_FT_BBox_ {
 } SW_FT_BBox;
 
 typedef struct SW_FT_Outline_ {
-	short n_contours;
-	short n_points;
+	int n_contours;
+	int n_points;
 	SW_FT_Vector * points;
 	char * tags;
-	short * contours;
+	int * contours;
 	char * contours_flag;
 	int flags;
 } SW_FT_Outline;
