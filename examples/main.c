@@ -370,23 +370,19 @@ static void test_gradient(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
-
 	struct cg_gradient_t * grad;
-	grad = cg_gradient_create_linear(0.0, 0.0, 0.0, 256.0);
+
+	cg_rectangle(ctx, 0, 0, 256, 256);
+	grad = cg_set_source_linear_gradient(ctx, 0.0, 0.0, 0.0, 256.0);
 	cg_gradient_add_stop_rgba(grad, 0, 1, 1, 1, 1);
 	cg_gradient_add_stop_rgba(grad, 1, 0, 0, 0, 1);
-	cg_rectangle(ctx, 0, 0, 256, 256);
-	cg_set_source_gradient(ctx, grad);
 	cg_fill(ctx);
-	cg_gradient_destroy(grad);
 
-	grad = cg_gradient_create_radial(15.2, 12.4, 25.6, 102.4, 102.4, 128.0);
+	grad = cg_set_source_radial_gradient(ctx, 15.2, 12.4, 25.6, 102.4, 102.4, 128.0);
 	cg_gradient_add_stop_rgba(grad, 0, 1, 1, 0, 1);
 	cg_gradient_add_stop_rgba(grad, 1, 1, 0, 0, 1);
-	cg_set_source_gradient(ctx, grad);
 	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI);
 	cg_fill(ctx);
-	cg_gradient_destroy(grad);
 
 	cg_surface_write_to_png(surface, filename);
 	cg_destroy(ctx);
@@ -595,16 +591,17 @@ static void test_texture_tiled(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
+	struct cg_texture_t * tex;
 
-	struct cg_texture_t * tex = cg_texture_create(cg_surface_create_for_data(128, 128, (void *)cat_img_128_128));
-	cg_texture_set_type(tex, CG_TEXTURE_TYPE_TILED);
+	struct cg_surface_t * img = cg_surface_create_for_data(128, 128, (void *)cat_img_128_128);
 	cg_translate(ctx, 128.0, 128.0);
 	cg_rotate(ctx, -45 * M_PI / 180);
 	cg_scale(ctx, 0.8, 0.8);
-	cg_translate(ctx, -0.5 * tex->surface->width, -0.5 * tex->surface->height);
-	cg_set_source_texture(ctx, tex);
+	cg_translate(ctx, -0.5 * img->width, -0.5 * img->height);
+	tex = cg_set_source_surface(ctx, img, 0, 0);
+	cg_texture_set_type(tex, CG_TEXTURE_TYPE_TILED);
 	cg_paint(ctx);
-	cg_texture_destroy(tex);
+	cg_surface_destroy(img);
 
 	cg_surface_write_to_png(surface, filename);
 	cg_destroy(ctx);
