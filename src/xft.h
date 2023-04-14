@@ -1,5 +1,5 @@
-#ifndef __SWFT_H__
-#define __SWFT_H__
+#ifndef __XFT_H__
+#define __XFT_H__
 
 #include <assert.h>
 #include <limits.h>
@@ -138,4 +138,4 @@ XCG_FT_Error XCG_FT_Stroker_GetCounts(XCG_FT_Stroker stroker, XCG_FT_UInt * anum
 void XCG_FT_Stroker_Export(XCG_FT_Stroker stroker, XCG_FT_Outline * outline);
 void XCG_FT_Stroker_Done(XCG_FT_Stroker stroker);
 
-#endif /* __SWFT_H__ */
+#endif /* __XFT_H__ */

@@ -1,5 +1,5 @@
 /*
- * swft.c
+ * xft.c
  *
  * Copyright(c) 2007-2023 Jianjun Jiang <8192542@qq.com>
  * Mobile phone: +86-18665388956
