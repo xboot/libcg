@@ -100,7 +100,6 @@ struct cg_surface_t {
 };
 
 struct cg_path_t {
-	int ref;
 	int contours;
 	struct cg_point_t start;
 	struct {
@@ -116,7 +115,6 @@ struct cg_path_t {
 };
 
 struct cg_gradient_t {
-	int ref;
 	enum cg_gradient_type_t type;
 	enum cg_spread_method_t spread;
 	struct cg_matrix_t matrix;
@@ -130,7 +128,6 @@ struct cg_gradient_t {
 };
 
 struct cg_texture_t {
-	int ref;
 	enum cg_texture_type_t type;
 	struct cg_surface_t * surface;
 	struct cg_matrix_t matrix;

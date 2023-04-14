@@ -255,7 +255,6 @@ struct cg_surface_t * cg_surface_reference(struct cg_surface_t * surface)
 static struct cg_path_t * cg_path_create(void)
 {
 	struct cg_path_t * path = malloc(sizeof(struct cg_path_t));
-	path->ref = 1;
 	path->contours = 0;
 	path->start.x = 0.0;
 	path->start.y = 0.0;
@@ -268,14 +267,11 @@ static void cg_path_destroy(struct cg_path_t * path)
 {
 	if(path)
 	{
-		if(--path->ref == 0)
-		{
-			if(path->elements.data)
-				free(path->elements.data);
-			if(path->points.data)
-				free(path->points.data);
-			free(path);
-		}
+		if(path->elements.data)
+			free(path->elements.data);
+		if(path->points.data)
+			free(path->points.data);
+		free(path);
 	}
 }
 
@@ -1298,7 +1294,7 @@ static void cg_paint_init(struct cg_paint_t * paint)
 	cg_color_init_rgba(&paint->color, 0, 0, 0, 1.0);
 }
 
-static void cg_paint_destroy(struct cg_paint_t *paint)
+static void cg_paint_destroy(struct cg_paint_t * paint)
 {
 	cg_texture_destroy(&paint->texture);
 	cg_gradient_destroy(&paint->gradient);
@@ -1317,6 +1313,7 @@ static void cg_paint_copy(struct cg_paint_t * paint, struct cg_paint_t * source)
 		break;
 	case CG_PAINT_TYPE_TEXTURE:
 		cg_texture_copy(&paint->texture, &source->texture);
+		break;
 	default:
 		break;
 	}
