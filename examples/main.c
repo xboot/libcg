@@ -1,5 +1,5 @@
 #include <cat.h>
-#include <cg.h>
+#include "cg.h"
 
 static void png_save(const char * filename, int width, int height, void * pixels)
 {

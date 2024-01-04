@@ -25,7 +25,7 @@
  *
  */
 
-#include <cg.h>
+#include "cg.h"
 
 #define cg_array_init(array) \
 	do { \
