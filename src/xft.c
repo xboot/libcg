@@ -25,7 +25,7 @@
  *
  */
 
-#include <xft.h>
+#include "xft.h"
 
 /*
  * type
