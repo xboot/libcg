@@ -205,19 +205,19 @@ static void test_curve_rectangle(const char * filename)
 		if(rect_height / 2 < radius)
 		{
 			cg_move_to(ctx, x0, (y0 + y1) / 2);
-			cg_curve_to(ctx, x0, y0, x0, y0, (x0 + x1) / 2, y0);
-			cg_curve_to(ctx, x1, y0, x1, y0, x1, (y0 + y1) / 2);
-			cg_curve_to(ctx, x1, y1, x1, y1, (x1 + x0) / 2, y1);
-			cg_curve_to(ctx, x0, y1, x0, y1, x0, (y0 + y1) / 2);
+			cg_cubic_to(ctx, x0, y0, x0, y0, (x0 + x1) / 2, y0);
+			cg_cubic_to(ctx, x1, y0, x1, y0, x1, (y0 + y1) / 2);
+			cg_cubic_to(ctx, x1, y1, x1, y1, (x1 + x0) / 2, y1);
+			cg_cubic_to(ctx, x0, y1, x0, y1, x0, (y0 + y1) / 2);
 		}
 		else
 		{
 			cg_move_to(ctx, x0, y0 + radius);
-			cg_curve_to(ctx, x0, y0, x0, y0, (x0 + x1) / 2, y0);
-			cg_curve_to(ctx, x1, y0, x1, y0, x1, y0 + radius);
+			cg_cubic_to(ctx, x0, y0, x0, y0, (x0 + x1) / 2, y0);
+			cg_cubic_to(ctx, x1, y0, x1, y0, x1, y0 + radius);
 			cg_line_to(ctx, x1, y1 - radius);
-			cg_curve_to(ctx, x1, y1, x1, y1, (x1 + x0) / 2, y1);
-			cg_curve_to(ctx, x0, y1, x0, y1, x0, y1 - radius);
+			cg_cubic_to(ctx, x1, y1, x1, y1, (x1 + x0) / 2, y1);
+			cg_cubic_to(ctx, x0, y1, x0, y1, x0, y1 - radius);
 		}
 	}
 	else
@@ -225,23 +225,23 @@ static void test_curve_rectangle(const char * filename)
 		if(rect_height / 2 < radius)
 		{
 			cg_move_to(ctx, x0, (y0 + y1) / 2);
-			cg_curve_to(ctx, x0, y0, x0, y0, x0 + radius, y0);
+			cg_cubic_to(ctx, x0, y0, x0, y0, x0 + radius, y0);
 			cg_line_to(ctx, x1 - radius, y0);
-			cg_curve_to(ctx, x1, y0, x1, y0, x1, (y0 + y1) / 2);
-			cg_curve_to(ctx, x1, y1, x1, y1, x1 - radius, y1);
+			cg_cubic_to(ctx, x1, y0, x1, y0, x1, (y0 + y1) / 2);
+			cg_cubic_to(ctx, x1, y1, x1, y1, x1 - radius, y1);
 			cg_line_to(ctx, x0 + radius, y1);
-			cg_curve_to(ctx, x0, y1, x0, y1, x0, (y0 + y1) / 2);
+			cg_cubic_to(ctx, x0, y1, x0, y1, x0, (y0 + y1) / 2);
 		}
 		else
 		{
 			cg_move_to(ctx, x0, y0 + radius);
-			cg_curve_to(ctx, x0, y0, x0, y0, x0 + radius, y0);
+			cg_cubic_to(ctx, x0, y0, x0, y0, x0 + radius, y0);
 			cg_line_to(ctx, x1 - radius, y0);
-			cg_curve_to(ctx, x1, y0, x1, y0, x1, y0 + radius);
+			cg_cubic_to(ctx, x1, y0, x1, y0, x1, y0 + radius);
 			cg_line_to(ctx, x1, y1 - radius);
-			cg_curve_to(ctx, x1, y1, x1, y1, x1 - radius, y1);
+			cg_cubic_to(ctx, x1, y1, x1, y1, x1 - radius, y1);
 			cg_line_to(ctx, x0 + radius, y1);
-			cg_curve_to(ctx, x0, y1, x0, y1, x0, y1 - radius);
+			cg_cubic_to(ctx, x0, y1, x0, y1, x0, y1 - radius);
 		}
 	}
 	cg_close_path(ctx);
@@ -266,7 +266,7 @@ static void test_curve_to(const char * filename)
 	float x1 = 102.4, y1 = 230.4, x2 = 153.6, y2 = 25.6, x3 = 230.4, y3 = 128.0;
 
 	cg_move_to(ctx, x, y);
-	cg_curve_to(ctx, x1, y1, x2, y2, x3, y3);
+	cg_cubic_to(ctx, x1, y1, x2, y2, x3, y3);
 
 	cg_set_line_width(ctx, 10.0);
 	cg_stroke(ctx);
@@ -297,7 +297,7 @@ static void test_dash(const char * filename)
 	cg_move_to(ctx, 128.0, 25.6);
 	cg_line_to(ctx, 230.4, 230.4);
 	cg_rel_line_to(ctx, -102.4, 0.0);
-	cg_curve_to(ctx, 51.2, 230.4, 51.2, 128.0, 128.0, 128.0);
+	cg_cubic_to(ctx, 51.2, 230.4, 51.2, 128.0, 128.0, 128.0);
 	cg_stroke(ctx);
 
 	cg_surface_write_to_png(surface, filename);
@@ -313,7 +313,7 @@ static void test_fill_and_stroke(const char * filename)
 	cg_move_to(ctx, 128.0, 25.6);
 	cg_line_to(ctx, 230.4, 230.4);
 	cg_rel_line_to(ctx, -102.4, 0.0);
-	cg_curve_to(ctx, 51.2, 230.4, 51.2, 128.0, 128.0, 128.0);
+	cg_cubic_to(ctx, 51.2, 230.4, 51.2, 128.0, 128.0, 128.0);
 	cg_close_path(ctx);
 
 	cg_move_to(ctx, 64.0, 25.6);
@@ -370,17 +370,20 @@ static void test_gradient(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
-	struct cg_gradient_t * grad;
 
+	struct cg_gradient_stop_t linear_stops[] = {
+		{ 0.0, { 1, 1, 1, 1 } },
+		{ 1.0, { 0, 0, 0, 1 } },
+	};
 	cg_rectangle(ctx, 0, 0, 256, 256);
-	grad = cg_set_source_linear_gradient(ctx, 0.0, 0.0, 0.0, 256.0);
-	cg_gradient_add_stop_rgba(grad, 0, 1, 1, 1, 1);
-	cg_gradient_add_stop_rgba(grad, 1, 0, 0, 0, 1);
+	cg_set_linear_gradient(ctx, 0.0, 0.0, 0.0, 256.0, CG_SPREAD_METHOD_PAD, linear_stops, 2, NULL);
 	cg_fill(ctx);
 
-	grad = cg_set_source_radial_gradient(ctx, 15.2, 12.4, 25.6, 102.4, 102.4, 128.0);
-	cg_gradient_add_stop_rgba(grad, 0, 1, 1, 0, 1);
-	cg_gradient_add_stop_rgba(grad, 1, 1, 0, 0, 1);
+	struct cg_gradient_stop_t radial_stops[] = {
+		{ 0.0, { 1, 1, 1, 1 } },
+		{ 1.0, { 0, 0, 0, 1 } },
+	};
+	cg_set_radial_gradient(ctx, 115.2, 102.4, 25.6, 102.4, 102.4, 128.0, CG_SPREAD_METHOD_PAD, radial_stops, 2, NULL);
 	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI);
 	cg_fill(ctx);
 
@@ -550,15 +553,14 @@ static void test_texture_tiled(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
-	struct cg_texture_t * tex;
 
 	struct cg_surface_t * img = cg_surface_create_for_data(128, 128, (void *)cat_img_128_128);
 	cg_translate(ctx, 128.0, 128.0);
 	cg_rotate(ctx, -45 * M_PI / 180);
 	cg_scale(ctx, 0.8, 0.8);
 	cg_translate(ctx, -0.5 * img->width, -0.5 * img->height);
-	tex = cg_set_source_surface(ctx, img, 0, 0);
-	cg_texture_set_type(tex, CG_TEXTURE_TYPE_TILED);
+
+	cg_set_texture(ctx, img, CG_TEXTURE_TYPE_TILED, 1.0, NULL);
 	cg_paint(ctx);
 	cg_surface_destroy(img);
 

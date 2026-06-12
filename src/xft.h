@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <math.h>
 #include <float.h>
 
