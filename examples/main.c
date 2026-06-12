@@ -83,11 +83,11 @@ static void test_arc(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	double xc = 128.0;
-	double yc = 128.0;
-	double radius = 100.0;
-	double angle1 = 45.0 * (M_PI / 180.0);
-	double angle2 = 180.0 * (M_PI / 180.0);
+	float xc = 128.0;
+	float yc = 128.0;
+	float radius = 100.0;
+	float angle1 = 45.0 * (M_PI / 180.0);
+	float angle2 = 180.0 * (M_PI / 180.0);
 
 	cg_set_line_width(ctx, 10.0);
 	cg_arc(ctx, xc, yc, radius, angle1, angle2);
@@ -115,11 +115,11 @@ static void test_arc_negative(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	double xc = 128.0;
-	double yc = 128.0;
-	double radius = 100.0;
-	double angle1 = 45.0 * (M_PI / 180.0);
-	double angle2 = 180.0 * (M_PI / 180.0);
+	float xc = 128.0;
+	float yc = 128.0;
+	float radius = 100.0;
+	float angle1 = 45.0 * (M_PI / 180.0);
+	float angle2 = 180.0 * (M_PI / 180.0);
 
 	cg_set_line_width(ctx, 10.0);
 	cg_arc_negative(ctx, xc, yc, radius, angle1, angle2);
@@ -189,12 +189,12 @@ static void test_curve_rectangle(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	double x0 = 25.6,
+	float x0 = 25.6,
 		y0 = 25.6,
 		rect_width = 204.8,
 		rect_height = 204.8,
 		radius = 102.4;
-	double x1, y1;
+	float x1, y1;
 
 	x1 = x0 + rect_width;
 	y1 = y0 + rect_height;
@@ -262,8 +262,8 @@ static void test_curve_to(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	double x = 25.6, y = 128.0;
-	double x1 = 102.4, y1 = 230.4, x2 = 153.6, y2 = 25.6, x3 = 230.4, y3 = 128.0;
+	float x = 25.6, y = 128.0;
+	float x1 = 102.4, y1 = 230.4, x2 = 153.6, y2 = 25.6, x3 = 230.4, y3 = 128.0;
 
 	cg_move_to(ctx, x, y);
 	cg_curve_to(ctx, x1, y1, x2, y2, x3, y3);
@@ -289,9 +289,9 @@ static void test_dash(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	double dashes[] = { 50.0, 10.0, 10.0, 10.0 };
+	float dashes[] = { 50.0, 10.0, 10.0, 10.0 };
 	int ndash = sizeof(dashes) / sizeof(dashes[0]);
-	double offset = 30.0;
+	float offset = -50.0;
 	cg_set_dash(ctx, dashes, ndash, offset);
 	cg_set_line_width(ctx, 10.0);
 	cg_move_to(ctx, 128.0, 25.6);
@@ -456,14 +456,14 @@ static void test_rounded_rectangle(const char * filename)
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
 	struct cg_ctx_t * ctx = cg_create(surface);
 
-	double x = 25.6,
+	float x = 25.6,
 		y = 25.6,
 		width = 204.8,
 		height = 204.8,
 		aspect = 1.0,
 		corner_radius = height / 10.0;
-	double radius = corner_radius / aspect;
-	double degrees = M_PI / 180.0;
+	float radius = corner_radius / aspect;
+	float degrees = M_PI / 180.0;
 
 	cg_new_path(ctx);
 	cg_arc(ctx, x + width - radius, y + radius, radius, -90 * degrees, 0 * degrees);
@@ -546,47 +546,6 @@ static void test_set_line_join(const char * filename)
 	cg_surface_destroy(surface);
 }
 
-static void test_smile(const char * filename)
-{
-	struct cg_surface_t * surface = cg_surface_create(256, 256);
-	struct cg_ctx_t * ctx = cg_create(surface);
-
-	double center_x = 256 * 0.5;
-	double center_y = 256 * 0.5;
-	double face_radius = 70;
-	double eye_radius = 10;
-	double mouth_radius = 50;
-	double eye_offset_x = 25;
-	double eye_offset_y = 20;
-	double eye_x = center_x - eye_offset_x;
-	double eye_y = center_y - eye_offset_y;
-
-	cg_save(ctx);
-	cg_arc(ctx, center_x, center_y, face_radius, 0, 2 * M_PI);
-	cg_set_source_rgb(ctx, 1, 1, 0);
-	cg_fill_preserve(ctx);
-	cg_set_source_rgb(ctx, 0, 0, 0);
-	cg_set_line_width(ctx, 5);
-	cg_stroke(ctx);
-	cg_restore(ctx);
-
-	cg_save(ctx);
-	cg_arc(ctx, eye_x, eye_y, eye_radius, 0, 2 * M_PI);
-	cg_arc(ctx, center_x + eye_offset_x, eye_y, eye_radius, 0, 2 * M_PI);
-	cg_fill(ctx);
-	cg_restore(ctx);
-
-	cg_save(ctx);
-	cg_arc(ctx, center_x, center_y, mouth_radius, 0, M_PI);
-	cg_set_line_width(ctx, 5);
-	cg_stroke(ctx);
-	cg_restore(ctx);
-
-	cg_surface_write_to_png(surface, filename);
-	cg_destroy(ctx);
-	cg_surface_destroy(surface);
-}
-
 static void test_texture_tiled(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
@@ -626,7 +585,6 @@ int main(int argc, char * argv[])
 	test_rounded_rectangle("rounded_rectangle.png");
 	test_set_line_cap("set_line_cap.png");
 	test_set_line_join("set_line_join.png");
-	test_smile("smile.png");
 	test_texture_tiled("texture_tiled.png");
 	return 0;
 }

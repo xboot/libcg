@@ -1,7 +1,5 @@
 /*
- * xft.c
- *
- * Copyright(c) 2007-2023 Jianjun Jiang <8192542@qq.com>
+ * Copyright(c) Jianjun Jiang <8192542@qq.com>
  * Mobile phone: +86-18665388956
  * QQ: 8192542
  *
@@ -22,7 +20,6 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- *
  */
 
 #include <xft.h>
@@ -417,7 +414,8 @@ typedef ptrdiff_t		XCG_FT_PtrDist;
 #define ErrRaster_Memory_Overflow   -4
 #define ErrRaster_OutOfMemory       -6
 
-#define XCG_FT_MINIMUM_POOL_SIZE 	8192
+#define XCG_FT_MINIMUM_POOL_SIZE	(1024 * 8)
+#define XCG_FT_MAXIMUM_POOL_SIZE	(1024 * 1024 * 8)
 #define XCG_FT_MAX_GRAY_SPANS		256
 
 #define RAS_ARG   					PWorker worker
@@ -471,6 +469,8 @@ typedef struct TWorker_ {
 	TPos x, y;
 	XCG_FT_Outline outline;
 	XCG_FT_BBox clip_box;
+	int clip_flags;
+	int clipping;
 	XCG_FT_Span gray_spans[XCG_FT_MAX_GRAY_SPANS];
 	int num_gray_spans;
 	int skip_spans;
@@ -903,6 +903,7 @@ static void gray_render_cubic(RAS_ARG_ const XCG_FT_Vector * control1, const XCG
 {
 	XCG_FT_Vector bez_stack[16 * 3 + 1];
 	XCG_FT_Vector * arc = bez_stack;
+	XCG_FT_Vector * limit = bez_stack + 45;
 	TPos dx, dy, dx_, dy_;
 	TPos dx1, dy1, dx2, dy2;
 	TPos L, s, s_limit;
@@ -954,6 +955,8 @@ static void gray_render_cubic(RAS_ARG_ const XCG_FT_Vector * control1, const XCG
 		arc -= 3;
 		continue;
 Split:
+		if(arc == limit)
+			return;
 		gray_split_cubic(arc);
 		arc += 3;
 	}
@@ -1234,14 +1237,31 @@ static int gray_convert_glyph(RAS_ARG)
 	clip = &ras.clip_box;
 	if( ras.max_ex <= clip->xMin || ras.min_ex >= clip->xMax || ras.max_ey <= clip->yMin || ras.min_ey >= clip->yMax)
 		return 0;
+	ras.clip_flags = ras.clipping = 0;
 	if( ras.min_ex < clip->xMin)
+	{
 		ras.min_ex = clip->xMin;
+		ras.clipping = 1;
+	}
 	if( ras.min_ey < clip->yMin)
+	{
 		ras.min_ey = clip->yMin;
+		ras.clipping = 1;
+	}
 	if( ras.max_ex > clip->xMax)
+	{
 		ras.max_ex = clip->xMax;
+		ras.clipping = 1;
+	}
 	if( ras.max_ey > clip->yMax)
+	{
 		ras.max_ey = clip->yMax;
+		ras.clipping = 1;
+	}
+	clip->xMin = (ras.min_ex - 1) * 64;
+	clip->yMin = (ras.min_ey - 1) * 64;
+	clip->xMax = (ras.max_ex + 1) * 64;
+	clip->yMax = (ras.max_ey + 1) * 64;
 	ras.count_ex = ras.max_ex - ras.min_ex;
 	ras.count_ey = ras.max_ey - ras.min_ey;
 	num_bands = (int)(( ras.max_ey - ras.min_ey) / ras.band_size);
@@ -1377,11 +1397,15 @@ void XCG_FT_Raster_Render(const XCG_FT_Raster_Params * params)
 	int error = gray_raster_render(&worker, stack, length, params);
 	while(error == ErrRaster_OutOfMemory)
 	{
+		length *= 2;
+		if(length > XCG_FT_MAXIMUM_POOL_SIZE)
+			break;
+		void *heap = malloc(length);
+		if(heap == NULL)
+			break;
 		if(worker.skip_spans < 0)
 			rendered_spans += -worker.skip_spans;
 		worker.skip_spans = rendered_spans;
-		length *= 2;
-		void *heap = malloc(length);
 		error = gray_raster_render(&worker, heap, length, params);
 		free(heap);
 	}
@@ -1665,13 +1689,26 @@ static XCG_FT_Error ft_stroke_border_grow(XCG_FT_StrokeBorder border, XCG_FT_UIn
 	if(new_max > old_max)
 	{
 		XCG_FT_UInt cur_max = old_max;
+		XCG_FT_Vector* new_pts;
+		XCG_FT_Byte* new_tags;
+
 		while(cur_max < new_max)
 			cur_max += (cur_max >> 1) + 16;
-		border->points = (XCG_FT_Vector*)realloc(border->points, cur_max * sizeof(XCG_FT_Vector));
-		border->tags = (XCG_FT_Byte*)realloc(border->tags, cur_max * sizeof(XCG_FT_Byte));
-		if(!border->points || !border->tags)
+		new_pts = (XCG_FT_Vector*)realloc(border->points, cur_max * sizeof(XCG_FT_Vector));
+		if(!new_pts)
+		{
+			error = -3;
 			goto Exit;
+		}
+		new_tags = (XCG_FT_Byte*)realloc(border->tags, cur_max * sizeof(XCG_FT_Byte));
+		if(!new_tags)
+		{
+			error = -3;
+			goto Exit;
+		}
 		border->max_points = cur_max;
+		border->points = new_pts;
+		border->tags = new_tags;
 	}
 Exit:
 	return error;
@@ -1732,7 +1769,7 @@ static XCG_FT_Error ft_stroke_border_lineto(XCG_FT_StrokeBorder border, XCG_FT_V
 	}
 	else
 	{
-		if(border->num_points > 0&&
+		if(border->num_points > border->start &&
 		XCG_FT_IS_SMALL(border->points[border->num_points - 1].x - to->x) &&
 		XCG_FT_IS_SMALL(border->points[border->num_points - 1].y - to->y))
 			return error;

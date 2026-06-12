@@ -29,7 +29,6 @@ make
 ![rounded_rectangle](screenshots/rounded_rectangle.png)
 ![set_line_cap](screenshots/set_line_cap.png)
 ![set_line_join](screenshots/set_line_join.png)
-![smile](screenshots/smile.png)
 ![texture_tiled](screenshots/texture_tiled.png)
 
 ## License
