@@ -457,11 +457,40 @@ struct cg_path_t * cg_path_reference(struct cg_path_t * path)
 	return path;
 }
 
-int cg_path_get_elements(struct cg_path_t * path, union cg_path_element_t ** elements)
+static union cg_path_element_t * cg_path_add_command(struct cg_path_t * path, enum cg_path_command_t command, int npoints)
 {
-	if(elements)
-		*elements = path->elements.data;
-	return path->elements.size;
+	int length = npoints + 1;
+	cg_array_ensure(path->elements, length);
+	union cg_path_element_t * elements = path->elements.data + path->elements.size;
+	elements->header.command = command;
+	elements->header.length = length;
+	path->elements.size += length;
+	path->num_points += npoints;
+	return elements + 1;
+}
+
+void cg_path_reset(struct cg_path_t * path)
+{
+	cg_array_clear(path->elements);
+	path->start_point = (struct cg_point_t){0.0f, 0.0f};
+	path->num_points = 0;
+	path->num_contours = 0;
+	path->num_curves = 0;
+	path->sub_path = 0;
+}
+
+void cg_path_new_sub_path(struct cg_path_t * path)
+{
+	path->sub_path = 1;
+}
+
+void cg_path_close(struct cg_path_t * path)
+{
+	if(path->elements.size == 0)
+		return;
+	union cg_path_element_t * elements = cg_path_add_command(path, CG_PATH_COMMAND_CLOSE, 1);
+	elements[0].point = path->start_point;
+	path->sub_path = 0;
 }
 
 void cg_path_get_current_point(struct cg_path_t * path, float * x, float * y)
@@ -477,23 +506,6 @@ void cg_path_get_current_point(struct cg_path_t * path, float * x, float * y)
 		*x = xx;
 	if(y)
 		*y = yy;
-}
-
-static union cg_path_element_t * cg_path_add_command(struct cg_path_t * path, enum cg_path_command_t command, int npoints)
-{
-	int length = npoints + 1;
-	cg_array_ensure(path->elements, length);
-	union cg_path_element_t * elements = path->elements.data + path->elements.size;
-	elements->header.command = command;
-	elements->header.length = length;
-	path->elements.size += length;
-	path->num_points += npoints;
-	return elements + 1;
-}
-
-void cg_path_new_sub_path(struct cg_path_t * path)
-{
-	path->sub_path = 1;
 }
 
 void cg_path_move_to(struct cg_path_t * path, float x, float y)
@@ -677,28 +689,9 @@ void cg_path_rel_arc_to(struct cg_path_t * path, float rx, float ry, float angle
 	cg_path_arc_to(path, rx, ry, angle, large, sweep, dx + x, dy + y);
 }
 
-void cg_path_close(struct cg_path_t * path)
-{
-	if(path->elements.size == 0)
-		return;
-	union cg_path_element_t * elements = cg_path_add_command(path, CG_PATH_COMMAND_CLOSE, 1);
-	elements[0].point = path->start_point;
-	path->sub_path = 0;
-}
-
-void cg_path_reserve(struct cg_path_t * path, int count)
+static void cg_path_reserve(struct cg_path_t * path, int count)
 {
 	cg_array_ensure(path->elements, count);
-}
-
-void cg_path_reset(struct cg_path_t * path)
-{
-	cg_array_clear(path->elements);
-	path->start_point = (struct cg_point_t){0.0f, 0.0f};
-	path->num_points = 0;
-	path->num_contours = 0;
-	path->num_curves = 0;
-	path->sub_path = 0;
 }
 
 void cg_path_add_rectangle(struct cg_path_t * path, float x, float y, float w, float h)
