@@ -677,41 +677,6 @@ void cg_path_arc_to(struct cg_path_t * path, float rx, float ry, float angle, in
 	}
 }
 
-void cg_path_rel_move_to(struct cg_path_t * path, float dx, float dy)
-{
-	float x, y;
-	cg_path_get_current_point(path, &x, &y);
-	cg_path_move_to(path, dx + x, dy + y);
-}
-
-void cg_path_rel_line_to(struct cg_path_t * path, float dx, float dy)
-{
-	float x, y;
-	cg_path_get_current_point(path, &x, &y);
-	cg_path_line_to(path, dx + x, dy + y);
-}
-
-void cg_path_rel_quad_to(struct cg_path_t * path, float dx1, float dy1, float dx2, float dy2)
-{
-	float x, y;
-	cg_path_get_current_point(path, &x, &y);
-	cg_path_quad_to(path, dx1 + x, dy1 + y, dx2 + x, dy2 + y);
-}
-
-void cg_path_rel_cubic_to(struct cg_path_t * path, float dx1, float dy1, float dx2, float dy2, float dx3, float dy3)
-{
-	float x, y;
-	cg_path_get_current_point(path, &x, &y);
-	cg_path_cubic_to(path, dx1 + x, dy1 + y, dx2 + x, dy2 + y, dx3 + x, dy3 + y);
-}
-
-void cg_path_rel_arc_to(struct cg_path_t * path, float rx, float ry, float angle, int large, int sweep, float dx, float dy)
-{
-	float x, y;
-	cg_path_get_current_point(path, &x, &y);
-	cg_path_arc_to(path, rx, ry, angle, large, sweep, dx + x, dy + y);
-}
-
 static void cg_path_reserve(struct cg_path_t * path, int count)
 {
 	cg_array_ensure(path->elements, count);
@@ -3084,27 +3049,37 @@ void cg_arc_to(struct cg_ctx_t * ctx, float rx, float ry, float angle, int large
 
 void cg_rel_move_to(struct cg_ctx_t * ctx, float dx, float dy)
 {
-	cg_path_rel_move_to(ctx->path, dx, dy);
+	float x, y;
+	cg_path_get_current_point(ctx->path, &x, &y);
+	cg_path_move_to(ctx->path, dx + x, dy + y);
 }
 
 void cg_rel_line_to(struct cg_ctx_t * ctx, float dx, float dy)
 {
-	cg_path_rel_line_to(ctx->path, dx, dy);
+	float x, y;
+	cg_path_get_current_point(ctx->path, &x, &y);
+	cg_path_line_to(ctx->path, dx + x, dy + y);
 }
 
 void cg_rel_quad_to(struct cg_ctx_t * ctx, float dx1, float dy1, float dx2, float dy2)
 {
-	cg_path_rel_quad_to(ctx->path, dx1, dy1, dx2, dy2);
+	float x, y;
+	cg_path_get_current_point(ctx->path, &x, &y);
+	cg_path_quad_to(ctx->path, dx1 + x, dy1 + y, dx2 + x, dy2 + y);
 }
 
 void cg_rel_cubic_to(struct cg_ctx_t * ctx, float dx1, float dy1, float dx2, float dy2, float dx3, float dy3)
 {
-	cg_path_rel_cubic_to(ctx->path, dx1, dy1, dx2, dy2, dx3, dy3);
+	float x, y;
+	cg_path_get_current_point(ctx->path, &x, &y);
+	cg_path_cubic_to(ctx->path, dx1 + x, dy1 + y, dx2 + x, dy2 + y, dx3 + x, dy3 + y);
 }
 
 void cg_rel_arc_to(struct cg_ctx_t * ctx, float rx, float ry, float angle, int large, int sweep, float dx, float dy)
 {
-	cg_path_rel_arc_to(ctx->path, rx, ry, angle, large, sweep, dx, dy);
+	float x, y;
+	cg_path_get_current_point(ctx->path, &x, &y);
+	cg_path_arc_to(ctx->path, rx, ry, angle, large, sweep, dx + x, dy + y);
 }
 
 void cg_rectangle(struct cg_ctx_t * ctx, float x, float y, float w, float h)
