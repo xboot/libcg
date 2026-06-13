@@ -394,7 +394,7 @@ struct cg_paint_t * cg_paint_create_radial_gradient(float cx0, float cy0, float 
 
 struct cg_paint_t * cg_paint_create_texture(struct cg_surface_t * surface, enum cg_texture_type_t type, float opacity, struct cg_matrix_t * m)
 {
-	struct cg_texture_paint_t *texture = cg_paint_create(CG_PAINT_TYPE_TEXTURE, sizeof(struct cg_texture_paint_t));
+	struct cg_texture_paint_t * texture = cg_paint_create(CG_PAINT_TYPE_TEXTURE, sizeof(struct cg_texture_paint_t));
 	texture->type = type;
 	texture->opacity = CG_CLAMP(opacity, 0.0f, 1.0f);
 	texture->matrix = m ? *m : ((struct cg_matrix_t){1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f});
@@ -1119,7 +1119,7 @@ void cg_path_traverse_dashed(struct cg_path_t * path, float * dashes, int ndashe
 
 struct cg_path_t * cg_path_clone(struct cg_path_t * path)
 {
-	struct cg_path_t *clone = cg_path_create();
+	struct cg_path_t * clone = cg_path_create();
 	cg_array_append(clone->elements, path->elements);
 	clone->start_point = path->start_point;
 	clone->num_points = path->num_points;
@@ -1153,7 +1153,7 @@ static void clone_traverse_func(void * closure, enum cg_path_command_t command, 
 
 struct cg_path_t * cg_path_clone_flatten(struct cg_path_t * path)
 {
-	struct cg_path_t *clone = cg_path_create();
+	struct cg_path_t * clone = cg_path_create();
 	cg_path_reserve(clone, path->elements.size + path->num_curves * 32);
 	cg_path_traverse_flatten(path, clone_traverse_func, clone);
 	return clone;
@@ -2249,7 +2249,7 @@ static void blend_solid(struct cg_surface_t * surface, enum cg_operator_t op, ui
 {
 	composition_solid_function_t func = composition_solid_table[op];
 	int count = span_buffer->spans.size;
-	struct cg_span_t *spans = span_buffer->spans.data;
+	struct cg_span_t * spans = span_buffer->spans.data;
 	while(count--)
 	{
 		uint32_t * target = (uint32_t *)(surface->pixels + spans->y * surface->stride) + spans->x;
@@ -2378,7 +2378,7 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 	struct cg_span_t *spans = span_buffer->spans.data;
 	while(count--)
 	{
-		uint32_t * target = (uint32_t*)(surface->pixels + spans->y * surface->stride) + spans->x;
+		uint32_t * target = (uint32_t *)(surface->pixels + spans->y * surface->stride) + spans->x;
 		float cx = spans->x + 0.5f;
 		float cy = spans->y + 0.5f;
 		int x = (int)((texture->matrix.c * cy + texture->matrix.a * cx + texture->matrix.tx) * FIXED_SCALE);
@@ -2398,7 +2398,7 @@ static void blend_transformed_argb(struct cg_surface_t * surface, enum cg_operat
 				int py = y >> 16;
 				if(((unsigned int)px < (unsigned int)image_width) && ((unsigned int)py < (unsigned int)image_height))
 				{
-					*b = ((uint32_t*)(texture->data + py * texture->stride))[px];
+					*b = ((uint32_t *)(texture->data + py * texture->stride))[px];
 					clen++;
 				}
 				x += fdx;
@@ -2434,7 +2434,7 @@ static void blend_untransformed_tiled_argb(struct cg_surface_t * surface, enum c
 	}
 
 	int count = span_buffer->spans.size;
-	struct cg_span_t *spans = span_buffer->spans.data;
+	struct cg_span_t * spans = span_buffer->spans.data;
 	while(count--)
 	{
 		int x = spans->x;
@@ -2482,7 +2482,7 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 	int fdy = (int)(texture->matrix.b * FIXED_SCALE);
 
 	int count = span_buffer->spans.size;
-	struct cg_span_t *spans = span_buffer->spans.data;
+	struct cg_span_t * spans = span_buffer->spans.data;
 	while(count--)
 	{
 		uint32_t * target = (uint32_t *)(surface->pixels + spans->y * surface->stride) + spans->x;
@@ -2499,8 +2499,8 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 		while(length)
 		{
 			int l = CG_MIN(length, 1024);
-			uint32_t *end = buffer + l;
-			uint32_t *b = buffer;
+			uint32_t * end = buffer + l;
+			uint32_t * b = buffer;
 			while(b < end)
 			{
 				int px = x >> 16;
@@ -2512,9 +2512,6 @@ static void blend_transformed_tiled_argb(struct cg_surface_t * surface, enum cg_
 				if(py < 0)
 					py += image_height;
 				int y_offset = py * scanline_offset;
-
-				assert(px >= 0 && px < image_width);
-				assert(py >= 0 && py < image_height);
 
 				*b = image_bits[y_offset + px];
 				x += fdx;
@@ -2586,8 +2583,8 @@ static void blend_transformed_bilinear_tiled_argb(struct cg_surface_t * surface,
 				int x2 = (x1 + 1) % image_width;
 				int y2 = (y1 + 1) % image_height;
 
-				uint32_t *s1 = (uint32_t*)(texture->data + y1 * texture->stride);
-				uint32_t *s2 = (uint32_t*)(texture->data + y2 * texture->stride);
+				uint32_t * s1 = (uint32_t *)(texture->data + y1 * texture->stride);
+				uint32_t * s2 = (uint32_t *)(texture->data + y2 * texture->stride);
 
 				uint32_t tl = s1[x1];
 				uint32_t tr = s1[x2];
@@ -2719,8 +2716,8 @@ static void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_texture_paint_t * 
 	cg_matrix_multiply(&data.matrix, &data.matrix, &state->matrix);
 	if(!cg_matrix_invert(&data.matrix))
 		return;
-	struct cg_matrix_t *matrix = &data.matrix;
-	if(matrix->a == 1 && matrix->b == 0 && matrix->c == 0 && matrix->d == 1)
+	struct cg_matrix_t * matrix = &data.matrix;
+	if(matrix->a == 1.0 && matrix->b == 0.0 && matrix->c == 0.0 && matrix->d == 1.0)
 	{
 		if(texture->type == CG_TEXTURE_TYPE_PLAIN)
 			blend_untransformed_argb(ctx->surface, state->op, &data, span_buffer);
@@ -2748,10 +2745,10 @@ static void cg_blend(struct cg_ctx_t * ctx, struct cg_span_buffer_t * span_buffe
 		return;
 	}
 
-	struct cg_paint_t *paint = ctx->state->paint;
+	struct cg_paint_t * paint = ctx->state->paint;
 	if(paint->type == CG_PAINT_TYPE_COLOR)
 	{
-		struct cg_solid_paint_t *solid = (struct cg_solid_paint_t*)(paint);
+		struct cg_solid_paint_t * solid = (struct cg_solid_paint_t*)(paint);
 		cg_blend_color(ctx, &solid->color, span_buffer);
 	}
 	else if(paint->type == CG_PAINT_TYPE_GRADIENT)
@@ -2761,7 +2758,7 @@ static void cg_blend(struct cg_ctx_t * ctx, struct cg_span_buffer_t * span_buffe
 	}
 	else
 	{
-		struct cg_texture_paint_t *texture = (struct cg_texture_paint_t*)(paint);
+		struct cg_texture_paint_t * texture = (struct cg_texture_paint_t*)(paint);
 		cg_blend_texture(ctx, texture, span_buffer);
 	}
 }
