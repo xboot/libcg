@@ -1910,11 +1910,10 @@ static XCG_FT_Error ft_stroke_border_get_counts(XCG_FT_StrokeBorder border, XCG_
 	XCG_FT_UInt num_points = 0;
 	XCG_FT_UInt num_contours = 0;
 	XCG_FT_UInt count = border->num_points;
-	XCG_FT_Vector *point = border->points;
-	XCG_FT_Byte *tags = border->tags;
+	XCG_FT_Byte * tags = border->tags;
 	XCG_FT_Int in_contour = 0;
 
-	for(; count > 0; count--, num_points++, point++, tags++)
+	for(; count > 0; count--, num_points++, tags++)
 	{
 		if(tags[0] & XCG_FT_STROKE_TAG_BEGIN)
 		{
