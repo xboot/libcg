@@ -2888,7 +2888,7 @@ int cg_fill_contains(struct cg_ctx_t * ctx, float x, float y)
 
 int cg_stroke_contains(struct cg_ctx_t * ctx, float x, float y)
 {
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, &ctx->state->stroke, CG_FILL_RULE_NON_ZERO);
 	return cg_span_buffer_contains(&ctx->fill_spans, x, y);
 }
 
