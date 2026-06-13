@@ -32,8 +32,8 @@ make
 ![set_line_join](screenshots/set_line_join.png)
 ![taiji](screenshots/taiji.png)
 ![texture_tiled](screenshots/texture_tiled.png)
+![operators](screenshots/operators.png)
 
 ## License
 
 This library is free software; you can redistribute it and or modify it under the terms of the MIT license. See [MIT License](LICENSE) for details.
-

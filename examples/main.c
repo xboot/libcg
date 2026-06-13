@@ -645,6 +645,73 @@ static void test_texture_tiled(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void draw_operator_cell(struct cg_ctx_t * ctx, float x, float y, float w, float h, enum cg_operator_t op)
+{
+	float cx = x + w * 0.5;
+	float cy = y + h * 0.55;
+	float r = h * 0.28;
+
+	cg_save(ctx);
+	cg_clip_rect(ctx, x, y, w, h);
+
+	cg_set_source_rgb(ctx, 0.92, 0.92, 0.92);
+	cg_rectangle(ctx, x, y, w, h);
+	cg_fill(ctx);
+	cg_set_source_rgb(ctx, 0.78, 0.78, 0.78);
+	cg_rectangle(ctx, x, y, w * 0.5, h * 0.5);
+	cg_fill(ctx);
+	cg_rectangle(ctx, x + w * 0.5, y + h * 0.5, w * 0.5, h * 0.5);
+	cg_fill(ctx);
+
+	cg_set_source_rgba(ctx, 0.0, 0.0, 1.0, 0.7);
+	cg_arc(ctx, cx - w * 0.12, cy, r, 0, 2 * M_PI);
+	cg_fill(ctx);
+
+	cg_set_operator(ctx, op);
+	cg_set_source_rgba(ctx, 1.0, 0.0, 0.0, 0.7);
+	cg_arc(ctx, cx + w * 0.12, cy, r, 0, 2 * M_PI);
+	cg_fill(ctx);
+
+	cg_restore(ctx);
+
+	cg_set_line_width(ctx, 1.0);
+	cg_set_source_rgba(ctx, 0.0, 0.0, 0.0, 0.35);
+	cg_rectangle(ctx, x + 0.5, y + 0.5, w - 1, h - 1);
+	cg_stroke(ctx);
+}
+
+static void test_operators(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	enum cg_operator_t ops[] = {
+		CG_OPERATOR_CLEAR,
+		CG_OPERATOR_SRC,
+		CG_OPERATOR_DST,
+		CG_OPERATOR_SRC_OVER,
+		CG_OPERATOR_DST_OVER,
+		CG_OPERATOR_SRC_IN,
+		CG_OPERATOR_DST_IN,
+		CG_OPERATOR_SRC_OUT,
+		CG_OPERATOR_DST_OUT,
+		CG_OPERATOR_SRC_ATOP,
+		CG_OPERATOR_DST_ATOP,
+		CG_OPERATOR_XOR,
+	};
+	for(int i = 0; i < (int)(sizeof(ops) / sizeof(ops[0])); i++)
+	{
+		float x0 = (float)((i % 3) * 256) / 3.0;
+		float x1 = (float)(((i % 3) + 1) * 256) / 3.0;
+		float y = (float)((i / 3) * 64);
+		draw_operator_cell(ctx, x0, y, x1 - x0, 64.0, ops[i]);
+	}
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 int main(int argc, char * argv[])
 {
 	test_arc("arc.png");
@@ -666,5 +733,6 @@ int main(int argc, char * argv[])
 	test_set_line_join("set_line_join.png");
 	test_taiji("taiji.png");
 	test_texture_tiled("texture_tiled.png");
+	test_operators("operators.png");
 	return 0;
 }
