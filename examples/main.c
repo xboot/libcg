@@ -370,6 +370,32 @@ static void test_fill_style(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void test_gradient(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	struct cg_gradient_stop_t linear_stops[] = {
+		{ 0.0, { 1, 1, 1, 1 } },
+		{ 1.0, { 0, 0, 0, 1 } },
+	};
+	cg_rectangle(ctx, 0, 0, 256, 256);
+	cg_set_linear_gradient(ctx, 0.0, 0.0, 0.0, 256.0, CG_SPREAD_METHOD_PAD, linear_stops, 2, NULL);
+	cg_fill(ctx);
+
+	struct cg_gradient_stop_t radial_stops[] = {
+		{ 0.0, { 1, 1, 1, 1 } },
+		{ 1.0, { 0, 0, 0, 1 } },
+	};
+	cg_set_radial_gradient(ctx, 115.2, 102.4, 25.6, 102.4, 102.4, 128.0, CG_SPREAD_METHOD_PAD, radial_stops, 2, NULL);
+	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI);
+	cg_fill(ctx);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 static void test_hollow_star(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
@@ -399,32 +425,6 @@ static void test_hollow_star(const char * filename)
 	cg_set_source_rgba(ctx, 0.0, 0.0, 0.0, 0.35);
 	cg_set_line_width(ctx, 5.0);
 	cg_stroke(ctx);
-
-	cg_surface_write_to_png(surface, filename);
-	cg_destroy(ctx);
-	cg_surface_destroy(surface);
-}
-
-static void test_gradient(const char * filename)
-{
-	struct cg_surface_t * surface = cg_surface_create(256, 256);
-	struct cg_ctx_t * ctx = cg_create(surface);
-
-	struct cg_gradient_stop_t linear_stops[] = {
-		{ 0.0, { 1, 1, 1, 1 } },
-		{ 1.0, { 0, 0, 0, 1 } },
-	};
-	cg_rectangle(ctx, 0, 0, 256, 256);
-	cg_set_linear_gradient(ctx, 0.0, 0.0, 0.0, 256.0, CG_SPREAD_METHOD_PAD, linear_stops, 2, NULL);
-	cg_fill(ctx);
-
-	struct cg_gradient_stop_t radial_stops[] = {
-		{ 0.0, { 1, 1, 1, 1 } },
-		{ 1.0, { 0, 0, 0, 1 } },
-	};
-	cg_set_radial_gradient(ctx, 115.2, 102.4, 25.6, 102.4, 102.4, 128.0, CG_SPREAD_METHOD_PAD, radial_stops, 2, NULL);
-	cg_arc(ctx, 128.0, 128.0, 76.8, 0, 2 * M_PI);
-	cg_fill(ctx);
 
 	cg_surface_write_to_png(surface, filename);
 	cg_destroy(ctx);
@@ -588,6 +588,43 @@ static void test_set_line_join(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void test_taiji(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	cg_arc(ctx, 128.0, 128.0, 110.0, -0.5 * M_PI, 0.5 * M_PI);
+	cg_arc(ctx, 128.0, 183.0, 55.0, 0.5 * M_PI, 1.5 * M_PI);
+	cg_arc_negative(ctx, 128.0, 73.0, 55.0, 0.5 * M_PI, -0.5 * M_PI);
+	cg_close_path(ctx);
+	cg_set_source_rgb(ctx, 0, 0, 0);
+	cg_fill(ctx);
+
+	cg_arc(ctx, 128.0, 128.0, 110.0, 0.5 * M_PI, 1.5 * M_PI);
+	cg_arc(ctx, 128.0, 73.0, 55.0, 1.5 * M_PI, 0.5 * M_PI);
+	cg_arc_negative(ctx, 128.0, 183.0, 55.0, 1.5 * M_PI, 0.5 * M_PI);
+	cg_close_path(ctx);
+	cg_set_source_rgb(ctx, 1, 1, 1);
+	cg_fill(ctx);
+
+	cg_arc(ctx, 128.0, 73.0, 13.75, 0, 2 * M_PI);
+	cg_set_source_rgb(ctx, 0, 0, 0);
+	cg_fill(ctx);
+
+	cg_arc(ctx, 128.0, 183.0, 13.75, 0, 2 * M_PI);
+	cg_set_source_rgb(ctx, 1, 1, 1);
+	cg_fill(ctx);
+
+	cg_arc(ctx, 128.0, 128.0, 110.0, 0, 2 * M_PI);
+	cg_set_source_rgb(ctx, 0, 0, 0);
+	cg_set_line_width(ctx, 5.0);
+	cg_stroke(ctx);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 static void test_texture_tiled(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
@@ -619,14 +656,15 @@ int main(int argc, char * argv[])
 	test_dash("dash.png");
 	test_fill_and_stroke("fill_and_stroke.png");
 	test_fill_style("fill_style.png");
-	test_hollow_star("hollow_star.png");
 	test_gradient("gradient.png");
+	test_hollow_star("hollow_star.png");
 	test_image("image.png");
 	test_lines("lines.png");
 	test_multi_segment_caps("multi_segment_caps.png");
 	test_rounded_rectangle("rounded_rectangle.png");
 	test_set_line_cap("set_line_cap.png");
 	test_set_line_join("set_line_join.png");
+	test_taiji("taiji.png");
 	test_texture_tiled("texture_tiled.png");
 	return 0;
 }

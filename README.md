@@ -22,14 +22,15 @@ make
 ![dash](screenshots/dash.png)
 ![fill_and_stroke](screenshots/fill_and_stroke.png)
 ![fill_style](screenshots/fill_style.png)
-![hollow_star](screenshots/hollow_star.png)
 ![gradient](screenshots/gradient.png)
+![hollow_star](screenshots/hollow_star.png)
 ![image](screenshots/image.png)
 ![lines](screenshots/lines.png)
 ![multi_segment_caps](screenshots/multi_segment_caps.png)
 ![rounded_rectangle](screenshots/rounded_rectangle.png)
 ![set_line_cap](screenshots/set_line_cap.png)
 ![set_line_join](screenshots/set_line_join.png)
+![taiji](screenshots/taiji.png)
 ![texture_tiled](screenshots/texture_tiled.png)
 
 ## License
