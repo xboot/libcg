@@ -22,6 +22,7 @@ make
 ![dash](screenshots/dash.png)
 ![fill_and_stroke](screenshots/fill_and_stroke.png)
 ![fill_style](screenshots/fill_style.png)
+![hollow_star](screenshots/hollow_star.png)
 ![gradient](screenshots/gradient.png)
 ![image](screenshots/image.png)
 ![lines](screenshots/lines.png)

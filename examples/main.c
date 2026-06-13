@@ -370,6 +370,41 @@ static void test_fill_style(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void test_hollow_star(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+	float x[5], y[5];
+
+	for(int i = 0; i < 5; i++)
+	{
+		float a = (-90.0 + i * 72.0) * (M_PI / 180.0);
+		x[i] = 128.0 + cos(a) * 110.0;
+		y[i] = 128.0 + sin(a) * 110.0;
+	}
+
+	for(int i = 0; i < 5; i++)
+	{
+		int n = (i * 2) % 5;
+		if(i == 0)
+			cg_move_to(ctx, x[n], y[n]);
+		else
+			cg_line_to(ctx, x[n], y[n]);
+	}
+	cg_close_path(ctx);
+
+	cg_set_fill_rule(ctx, CG_FILL_RULE_EVEN_ODD);
+	cg_set_source_rgb(ctx, 1.0, 0.75, 0.0);
+	cg_fill_preserve(ctx);
+	cg_set_source_rgba(ctx, 0.0, 0.0, 0.0, 0.35);
+	cg_set_line_width(ctx, 5.0);
+	cg_stroke(ctx);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 static void test_gradient(const char * filename)
 {
 	struct cg_surface_t * surface = cg_surface_create(256, 256);
@@ -584,6 +619,7 @@ int main(int argc, char * argv[])
 	test_dash("dash.png");
 	test_fill_and_stroke("fill_and_stroke.png");
 	test_fill_style("fill_style.png");
+	test_hollow_star("hollow_star.png");
 	test_gradient("gradient.png");
 	test_image("image.png");
 	test_lines("lines.png");
