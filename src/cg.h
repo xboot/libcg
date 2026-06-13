@@ -205,7 +205,6 @@ struct cg_state_t {
 	struct cg_span_buffer_t clip_spans;
 	enum cg_fill_rule_t winding;
 	enum cg_operator_t op;
-	float font_size;
 	float opacity;
 	int clipping;
 	struct cg_state_t *next;

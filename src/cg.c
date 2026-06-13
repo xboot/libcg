@@ -566,7 +566,6 @@ void cg_path_quad_to(struct cg_path_t * path, float x1, float y1, float x2, floa
 	cg_path_cubic_to(path, cp1x, cp1y, cp2x, cp2y, x2, y2);
 }
 
-
 void cg_path_cubic_to(struct cg_path_t * path, float x1, float y1, float x2, float y2, float x3, float y3)
 {
 	if(path->elements.size == 0 || path->sub_path)
@@ -2779,7 +2778,6 @@ static struct cg_state_t * cg_state_create(void)
 	cg_span_buffer_init(&state->clip_spans);
 	state->winding = CG_FILL_RULE_NON_ZERO;
 	state->op = CG_OPERATOR_SRC_OVER;
-	state->font_size = 12.f;
 	state->opacity = 1.f;
 	state->clipping = 0;
 	state->next = NULL;
@@ -2798,7 +2796,6 @@ static void cg_state_reset(struct cg_state_t * state)
 	cg_span_buffer_reset(&state->clip_spans);
 	state->winding = CG_FILL_RULE_NON_ZERO;
 	state->op = CG_OPERATOR_SRC_OVER;
-	state->font_size = 12.f;
 	state->opacity = 1.f;
 	state->clipping = 0;
 }
@@ -2815,7 +2812,6 @@ static void cg_state_copy(struct cg_state_t * state, struct cg_state_t * source)
 	cg_span_buffer_copy(&state->clip_spans, &source->clip_spans);
 	state->winding = source->winding;
 	state->op = source->op;
-	state->font_size = source->font_size;
 	state->opacity = source->opacity;
 	state->clipping = source->clipping;
 }
