@@ -297,12 +297,12 @@ void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y);
 void cg_map_point(struct cg_ctx_t * ctx, struct cg_point_t * src, struct cg_point_t * dst);
 void cg_map_rect(struct cg_ctx_t * ctx, struct cg_rect_t * src, struct cg_rect_t * dst);
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path);
-int cg_fill_contains(struct cg_ctx_t * ctx, float x, float y);
-int cg_stroke_contains(struct cg_ctx_t * ctx, float x, float y);
-int cg_clip_contains(struct cg_ctx_t * ctx, float x, float y);
 void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
 void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
 void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
+int cg_in_fill(struct cg_ctx_t * ctx, float x, float y);
+int cg_in_stroke(struct cg_ctx_t * ctx, float x, float y);
+int cg_in_clip(struct cg_ctx_t * ctx, float x, float y);
 
 struct cg_ctx_t * cg_create(struct cg_surface_t * surface);
 void cg_destroy(struct cg_ctx_t * ctx);

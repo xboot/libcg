@@ -2873,29 +2873,6 @@ void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
 	cg_path_add_path(ctx->path, path, NULL);
 }
 
-int cg_fill_contains(struct cg_ctx_t * ctx, float x, float y)
-{
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
-	return cg_span_buffer_contains(&ctx->fill_spans, x, y);
-}
-
-int cg_stroke_contains(struct cg_ctx_t * ctx, float x, float y)
-{
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, &ctx->state->stroke, CG_FILL_RULE_NON_ZERO);
-	return cg_span_buffer_contains(&ctx->fill_spans, x, y);
-}
-
-int cg_clip_contains(struct cg_ctx_t * ctx, float x, float y)
-{
-	if(ctx->state->clipping)
-		return cg_span_buffer_contains(&ctx->state->clip_spans, x, y);
-	float l = ctx->clip_rect.x;
-	float t = ctx->clip_rect.y;
-	float r = ctx->clip_rect.x + ctx->clip_rect.w;
-	float b = ctx->clip_rect.y + ctx->clip_rect.h;
-	return ((x >= l) && (x <= r) && (y >= t) && (y <= b));
-}
-
 void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
 {
 	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
@@ -2919,6 +2896,29 @@ void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
 		extents->w = ctx->clip_rect.w;
 		extents->h = ctx->clip_rect.h;
 	}
+}
+
+int cg_in_fill(struct cg_ctx_t * ctx, float x, float y)
+{
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
+	return cg_span_buffer_contains(&ctx->fill_spans, x, y);
+}
+
+int cg_in_stroke(struct cg_ctx_t * ctx, float x, float y)
+{
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, &ctx->state->stroke, CG_FILL_RULE_NON_ZERO);
+	return cg_span_buffer_contains(&ctx->fill_spans, x, y);
+}
+
+int cg_in_clip(struct cg_ctx_t * ctx, float x, float y)
+{
+	if(ctx->state->clipping)
+		return cg_span_buffer_contains(&ctx->state->clip_spans, x, y);
+	float l = ctx->clip_rect.x;
+	float t = ctx->clip_rect.y;
+	float r = ctx->clip_rect.x + ctx->clip_rect.w;
+	float b = ctx->clip_rect.y + ctx->clip_rect.h;
+	return ((x >= l) && (x <= r) && (y >= t) && (y <= b));
 }
 
 struct cg_ctx_t * cg_create(struct cg_surface_t * surface)
