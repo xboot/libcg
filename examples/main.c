@@ -341,8 +341,10 @@ static void test_fill_style(const char * filename)
 	cg_set_line_width(ctx, 6);
 
 	cg_rectangle(ctx, 12, 12, 232, 70);
-	cg_circle(ctx, 64, 64, 40);
-	cg_circle(ctx, 192, 64, 40);
+	cg_new_sub_path(ctx);
+	cg_arc(ctx, 64, 64, 40, 0, 2 * M_PI);
+	cg_new_sub_path(ctx);
+	cg_arc_negative(ctx, 192, 64, 40, 0, -2 * M_PI);
 	cg_set_fill_rule(ctx, CG_FILL_RULE_EVEN_ODD);
 	cg_set_source_rgb(ctx, 0, 0.7, 0);
 	cg_fill_preserve(ctx);
@@ -352,8 +354,10 @@ static void test_fill_style(const char * filename)
 	cg_save(ctx);
 	cg_translate(ctx, 0, 128);
 	cg_rectangle(ctx, 12, 12, 232, 70);
-	cg_circle(ctx, 64, 64, 40);
-	cg_circle(ctx, 192, 64, 40);
+	cg_new_sub_path(ctx);
+	cg_arc(ctx, 64, 64, 40, 0, 2 * M_PI);
+	cg_new_sub_path(ctx);
+	cg_arc_negative(ctx, 192, 64, 40, 0, -2 * M_PI);
 	cg_set_fill_rule(ctx, CG_FILL_RULE_NON_ZERO);
 	cg_set_source_rgb(ctx, 0, 0, 0.9);
 	cg_fill_preserve(ctx);

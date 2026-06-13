@@ -120,6 +120,7 @@ struct cg_path_t {
 	int num_points;
 	int num_contours;
 	int num_curves;
+	int sub_path;
 	struct cg_point_t start_point;
 	struct {
 		union cg_path_element_t * data;
@@ -256,6 +257,7 @@ void cg_path_destroy(struct cg_path_t * path);
 struct cg_path_t * cg_path_reference(struct cg_path_t * path);
 int cg_path_get_elements(struct cg_path_t * path, union cg_path_element_t ** elements);
 void cg_path_get_current_point(struct cg_path_t * path, float * x, float * y);
+void cg_path_new_sub_path(struct cg_path_t * path);
 void cg_path_move_to(struct cg_path_t * path, float x, float y);
 void cg_path_line_to(struct cg_path_t * path, float x, float y);
 void cg_path_quad_to(struct cg_path_t * path, float x1, float y1, float x2, float y2);
@@ -355,6 +357,7 @@ void cg_circle(struct cg_ctx_t * ctx, float cx, float cy, float r);
 void cg_arc(struct cg_ctx_t * ctx, float cx, float cy, float r, float a0, float a1);
 void cg_arc_negative(struct cg_ctx_t * ctx, float cx, float cy, float r, float a0, float a1);
 void cg_new_path(struct cg_ctx_t * ctx);
+void cg_new_sub_path(struct cg_ctx_t * ctx);
 void cg_close_path(struct cg_ctx_t * ctx);
 void cg_clip(struct cg_ctx_t * ctx);
 void cg_clip_preserve(struct cg_ctx_t * ctx);

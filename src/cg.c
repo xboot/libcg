@@ -469,6 +469,7 @@ struct cg_path_t * cg_path_create(void)
 	path->num_points = 0;
 	path->num_contours = 0;
 	path->num_curves = 0;
+	path->sub_path = 0;
 	path->start_point = (struct cg_point_t){0.0f, 0.0f};
 	cg_array_init(path->elements);
 	return path;
@@ -501,7 +502,7 @@ void cg_path_get_current_point(struct cg_path_t * path, float * x, float * y)
 {
 	float xx = 0.0f;
 	float yy = 0.0f;
-	if(path->num_points > 0)
+	if(path->num_points > 0 && !path->sub_path)
 	{
 		xx = path->elements.data[path->elements.size - 1].point.x;
 		yy = path->elements.data[path->elements.size - 1].point.y;
@@ -524,24 +525,38 @@ static union cg_path_element_t * cg_path_add_command(struct cg_path_t * path, en
 	return elements + 1;
 }
 
+void cg_path_new_sub_path(struct cg_path_t * path)
+{
+	path->sub_path = 1;
+}
+
 void cg_path_move_to(struct cg_path_t * path, float x, float y)
 {
 	union cg_path_element_t * elements = cg_path_add_command(path, CG_PATH_COMMAND_MOVE_TO, 1);
 	elements[0].point = (struct cg_point_t){x, y};
 	path->start_point = (struct cg_point_t){x, y};
 	path->num_contours += 1;
+	path->sub_path = 0;
 }
 
 void cg_path_line_to(struct cg_path_t * path, float x, float y)
 {
+	if(path->sub_path)
+	{
+		cg_path_move_to(path, x, y);
+		return;
+	}
 	if(path->elements.size == 0)
 		cg_path_move_to(path, 0, 0);
 	union cg_path_element_t * elements = cg_path_add_command(path, CG_PATH_COMMAND_LINE_TO, 1);
 	elements[0].point = (struct cg_point_t){x, y};
+	path->sub_path = 0;
 }
 
 void cg_path_quad_to(struct cg_path_t * path, float x1, float y1, float x2, float y2)
 {
+	if(path->elements.size == 0 || path->sub_path)
+		cg_path_move_to(path, 0, 0);
 	float current_x, current_y;
 	cg_path_get_current_point(path, &current_x, &current_y);
 	float cp1x = 2.f / 3.f * x1 + 1.f / 3.f * current_x;
@@ -551,15 +566,17 @@ void cg_path_quad_to(struct cg_path_t * path, float x1, float y1, float x2, floa
 	cg_path_cubic_to(path, cp1x, cp1y, cp2x, cp2y, x2, y2);
 }
 
+
 void cg_path_cubic_to(struct cg_path_t * path, float x1, float y1, float x2, float y2, float x3, float y3)
 {
-	if(path->elements.size == 0)
+	if(path->elements.size == 0 || path->sub_path)
 		cg_path_move_to(path, 0, 0);
 	union cg_path_element_t * elements = cg_path_add_command(path, CG_PATH_COMMAND_CUBIC_TO, 3);
 	elements[0].point = (struct cg_point_t){x1, y1};
 	elements[1].point = (struct cg_point_t){x2, y2};
 	elements[2].point = (struct cg_point_t){x3, y3};
 	path->num_curves += 1;
+	path->sub_path = 0;
 }
 
 static inline void cg_matrix_map(struct cg_matrix_t * m, float x, float y, float * xx, float * yy)
@@ -701,6 +718,7 @@ void cg_path_close(struct cg_path_t * path)
 		return;
 	union cg_path_element_t * elements = cg_path_add_command(path, CG_PATH_COMMAND_CLOSE, 1);
 	elements[0].point = path->start_point;
+	path->sub_path = 0;
 }
 
 void cg_path_reserve(struct cg_path_t * path, int count)
@@ -715,6 +733,7 @@ void cg_path_reset(struct cg_path_t * path)
 	path->num_points = 0;
 	path->num_contours = 0;
 	path->num_curves = 0;
+	path->sub_path = 0;
 }
 
 void cg_path_add_rectangle(struct cg_path_t * path, float x, float y, float w, float h)
@@ -791,7 +810,7 @@ void cg_path_add_arc(struct cg_path_t * path, float cx, float cy, float r, float
 	float ax = cx + cosf(a) * r;
 	float ay = cy + sinf(a) * r;
 	cg_path_reserve(path, 2 + 4 * (seg_n > 0 ? seg_n : 1));
-	if(path->elements.size == 0)
+	if(path->elements.size == 0 || path->sub_path)
 		cg_path_move_to(path, ax, ay);
 	else
 		cg_path_line_to(path, ax, ay);
@@ -825,6 +844,7 @@ void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct
 		path->num_points += source->num_points;
 		path->num_contours += source->num_contours;
 		path->num_curves += source->num_curves;
+		path->sub_path = source->sub_path;
 		return;
 	}
 	struct cg_path_iterator_t it;
@@ -1106,6 +1126,7 @@ struct cg_path_t * cg_path_clone(struct cg_path_t * path)
 	clone->num_points = path->num_points;
 	clone->num_contours = path->num_contours;
 	clone->num_curves = path->num_curves;
+	clone->sub_path = path->sub_path;
 	return clone;
 }
 
@@ -3248,6 +3269,11 @@ void cg_arc_negative(struct cg_ctx_t * ctx, float cx, float cy, float r, float a
 void cg_new_path(struct cg_ctx_t * ctx)
 {
 	cg_path_reset(ctx->path);
+}
+
+void cg_new_sub_path(struct cg_ctx_t * ctx)
+{
+	cg_path_new_sub_path(ctx->path);
 }
 
 void cg_close_path(struct cg_ctx_t * ctx)
