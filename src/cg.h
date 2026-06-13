@@ -248,13 +248,13 @@ struct cg_paint_t * cg_paint_create_texture(struct cg_surface_t * surface, enum 
 void cg_paint_destroy(struct cg_paint_t * paint);
 struct cg_paint_t * cg_paint_reference(struct cg_paint_t * paint);
 
-typedef void (*cg_path_traverse_func_t)(void * closure, enum cg_path_command_t command, struct cg_point_t * points, int npoints);
 struct cg_path_t * cg_path_create(void);
 void cg_path_destroy(struct cg_path_t * path);
 struct cg_path_t * cg_path_reference(struct cg_path_t * path);
 void cg_path_reset(struct cg_path_t * path);
 void cg_path_new_sub_path(struct cg_path_t * path);
 void cg_path_close(struct cg_path_t * path);
+void cg_path_transform(struct cg_path_t * path, struct cg_matrix_t * m);
 void cg_path_get_current_point(struct cg_path_t * path, float * x, float * y);
 void cg_path_move_to(struct cg_path_t * path, float x, float y);
 void cg_path_line_to(struct cg_path_t * path, float x, float y);
@@ -272,15 +272,10 @@ void cg_path_add_ellipse(struct cg_path_t * path, float cx, float cy, float rx, 
 void cg_path_add_circle(struct cg_path_t * path, float cx, float cy, float r);
 void cg_path_add_arc(struct cg_path_t * path, float cx, float cy, float r, float a0, float a1, int ccw);
 void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct cg_matrix_t * m);
-void cg_path_transform(struct cg_path_t * path, struct cg_matrix_t * m);
-void cg_path_traverse(struct cg_path_t * path, cg_path_traverse_func_t traverse_func, void * closure);
-void cg_path_traverse_flatten(struct cg_path_t * path, cg_path_traverse_func_t traverse_func, void * closure);
-void cg_path_traverse_dashed(struct cg_path_t * path, float * dashes, int ndashes, float offset, cg_path_traverse_func_t traverse_func, void * closure);
 struct cg_path_t * cg_path_clone(struct cg_path_t * path);
 struct cg_path_t * cg_path_clone_flatten(struct cg_path_t * path);
 struct cg_path_t * cg_path_clone_dashed(struct cg_path_t * path, float * dashes, int ndashes, float offset);
 float cg_path_extents(struct cg_path_t * path, struct cg_rect_t * extents, int tight);
-float cg_path_length(struct cg_path_t * path);
 
 struct cg_paint_t * cg_get_paint(struct cg_ctx_t * ctx, struct cg_color_t * color);
 struct cg_surface_t * cg_get_surface(struct cg_ctx_t * ctx);

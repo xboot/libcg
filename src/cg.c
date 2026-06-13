@@ -493,6 +493,29 @@ void cg_path_close(struct cg_path_t * path)
 	path->sub_path = 0;
 }
 
+void cg_path_transform(struct cg_path_t * path, struct cg_matrix_t * m)
+{
+	union cg_path_element_t * elements = path->elements.data;
+	for(int i = 0; i < path->elements.size; i += elements[i].header.length)
+	{
+		switch(elements[i].header.command)
+		{
+		case CG_PATH_COMMAND_MOVE_TO:
+		case CG_PATH_COMMAND_LINE_TO:
+		case CG_PATH_COMMAND_CLOSE:
+			cg_matrix_map_point(m, &elements[i + 1].point, &elements[i + 1].point);
+			break;
+		case CG_PATH_COMMAND_CUBIC_TO:
+			cg_matrix_map_point(m, &elements[i + 1].point, &elements[i + 1].point);
+			cg_matrix_map_point(m, &elements[i + 2].point, &elements[i + 2].point);
+			cg_matrix_map_point(m, &elements[i + 3].point, &elements[i + 3].point);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
 void cg_path_get_current_point(struct cg_path_t * path, float * x, float * y)
 {
 	float xx = 0.0f;
@@ -835,30 +858,9 @@ void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct
 	}
 }
 
-void cg_path_transform(struct cg_path_t * path, struct cg_matrix_t * m)
-{
-	union cg_path_element_t * elements = path->elements.data;
-	for(int i = 0; i < path->elements.size; i += elements[i].header.length)
-	{
-		switch(elements[i].header.command)
-		{
-		case CG_PATH_COMMAND_MOVE_TO:
-		case CG_PATH_COMMAND_LINE_TO:
-		case CG_PATH_COMMAND_CLOSE:
-			cg_matrix_map_point(m, &elements[i + 1].point, &elements[i + 1].point);
-			break;
-		case CG_PATH_COMMAND_CUBIC_TO:
-			cg_matrix_map_point(m, &elements[i + 1].point, &elements[i + 1].point);
-			cg_matrix_map_point(m, &elements[i + 2].point, &elements[i + 2].point);
-			cg_matrix_map_point(m, &elements[i + 3].point, &elements[i + 3].point);
-			break;
-		default:
-			break;
-		}
-	}
-}
+typedef void (*cg_path_traverse_func_t)(void * closure, enum cg_path_command_t command, struct cg_point_t * points, int npoints);
 
-void cg_path_traverse(struct cg_path_t * path, cg_path_traverse_func_t traverse_func, void * closure)
+static void cg_path_traverse(struct cg_path_t * path, cg_path_traverse_func_t traverse_func, void * closure)
 {
 	struct cg_path_iterator_t it;
 	cg_path_iterator_init(&it, path);
@@ -914,7 +916,7 @@ static inline void split_bezier(struct cg_bezier_t * b, struct cg_bezier_t * fir
 	first->y4 = second->y1 = (first->y3 + second->y2) * 0.5f;
 }
 
-void cg_path_traverse_flatten(struct cg_path_t * path, cg_path_traverse_func_t traverse_func, void * closure)
+static void cg_path_traverse_flatten(struct cg_path_t * path, cg_path_traverse_func_t traverse_func, void * closure)
 {
 	if(path->num_curves == 0)
 	{
@@ -1039,7 +1041,7 @@ static void dash_traverse_func(void * closure, enum cg_path_command_t command, s
 	dasher->current_point = p1;
 }
 
-void cg_path_traverse_dashed(struct cg_path_t * path, float * dashes, int ndashes, float offset, cg_path_traverse_func_t traverse_func, void * closure)
+static void cg_path_traverse_dashed(struct cg_path_t * path, float * dashes, int ndashes, float offset, cg_path_traverse_func_t traverse_func, void * closure)
 {
 	float dash_sum = 0.0f;
 	for(int i = 0; i < ndashes; ++i)
@@ -1177,11 +1179,6 @@ float cg_path_extents(struct cg_path_t * path, struct cg_rect_t * extents, int t
 		extents->h = calculator.y2 - calculator.y1;
 	}
 	return calculator.length;
-}
-
-float cg_path_length(struct cg_path_t * path)
-{
-	return cg_path_extents(path, NULL, 1);
 }
 
 static void cg_span_buffer_reset(struct cg_span_buffer_t * span_buffer)
