@@ -574,10 +574,10 @@ void cg_path_reset(struct cg_path_t * path);
 
 清空所有元素、轮廓数据和曲线计数。重置为空路径。
 
-#### cg_path_new_sub_path
+#### cg_path_sub_path
 
 ```c
-void cg_path_new_sub_path(struct cg_path_t * path);
+void cg_path_sub_path(struct cg_path_t * path);
 ```
 
 标记下一个绘图命令应开始一个新的子路径。如果下一个命令是 `line_to`、`cubic_to` 等，且前面没有 `move_to`，它将被提升为 `move_to`。

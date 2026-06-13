@@ -251,7 +251,7 @@ struct cg_path_t * cg_path_create(void);
 void cg_path_destroy(struct cg_path_t * path);
 struct cg_path_t * cg_path_reference(struct cg_path_t * path);
 void cg_path_reset(struct cg_path_t * path);
-void cg_path_new_sub_path(struct cg_path_t * path);
+void cg_path_sub_path(struct cg_path_t * path);
 void cg_path_close(struct cg_path_t * path);
 void cg_path_transform(struct cg_path_t * path, struct cg_matrix_t * m);
 void cg_path_get_current_point(struct cg_path_t * path, float * x, float * y);

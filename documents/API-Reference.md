@@ -574,10 +574,10 @@ void cg_path_reset(struct cg_path_t * path);
 
 Clears all elements, contour data, and curve count. Resets to an empty path.
 
-#### cg_path_new_sub_path
+#### cg_path_sub_path
 
 ```c
-void cg_path_new_sub_path(struct cg_path_t * path);
+void cg_path_sub_path(struct cg_path_t * path);
 ```
 
 Marks that the next drawing command should begin a new sub-path. If the next command is `line_to`, `cubic_to`, etc. without a preceding `move_to`, it will be promoted to a `move_to`.

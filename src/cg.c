@@ -479,7 +479,7 @@ void cg_path_reset(struct cg_path_t * path)
 	path->sub_path = 0;
 }
 
-void cg_path_new_sub_path(struct cg_path_t * path)
+void cg_path_sub_path(struct cg_path_t * path)
 {
 	path->sub_path = 1;
 }
@@ -3119,7 +3119,7 @@ void cg_new_path(struct cg_ctx_t * ctx)
 
 void cg_new_sub_path(struct cg_ctx_t * ctx)
 {
-	cg_path_new_sub_path(ctx->path);
+	cg_path_sub_path(ctx->path);
 }
 
 void cg_close_path(struct cg_ctx_t * ctx)
