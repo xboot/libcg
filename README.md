@@ -1,14 +1,11 @@
-
-***
 # libcg
-The tiny `C` library of 2D computer graphics.
+A tiny C library for 2D computer graphics.
 
 ## Getting Started
 
-The library's .c and .h files can be dropped into a project and compiled along with it. Just type `make` at the root directory, you will see a static library and some binary of [examples](examples) for usage.
+The library's .c and .h files can be dropped into a project and compiled along with it. Just type `make` at the root directory to build the static library and the example binaries under [examples](examples).
 
 ```shell
-cd libcg
 make
 ```
 ## Screenshots
@@ -36,4 +33,4 @@ make
 
 ## License
 
-This library is free software; you can redistribute it and or modify it under the terms of the MIT license. See [MIT License](LICENSE) for details.
+This library is free software; you can redistribute it and/or modify it under the terms of the MIT license. See [MIT License](LICENSE) for details.
