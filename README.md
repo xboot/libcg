@@ -8,6 +8,11 @@ The library's .c and .h files can be dropped into a project and compiled along w
 ```shell
 make
 ```
+## Documentation
+
+- [API Reference](documents/API-Reference.md)
+- [API 参考文档](documents/API-Reference-zh-CN.md) (中文)
+
 ## Screenshots
 
 ![arc](screenshots/arc.png)
