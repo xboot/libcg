@@ -232,7 +232,6 @@ void cg_matrix_rotate(struct cg_matrix_t * m, float r);
 void cg_matrix_shear(struct cg_matrix_t * m, float shx, float shy);
 void cg_matrix_multiply(struct cg_matrix_t * m, struct cg_matrix_t * m1, struct cg_matrix_t * m2);
 int  cg_matrix_invert(struct cg_matrix_t * m);
-void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * p1, struct cg_point_t * p2);
 
 struct cg_surface_t * cg_surface_create(int width, int height);
 struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * pixels);
@@ -272,9 +271,6 @@ void cg_path_add_ellipse(struct cg_path_t * path, float cx, float cy, float rx, 
 void cg_path_add_circle(struct cg_path_t * path, float cx, float cy, float r);
 void cg_path_add_arc(struct cg_path_t * path, float cx, float cy, float r, float a0, float a1, int ccw);
 void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct cg_matrix_t * m);
-struct cg_path_t * cg_path_clone(struct cg_path_t * path);
-struct cg_path_t * cg_path_clone_flatten(struct cg_path_t * path);
-struct cg_path_t * cg_path_clone_dashed(struct cg_path_t * path, float * dashes, int ndashes, float offset);
 float cg_path_extents(struct cg_path_t * path, struct cg_rect_t * extents, int tight);
 
 struct cg_paint_t * cg_get_paint(struct cg_ctx_t * ctx, struct cg_color_t * color);

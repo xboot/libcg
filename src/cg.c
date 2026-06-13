@@ -232,7 +232,7 @@ int cg_matrix_invert(struct cg_matrix_t * m)
 	return 0;
 }
 
-void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * p1, struct cg_point_t * p2)
+static void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * p1, struct cg_point_t * p2)
 {
 	p2->x = p1->x * m->a + p1->y * m->c + m->tx;
 	p2->y = p1->x * m->b + p1->y * m->d + m->ty;
@@ -1078,18 +1078,6 @@ static void cg_path_traverse_dashed(struct cg_path_t * path, float * dashes, int
 	cg_path_traverse_flatten(path, dash_traverse_func, &dasher);
 }
 
-struct cg_path_t * cg_path_clone(struct cg_path_t * path)
-{
-	struct cg_path_t * clone = cg_path_create();
-	cg_array_append(clone->elements, path->elements);
-	clone->start_point = path->start_point;
-	clone->num_points = path->num_points;
-	clone->num_contours = path->num_contours;
-	clone->num_curves = path->num_curves;
-	clone->sub_path = path->sub_path;
-	return clone;
-}
-
 static void clone_traverse_func(void * closure, enum cg_path_command_t command, struct cg_point_t * points, int npoints)
 {
 	struct cg_path_t * path = (struct cg_path_t *)(closure);
@@ -1112,15 +1100,7 @@ static void clone_traverse_func(void * closure, enum cg_path_command_t command, 
 	}
 }
 
-struct cg_path_t * cg_path_clone_flatten(struct cg_path_t * path)
-{
-	struct cg_path_t * clone = cg_path_create();
-	cg_path_reserve(clone, path->elements.size + path->num_curves * 32);
-	cg_path_traverse_flatten(path, clone_traverse_func, clone);
-	return clone;
-}
-
-struct cg_path_t * cg_path_clone_dashed(struct cg_path_t * path, float * dashes, int ndashes, float offset)
+static struct cg_path_t * cg_path_clone_dashed(struct cg_path_t * path, float * dashes, int ndashes, float offset)
 {
 	struct cg_path_t * clone = cg_path_create();
 	cg_path_reserve(clone, path->elements.size + path->num_curves * 32);
