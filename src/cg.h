@@ -303,12 +303,6 @@ int cg_clip_contains(struct cg_ctx_t * ctx, float x, float y);
 void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
 void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
 void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
-void cg_fill_rect(struct cg_ctx_t * ctx, float x, float y, float w, float h);
-void cg_fill_path(struct cg_ctx_t * ctx, struct cg_path_t *path);
-void cg_stroke_rect(struct cg_ctx_t * ctx, float x, float y, float w, float h);
-void cg_stroke_path(struct cg_ctx_t * ctx, struct cg_path_t *path);
-void cg_clip_rect(struct cg_ctx_t * ctx, float x, float y, float w, float h);
-void cg_clip_path(struct cg_ctx_t * ctx, struct cg_path_t * path);
 
 struct cg_ctx_t * cg_create(struct cg_surface_t * surface);
 void cg_destroy(struct cg_ctx_t * ctx);

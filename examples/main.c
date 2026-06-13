@@ -652,7 +652,8 @@ static void draw_operator_cell(struct cg_ctx_t * ctx, float x, float y, float w,
 	float r = h * 0.28;
 
 	cg_save(ctx);
-	cg_clip_rect(ctx, x, y, w, h);
+	cg_rectangle(ctx, x, y, w, h);
+	cg_clip(ctx);
 
 	cg_set_source_rgb(ctx, 0.92, 0.92, 0.92);
 	cg_rectangle(ctx, x, y, w, h);

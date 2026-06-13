@@ -2921,48 +2921,6 @@ void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
 	}
 }
 
-void cg_fill_rect(struct cg_ctx_t * ctx, float x, float y, float w, float h)
-{
-	cg_new_path(ctx);
-	cg_rectangle(ctx, x, y, w, h);
-	cg_fill(ctx);
-}
-
-void cg_fill_path(struct cg_ctx_t * ctx, struct cg_path_t *path)
-{
-	cg_new_path(ctx);
-	cg_add_path(ctx, path);
-	cg_fill(ctx);
-}
-
-void cg_stroke_rect(struct cg_ctx_t * ctx, float x, float y, float w, float h)
-{
-	cg_new_path(ctx);
-	cg_rectangle(ctx, x, y, w, h);
-	cg_stroke(ctx);
-}
-
-void cg_stroke_path(struct cg_ctx_t * ctx, struct cg_path_t *path)
-{
-	cg_new_path(ctx);
-	cg_add_path(ctx, path);
-	cg_stroke(ctx);
-}
-
-void cg_clip_rect(struct cg_ctx_t * ctx, float x, float y, float w, float h)
-{
-	cg_new_path(ctx);
-	cg_rectangle(ctx, x, y, w, h);
-	cg_clip(ctx);
-}
-
-void cg_clip_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
-{
-	cg_new_path(ctx);
-	cg_add_path(ctx, path);
-	cg_clip(ctx);
-}
-
 struct cg_ctx_t * cg_create(struct cg_surface_t * surface)
 {
 	struct cg_ctx_t * ctx = malloc(sizeof(struct cg_ctx_t));
