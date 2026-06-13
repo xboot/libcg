@@ -292,7 +292,6 @@ enum cg_operator_t cg_get_operator(struct cg_ctx_t * ctx);
 float cg_get_opacity(struct cg_ctx_t * ctx);
 void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y);
 
-void cg_map_point(struct cg_ctx_t * ctx, struct cg_point_t * src, struct cg_point_t * dst);
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path);
 void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
 void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);

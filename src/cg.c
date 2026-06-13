@@ -2824,11 +2824,6 @@ void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y)
 	cg_path_get_current_point(ctx->path, x, y);
 }
 
-void cg_map_point(struct cg_ctx_t * ctx, struct cg_point_t * src, struct cg_point_t * dst)
-{
-	cg_matrix_map_point(&ctx->state->matrix, src, dst);
-}
-
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
 {
 	cg_path_add_path(ctx->path, path, NULL);
