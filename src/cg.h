@@ -233,8 +233,6 @@ void cg_matrix_shear(struct cg_matrix_t * m, float shx, float shy);
 void cg_matrix_multiply(struct cg_matrix_t * m, struct cg_matrix_t * m1, struct cg_matrix_t * m2);
 int  cg_matrix_invert(struct cg_matrix_t * m);
 void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * p1, struct cg_point_t * p2);
-void cg_matrix_map_points(struct cg_matrix_t * m, struct cg_point_t * src, struct cg_point_t * dst, int count);
-void cg_matrix_map_rect(struct cg_matrix_t * m, struct cg_rect_t * src, struct cg_rect_t * dst);
 
 struct cg_surface_t * cg_surface_create(int width, int height);
 struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * pixels);
@@ -292,10 +290,9 @@ struct cg_path_t * cg_get_path(struct cg_ctx_t * ctx);
 struct cg_matrix_t * cg_get_matrix(struct cg_ctx_t * ctx);
 enum cg_operator_t cg_get_operator(struct cg_ctx_t * ctx);
 float cg_get_opacity(struct cg_ctx_t * ctx);
-
 void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y);
+
 void cg_map_point(struct cg_ctx_t * ctx, struct cg_point_t * src, struct cg_point_t * dst);
-void cg_map_rect(struct cg_ctx_t * ctx, struct cg_rect_t * src, struct cg_rect_t * dst);
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path);
 void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
 void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);

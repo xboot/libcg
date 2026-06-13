@@ -238,44 +238,10 @@ void cg_matrix_map_point(struct cg_matrix_t * m, struct cg_point_t * p1, struct 
 	p2->y = p1->x * m->b + p1->y * m->d + m->ty;
 }
 
-void cg_matrix_map_points(struct cg_matrix_t * m, struct cg_point_t * src, struct cg_point_t * dst, int count)
+static void cg_matrix_map_points(struct cg_matrix_t * m, struct cg_point_t * src, struct cg_point_t * dst, int count)
 {
 	for(int i = 0; i < count; ++i)
 		cg_matrix_map_point(m, &src[i], &dst[i]);
-}
-
-void cg_matrix_map_rect(struct cg_matrix_t * m, struct cg_rect_t * src, struct cg_rect_t * dst)
-{
-	struct cg_point_t p[4];
-	p[0].x = src->x;
-	p[0].y = src->y;
-	p[1].x = src->x + src->w;
-	p[1].y = src->y;
-	p[2].x = src->x + src->w;
-	p[2].y = src->y + src->h;
-	p[3].x = src->x;
-	p[3].y = src->y + src->h;
-	cg_matrix_map_points(m, p, p, 4);
-
-	float l = p[0].x;
-	float t = p[0].y;
-	float r = p[0].x;
-	float b = p[0].y;
-	for(int i = 1; i < 4; i++)
-	{
-		if(p[i].x < l)
-			l = p[i].x;
-		if(p[i].x > r)
-			r = p[i].x;
-		if(p[i].y < t)
-			t = p[i].y;
-		if(p[i].y > b)
-			b = p[i].y;
-	}
-	dst->x = l;
-	dst->y = t;
-	dst->w = r - l;
-	dst->h = b - t;
 }
 
 struct cg_surface_t * cg_surface_create(int width, int height)
@@ -2861,11 +2827,6 @@ void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y)
 void cg_map_point(struct cg_ctx_t * ctx, struct cg_point_t * src, struct cg_point_t * dst)
 {
 	cg_matrix_map_point(&ctx->state->matrix, src, dst);
-}
-
-void cg_map_rect(struct cg_ctx_t * ctx, struct cg_rect_t * src, struct cg_rect_t * dst)
-{
-	cg_matrix_map_rect(&ctx->state->matrix, src, dst);
 }
 
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
