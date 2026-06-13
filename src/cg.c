@@ -2823,12 +2823,6 @@ void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y)
 {
 	cg_path_get_current_point(ctx->path, x, y);
 }
-
-void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
-{
-	cg_path_add_path(ctx->path, path, NULL);
-}
-
 void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
 {
 	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
@@ -3186,6 +3180,11 @@ void cg_new_sub_path(struct cg_ctx_t * ctx)
 void cg_close_path(struct cg_ctx_t * ctx)
 {
 	cg_path_close(ctx->path);
+}
+
+void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
+{
+	cg_path_add_path(ctx->path, path, NULL);
 }
 
 void cg_clip(struct cg_ctx_t * ctx)
