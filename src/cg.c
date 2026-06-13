@@ -396,7 +396,7 @@ struct cg_paint_t * cg_paint_create_texture(struct cg_surface_t * surface, enum 
 {
 	struct cg_texture_paint_t *texture = cg_paint_create(CG_PAINT_TYPE_TEXTURE, sizeof(struct cg_texture_paint_t));
 	texture->type = type;
-	texture->opacity = CG_CLAMP(opacity, 0.f, 1.f);
+	texture->opacity = CG_CLAMP(opacity, 0.0f, 1.0f);
 	texture->matrix = m ? *m : ((struct cg_matrix_t){1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f});
 	texture->surface = cg_surface_reference(surface);
 	return &texture->base;
@@ -559,10 +559,10 @@ void cg_path_quad_to(struct cg_path_t * path, float x1, float y1, float x2, floa
 		cg_path_move_to(path, 0, 0);
 	float current_x, current_y;
 	cg_path_get_current_point(path, &current_x, &current_y);
-	float cp1x = 2.f / 3.f * x1 + 1.f / 3.f * current_x;
-	float cp1y = 2.f / 3.f * y1 + 1.f / 3.f * current_y;
-	float cp2x = 2.f / 3.f * x1 + 1.f / 3.f * x2;
-	float cp2y = 2.f / 3.f * y1 + 1.f / 3.f * y2;
+	float cp1x = 2.0f / 3.0f * x1 + 1.0f / 3.0f * current_x;
+	float cp1y = 2.0f / 3.0f * y1 + 1.0f / 3.0f * current_y;
+	float cp2x = 2.0f / 3.0f * x1 + 1.0f / 3.0f * x2;
+	float cp2y = 2.0f / 3.0f * y1 + 1.0f / 3.0f * y2;
 	cg_path_cubic_to(path, cp1x, cp1y, cp2x, cp2y, x2, y2);
 }
 
@@ -588,15 +588,15 @@ void cg_path_arc_to(struct cg_path_t * path, float rx, float ry, float angle, in
 {
 	float current_x, current_y;
 	cg_path_get_current_point(path, &current_x, &current_y);
-	if(rx == 0.f || ry == 0.f || (current_x == x && current_y == y))
+	if(rx == 0.0f || ry == 0.0f || (current_x == x && current_y == y))
 	{
 		cg_path_line_to(path, x, y);
 		return;
 	}
 
-	if(rx < 0.f)
+	if(rx < 0.0f)
 		rx = -rx;
-	if(ry < 0.f)
+	if(ry < 0.0f)
 		ry = -ry;
 
 	float dx = (current_x - x) * 0.5f;
@@ -611,13 +611,13 @@ void cg_path_arc_to(struct cg_path_t * path, float rx, float ry, float angle, in
 	float dxdx = dx * dx;
 	float dydy = dy * dy;
 	float radius = dxdx / rxrx + dydy / ryry;
-	if(radius > 1.f)
+	if(radius > 1.0f)
 	{
 		rx *= sqrtf(radius);
 		ry *= sqrtf(radius);
 	}
 
-	cg_matrix_init_scale(&matrix, 1.f / rx, 1.f / ry);
+	cg_matrix_init_scale(&matrix, 1.0f / rx, 1.0f / ry);
 	cg_matrix_rotate(&matrix, -angle);
 
 	float x1, y1;
@@ -628,9 +628,9 @@ void cg_path_arc_to(struct cg_path_t * path, float rx, float ry, float angle, in
 	float dx1 = x2 - x1;
 	float dy1 = y2 - y1;
 	float d = dx1 * dx1 + dy1 * dy1;
-	float scale_sq = 1.f / d - 0.25f;
-	if(scale_sq < 0.f)
-		scale_sq = 0.f;
+	float scale_sq = 1.0f / d - 0.25f;
+	if(scale_sq < 0.0f)
+		scale_sq = 0.0f;
 	float scale = sqrtf(scale_sq);
 	if(sweep == large)
 		scale = -scale;
@@ -643,9 +643,9 @@ void cg_path_arc_to(struct cg_path_t * path, float rx, float ry, float angle, in
 	float th1 = atan2f(y1 - cy1, x1 - cx1);
 	float th2 = atan2f(y2 - cy1, x2 - cx1);
 	float th_arc = th2 - th1;
-	if(th_arc < 0.f && sweep)
+	if(th_arc < 0.0f && sweep)
 		th_arc += CG_TWO_PI;
-	else if(th_arc > 0.f && !sweep)
+	else if(th_arc > 0.0f && !sweep)
 		th_arc -= CG_TWO_PI;
 	cg_matrix_init_rotate(&matrix, angle);
 	cg_matrix_scale(&matrix, rx, ry);
@@ -654,7 +654,7 @@ void cg_path_arc_to(struct cg_path_t * path, float rx, float ry, float angle, in
 	{
 		float th_start = th1 + i * th_arc / segments;
 		float th_end = th1 + (i + 1) * th_arc / segments;
-		float t = (8.f / 6.f) * tanf(0.25f * (th_end - th_start));
+		float t = (8.0f / 6.0f) * tanf(0.25f * (th_end - th_start));
 
 		float x3 = cosf(th_end) + cx1;
 		float y3 = sinf(th_end) + cy1;
@@ -750,7 +750,7 @@ void cg_path_add_round_rectangle(struct cg_path_t * path, float x, float y, floa
 {
 	rx = CG_MIN(rx, w * 0.5f);
 	ry = CG_MIN(ry, h * 0.5f);
-	if(rx == 0.f && ry == 0.f)
+	if(rx == 0.0f && ry == 0.0f)
 	{
 		cg_path_add_rectangle(path, x, y, w, h);
 		return;
@@ -802,7 +802,7 @@ void cg_path_add_arc(struct cg_path_t * path, float cx, float cy, float r, float
 	float da = a1 - a0;
 	if(fabsf(da) > CG_TWO_PI)
 		da = CG_TWO_PI;
-	else if(da != 0.f && ccw != (da < 0.f))
+	else if(da != 0.0f && ccw != (da < 0.0f))
 		da += CG_TWO_PI * (ccw ? -1 : 1);
 	int seg_n = (int)(ceilf(fabsf(da) / CG_HALF_PI));
 	float a = a0;
@@ -997,14 +997,14 @@ void cg_path_traverse_flatten(struct cg_path_t * path, cg_path_traverse_func_t t
 				float x4x1 = b->x4 - b->x1;
 				float l = fabsf(x4x1) + fabsf(y4y1);
 				float d;
-				if(l > 1.f)
+				if(l > 1.0f)
 				{
 					d = fabsf((x4x1) * (b->y1 - b->y2) - (y4y1) * (b->x1 - b->x2)) + fabsf((x4x1) * (b->y1 - b->y3) - (y4y1) * (b->x1 - b->x3));
 				}
 				else
 				{
 					d = fabsf(b->x1 - b->x2) + fabsf(b->y1 - b->y2) + fabsf(b->x1 - b->x3) + fabsf(b->y1 - b->y3);
-					l = 1.f;
+					l = 1.0f;
 				}
 
 				if(d < threshold * l || b == beziers + 31)
@@ -1060,7 +1060,7 @@ static void dash_traverse_func(void * closure, enum cg_path_command_t command, s
 	float dx = p1.x - p0.x;
 	float dy = p1.y - p0.y;
 	float dist0 = sqrtf(dx * dx + dy * dy);
-	float dist1 = 0.f;
+	float dist1 = 0.0f;
 	while(dist0 - dist1 > dasher->dashes[dasher->index % dasher->ndashes] - dasher->phase)
 	{
 		dist1 += dasher->dashes[dasher->index % dasher->ndashes] - dasher->phase;
@@ -1070,7 +1070,7 @@ static void dash_traverse_func(void * closure, enum cg_path_command_t command, s
 			dasher->traverse_func(dasher->closure, CG_PATH_COMMAND_LINE_TO, &p, 1);
 		else
 			dasher->traverse_func(dasher->closure, CG_PATH_COMMAND_MOVE_TO, &p, 1);
-		dasher->phase = 0.f;
+		dasher->phase = 0.0f;
 		dasher->toggle = !dasher->toggle;
 		dasher->index++;
 	}
@@ -1082,12 +1082,12 @@ static void dash_traverse_func(void * closure, enum cg_path_command_t command, s
 
 void cg_path_traverse_dashed(struct cg_path_t * path, float * dashes, int ndashes, float offset, cg_path_traverse_func_t traverse_func, void * closure)
 {
-	float dash_sum = 0.f;
+	float dash_sum = 0.0f;
 	for(int i = 0; i < ndashes; ++i)
 		dash_sum += dashes[i];
 	if(ndashes % 2 == 1)
-		dash_sum *= 2.f;
-	if(dash_sum <= 0.f)
+		dash_sum *= 2.0f;
+	if(dash_sum <= 0.0f)
 	{
 		cg_path_traverse(path, traverse_func, closure);
 		return;
@@ -1097,11 +1097,11 @@ void cg_path_traverse_dashed(struct cg_path_t * path, float * dashes, int ndashe
 	dasher.dashes = dashes;
 	dasher.ndashes = ndashes;
 	dasher.start_phase = fmodf(offset, dash_sum);
-	if(dasher.start_phase < 0.f)
+	if(dasher.start_phase < 0.0f)
 		dasher.start_phase += dash_sum;
 	dasher.start_index = 0;
 	dasher.start_toggle = 1;
-	while(dasher.start_phase > 0.f && dasher.start_phase >= dasher.dashes[dasher.start_index % dasher.ndashes])
+	while(dasher.start_phase > 0.0f && dasher.start_phase >= dasher.dashes[dasher.start_index % dasher.ndashes])
 	{
 		dasher.start_phase -= dashes[dasher.start_index % dasher.ndashes];
 		dasher.start_toggle = !dasher.start_toggle;
@@ -1741,7 +1741,7 @@ static void fetch_linear_gradient(uint32_t * buffer, struct cg_linear_gradient_v
 	float t, inc;
 	float rx = 0, ry = 0;
 
-	if(v->l == 0.f)
+	if(v->l == 0.0f)
 	{
 		t = inc = 0;
 	}
@@ -1787,7 +1787,7 @@ static void fetch_linear_gradient(uint32_t * buffer, struct cg_linear_gradient_v
 
 static void fetch_radial_gradient(uint32_t * buffer, struct cg_radial_gradient_values_t * v, struct cg_gradient_data_t * gradient, int y, int x, int length)
 {
-	if(v->a == 0.f)
+	if(v->a == 0.0f)
 	{
 		cg_memfill32(buffer, length, 0);
 		return;
@@ -2305,7 +2305,7 @@ static void blend_radial_gradient(struct cg_surface_t * surface, enum cg_operato
 	v.dr = gradient->values.radial.cr - gradient->values.radial.fr;
 	v.sqrfr = gradient->values.radial.fr * gradient->values.radial.fr;
 	v.a = v.dr * v.dr - v.dx * v.dx - v.dy * v.dy;
-	v.extended = gradient->values.radial.fr != 0.f || v.a <= 0.f;
+	v.extended = gradient->values.radial.fr != 0.0f || v.a <= 0.0f;
 
 	int count = span_buffer->spans.size;
 	struct cg_span_t * spans = span_buffer->spans.data;
@@ -2661,7 +2661,7 @@ static void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_gradient_paint_t 
 		next = (start + i + 1);
 		if(curr->offset == next->offset)
 			continue;
-		delta = 1.f / (next->offset - curr->offset);
+		delta = 1.0f / (next->offset - curr->offset);
 		next_color = premultiply_color_with_opacity(&next->color, opacity);
 		while(fpos < next->offset && pos < 1024)
 		{
@@ -2773,12 +2773,12 @@ static struct cg_state_t * cg_state_create(void)
 	state->color = (struct cg_color_t){0.0f, 0.0f, 0.0f, 1.0f};
 	state->matrix = (struct cg_matrix_t){1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
 	state->stroke.style = (struct cg_stroke_style_t){ 1.0f, CG_LINE_CAP_BUTT, CG_LINE_JOIN_MITER, 10.0f };
-	state->stroke.dash.offset = 0.f;
+	state->stroke.dash.offset = 0.0f;
 	cg_array_init(state->stroke.dash.array);
 	cg_span_buffer_init(&state->clip_spans);
 	state->winding = CG_FILL_RULE_NON_ZERO;
 	state->op = CG_OPERATOR_SRC_OVER;
-	state->opacity = 1.f;
+	state->opacity = 1.0f;
 	state->clipping = 0;
 	state->next = NULL;
 	return state;
@@ -2791,12 +2791,12 @@ static void cg_state_reset(struct cg_state_t * state)
 	state->color = (struct cg_color_t){0.0f, 0.0f, 0.0f, 1.0f};
 	state->matrix = (struct cg_matrix_t){1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f};
 	state->stroke.style = (struct cg_stroke_style_t){ 1.0f, CG_LINE_CAP_BUTT, CG_LINE_JOIN_MITER, 10.0f };
-	state->stroke.dash.offset = 0.f;
+	state->stroke.dash.offset = 0.0f;
 	cg_array_clear(state->stroke.dash.array);
 	cg_span_buffer_reset(&state->clip_spans);
 	state->winding = CG_FILL_RULE_NON_ZERO;
 	state->op = CG_OPERATOR_SRC_OVER;
-	state->opacity = 1.f;
+	state->opacity = 1.0f;
 	state->clipping = 0;
 }
 
@@ -3101,7 +3101,7 @@ void cg_set_operator(struct cg_ctx_t * ctx, enum cg_operator_t op)
 
 void cg_set_opacity(struct cg_ctx_t * ctx, float opacity)
 {
-	ctx->state->opacity = CG_CLAMP(opacity, 0.f, 1.f);
+	ctx->state->opacity = CG_CLAMP(opacity, 0.0f, 1.0f);
 }
 
 void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t winding)
@@ -3202,6 +3202,11 @@ void cg_cubic_to(struct cg_ctx_t * ctx, float x1, float y1, float x2, float y2, 
 	cg_path_cubic_to(ctx->path, x1, y1, x2, y2, x3, y3);
 }
 
+void cg_arc_to(struct cg_ctx_t * ctx, float rx, float ry, float angle, int large, int sweep, float x, float y)
+{
+	cg_path_arc_to(ctx->path, rx, ry, angle, large, sweep, x, y);
+}
+
 void cg_rel_move_to(struct cg_ctx_t * ctx, float dx, float dy)
 {
 	cg_path_rel_move_to(ctx->path, dx, dy);
@@ -3225,11 +3230,6 @@ void cg_rel_cubic_to(struct cg_ctx_t * ctx, float dx1, float dy1, float dx2, flo
 void cg_rel_arc_to(struct cg_ctx_t * ctx, float rx, float ry, float angle, int large, int sweep, float dx, float dy)
 {
 	cg_path_rel_arc_to(ctx->path, rx, ry, angle, large, sweep, dx, dy);
-}
-
-void cg_arc_to(struct cg_ctx_t * ctx, float rx, float ry, float angle, int large, int sweep, float x, float y)
-{
-	cg_path_arc_to(ctx->path, rx, ry, angle, large, sweep, x, y);
 }
 
 void cg_rectangle(struct cg_ctx_t * ctx, float x, float y, float w, float h)
