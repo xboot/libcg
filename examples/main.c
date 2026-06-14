@@ -750,6 +750,40 @@ static void test_operators(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void test_rainbow(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	{
+		float cx = 128.0, cy = 210.0;
+		float colors[7][3] = {
+			{ 0.92, 0.18, 0.18 },
+			{ 0.98, 0.48, 0.15 },
+			{ 0.99, 0.84, 0.15 },
+			{ 0.15, 0.78, 0.28 },
+			{ 0.15, 0.45, 0.92 },
+			{ 0.25, 0.20, 0.80 },
+			{ 0.50, 0.15, 0.70 },
+		};
+		for(int band = 0; band < 7; band++)
+		{
+			float r1 = 115.0f - band * 9.0f;
+			float r2 = r1 - 9.5f;
+			cg_new_path(ctx);
+			cg_arc(ctx, cx, cy, r1, (float)M_PI, 0);
+			cg_arc_negative(ctx, cx, cy, r2, 0, (float)M_PI);
+			cg_close_path(ctx);
+			cg_set_source_rgb(ctx, colors[band][0], colors[band][1], colors[band][2]);
+			cg_fill(ctx);
+		}
+	}
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 int main(int argc, char * argv[])
 {
 	test_arc("arc.png");
@@ -772,6 +806,7 @@ int main(int argc, char * argv[])
 	test_taiji("taiji.png");
 	test_texture_tiled("texture_tiled.png");
 	test_mask_surface("mask_surface.png");
+	test_rainbow("rainbow.png");
 	test_operators("operators.png");
 	return 0;
 }

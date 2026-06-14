@@ -35,6 +35,7 @@ make
 ![taiji](screenshots/taiji.png)
 ![texture_tiled](screenshots/texture_tiled.png)
 ![mask_surface](screenshots/mask_surface.png)
+![rainbow](screenshots/rainbow.png)
 ![operators](screenshots/operators.png)
 
 ## License
