@@ -349,12 +349,12 @@ struct cg_paint_t * cg_paint_create_linear_gradient(float x1, float y1, float x2
 struct cg_paint_t * cg_paint_create_radial_gradient(float cx0, float cy0, float r0, float cx1, float cy1, float r1, enum cg_spread_method_t spread, struct cg_gradient_stop_t * stops, int nstops, struct cg_matrix_t * m)
 {
 	struct cg_gradient_paint_t * gradient = cg_gradient_create(CG_GRADIENT_TYPE_RADIAL, spread, stops, nstops, m);
-	gradient->values[0] = cx1;
-	gradient->values[1] = cy1;
-	gradient->values[2] = r1;
-	gradient->values[3] = cx0;
-	gradient->values[4] = cy0;
-	gradient->values[5] = r0;
+	gradient->values[0] = cx0;
+	gradient->values[1] = cy0;
+	gradient->values[2] = r0;
+	gradient->values[3] = cx1;
+	gradient->values[4] = cy1;
+	gradient->values[5] = r1;
 	return &gradient->base;
 }
 
@@ -1530,8 +1530,8 @@ struct cg_gradient_data_t {
 			float x2, y2;
 		} linear;
 		struct {
-			float cx, cy, cr;
 			float fx, fy, fr;
+			float cx, cy, cr;
 		} radial;
 	} values;
 };
@@ -2591,12 +2591,12 @@ static void cg_blend_gradient(struct cg_ctx_t * ctx, struct cg_gradient_paint_t 
 	}
 	else
 	{
-		data.values.radial.cx = gradient->values[0];
-		data.values.radial.cy = gradient->values[1];
-		data.values.radial.cr = gradient->values[2];
-		data.values.radial.fx = gradient->values[3];
-		data.values.radial.fy = gradient->values[4];
-		data.values.radial.fr = gradient->values[5];
+		data.values.radial.fx = gradient->values[0];
+		data.values.radial.fy = gradient->values[1];
+		data.values.radial.fr = gradient->values[2];
+		data.values.radial.cx = gradient->values[3];
+		data.values.radial.cy = gradient->values[4];
+		data.values.radial.cr = gradient->values[5];
 		blend_radial_gradient(ctx->surface, state->op, &data, span_buffer);
 	}
 }

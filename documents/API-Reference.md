@@ -282,7 +282,7 @@ Paint is the "what to draw" — it can be a solid color, gradient, or texture. T
 
 **Gradient paint** stores color stops inline (allocated in the same block as the struct). `values[6]` stores geometry:
 - Linear: `{x1, y1, x2, y2}` 
-- Radial: `{cx1, cy1, r1, cx0, cy0, r0}` (end circle, then start circle)
+- Radial: `{cx0, cy0, r0, cx1, cy1, r1}` (start circle, then end circle)
 
 **Texture paint** references a surface and stores opacity, texture type, and an affine matrix.
 
@@ -498,7 +498,7 @@ struct cg_paint_t * cg_paint_create_radial_gradient(
 
 Creates a radial gradient paint transitioning from circle `(cx0, cy0, r0)` at offset `0` to circle `(cx1, cy1, r1)` at offset `1`.
 
-*Note: The `values` array in the paint is stored as `{cx1, cy1, r1, cx0, cy0, r0}` (end circle first, then start circle).*
+*Note: The `values` array in the paint is stored as `{cx0, cy0, r0, cx1, cy1, r1}` (start circle first, then end circle).*
 
 ### cg_paint_create_texture
 

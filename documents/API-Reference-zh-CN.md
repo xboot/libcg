@@ -282,7 +282,7 @@ Paint 是"要绘制的内容"——可以是纯色、渐变或纹理。`cg_paint
 
 **渐变 paint** 将颜色色标内联存储（与结构体在同一内存块中分配）。`values[6]` 存储几何信息：
 - 线性：`{x1, y1, x2, y2}`
-- 径向：`{cx1, cy1, r1, cx0, cy0, r0}`（先结束圆，再起始圆）
+- 径向：`{cx0, cy0, r0, cx1, cy1, r1}`（先起始圆，再结束圆）
 
 **纹理 paint** 引用一个 surface，并存储不透明度、纹理类型和仿射矩阵。
 
@@ -498,7 +498,7 @@ struct cg_paint_t * cg_paint_create_radial_gradient(
 
 创建径向渐变 paint，从偏移量 `0` 处的圆 `(cx0, cy0, r0)` 过渡到偏移量 `1` 处的圆 `(cx1, cy1, r1)`。
 
-*注意：paint 中的 `values` 数组存储为 `{cx1, cy1, r1, cx0, cy0, r0}`（先结束圆，再起始圆）。*
+*注意：paint 中的 `values` 数组存储为 `{cx0, cy0, r0, cx1, cy1, r1}`（先起始圆，再结束圆）。*
 
 ### cg_paint_create_texture
 
