@@ -2769,7 +2769,7 @@ static void cg_state_destroy(struct cg_state_t * state)
 	free(state);
 }
 
-struct cg_paint_t * cg_get_paint(struct cg_ctx_t * ctx, struct cg_color_t * color)
+struct cg_paint_t * cg_get_source(struct cg_ctx_t * ctx, struct cg_color_t * color)
 {
 	if(color)
 		*color = ctx->state->color;
@@ -2920,7 +2920,7 @@ void cg_restore(struct cg_ctx_t * ctx)
 	}
 }
 
-void cg_set_paint(struct cg_ctx_t * ctx, struct cg_paint_t * paint)
+void cg_set_source(struct cg_ctx_t * ctx, struct cg_paint_t * paint)
 {
 	paint = cg_paint_reference(paint);
 	cg_paint_destroy(ctx->state->paint);
@@ -2934,7 +2934,7 @@ void cg_set_source_rgb(struct cg_ctx_t * ctx, float r, float g, float b)
 	c->g = g;
 	c->b = b;
 	c->a = 1.0f;
-	cg_set_paint(ctx, NULL);
+	cg_set_source(ctx, NULL);
 }
 
 void cg_set_source_rgba(struct cg_ctx_t * ctx, float r, float g, float b, float a)
@@ -2944,7 +2944,7 @@ void cg_set_source_rgba(struct cg_ctx_t * ctx, float r, float g, float b, float 
 	c->g = g;
 	c->b = b;
 	c->a = a;
-	cg_set_paint(ctx, NULL);
+	cg_set_source(ctx, NULL);
 }
 
 void cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color)
@@ -2954,7 +2954,7 @@ void cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color)
 	c->g = color->g;
 	c->b = color->b;
 	c->a = color->a;
-	cg_set_paint(ctx, NULL);
+	cg_set_source(ctx, NULL);
 }
 
 void cg_set_source_surface(struct cg_ctx_t * ctx, struct cg_surface_t * surface, float x, float y)
@@ -2962,28 +2962,28 @@ void cg_set_source_surface(struct cg_ctx_t * ctx, struct cg_surface_t * surface,
 	struct cg_matrix_t m;
 	cg_matrix_init_translate(&m, x, y);
 	struct cg_paint_t * paint = cg_paint_create_texture(surface, CG_TEXTURE_TYPE_PLAIN, 1.0f, &m);
-	cg_set_paint(ctx, paint);
+	cg_set_source(ctx, paint);
 	cg_paint_destroy(paint);
 }
 
 void cg_set_linear_gradient(struct cg_ctx_t * ctx, float x1, float y1, float x2, float y2, enum cg_spread_method_t spread, struct cg_gradient_stop_t * stops, int nstops, struct cg_matrix_t * m)
 {
 	struct cg_paint_t * paint = cg_paint_create_linear_gradient(x1, y1, x2, y2, spread, stops, nstops, m);
-	cg_set_paint(ctx, paint);
+	cg_set_source(ctx, paint);
 	cg_paint_destroy(paint);
 }
 
 void cg_set_radial_gradient(struct cg_ctx_t * ctx, float cx0, float cy0, float r0, float cx1, float cy1, float r1, enum cg_spread_method_t spread, struct cg_gradient_stop_t * stops, int nstops, struct cg_matrix_t * m)
 {
 	struct cg_paint_t * paint = cg_paint_create_radial_gradient(cx0, cy0, r0, cx1, cy1, r1, spread, stops, nstops, m);
-	cg_set_paint(ctx, paint);
+	cg_set_source(ctx, paint);
 	cg_paint_destroy(paint);
 }
 
 void cg_set_texture(struct cg_ctx_t * ctx, struct cg_surface_t * surface, enum cg_texture_type_t type, float opacity, struct cg_matrix_t * m)
 {
 	struct cg_paint_t * paint = cg_paint_create_texture(surface, type, opacity, m);
-	cg_set_paint(ctx, paint);
+	cg_set_source(ctx, paint);
 	cg_paint_destroy(paint);
 }
 
@@ -3199,7 +3199,7 @@ void cg_mask(struct cg_ctx_t * ctx, struct cg_paint_t * paint)
 	struct cg_surface_t * src_surface = cg_surface_create(ctx->surface->width, ctx->surface->height);
 	struct cg_ctx_t * src_ctx = cg_create(src_surface);
 	if(ctx->state->paint)
-		cg_set_paint(src_ctx, ctx->state->paint);
+		cg_set_source(src_ctx, ctx->state->paint);
 	else
 		cg_set_source_color(src_ctx, &ctx->state->color);
 	cg_set_operator(src_ctx, CG_OPERATOR_SRC);
@@ -3208,7 +3208,7 @@ void cg_mask(struct cg_ctx_t * ctx, struct cg_paint_t * paint)
 
 	struct cg_surface_t * mask_surface = cg_surface_create(ctx->surface->width, ctx->surface->height);
 	struct cg_ctx_t * mask_ctx = cg_create(mask_surface);
-	cg_set_paint(mask_ctx, paint);
+	cg_set_source(mask_ctx, paint);
 	cg_set_matrix(mask_ctx, &ctx->state->matrix);
 	cg_set_operator(mask_ctx, CG_OPERATOR_SRC);
 	cg_paint(mask_ctx);

@@ -38,7 +38,7 @@ libcg follows a stateful drawing model. The central object is `cg_ctx_t` (the dr
 
 Each state stores: current paint (solid, gradient, or texture), transformation matrix, stroke style (width, cap, join, miter limit, dash pattern), fill rule, compositing operator, global opacity, and the clip region.
 
-**Memory management**: Surface, Paint, and Path objects use reference counting. Functions that accept these objects will increment the reference count as needed (e.g., `cg_set_paint` / `cg_paint_create_texture` call `cg_paint_reference` and `cg_surface_reference` internally). You must pair every `_create` with the corresponding `_destroy`.
+**Memory management**: Surface, Paint, and Path objects use reference counting. Functions that accept these objects will increment the reference count as needed (e.g., `cg_set_source` / `cg_paint_create_texture` call `cg_paint_reference` and `cg_surface_reference` internally). You must pair every `_create` with the corresponding `_destroy`.
 
 **Default state values** (when a context is created):
 
@@ -812,15 +812,15 @@ Pops the top state from the stack and restores it. Does nothing if only one stat
 
 ### Query Functions
 
-#### cg_get_paint
+#### cg_get_source
 
 ```c
-struct cg_paint_t * cg_get_paint(struct cg_ctx_t * ctx, struct cg_color_t * color);
+struct cg_paint_t * cg_get_source(struct cg_ctx_t * ctx, struct cg_color_t * color);
 ```
 
 Returns the current paint object (may be `NULL` if using simple color mode). If `color` is non-`NULL` and a paint exists, the color is filled from the state's stored color (which may differ from the paint's color — the state snapshot color tracks the last `cg_set_source_*` value).
 
-*Note: When you call `cg_set_source_rgba`, it sets `state->color` to the given RGBA and sets `state->paint = NULL`. So `cg_get_paint` would return `NULL` but `cg_get_paint(ctx, &c)` would fill `c` with the correct color.*
+*Note: When you call `cg_set_source_rgba`, it sets `state->color` to the given RGBA and sets `state->paint = NULL`. So `cg_get_source` would return `NULL` but `cg_get_source(ctx, &c)` would fill `c` with the correct color.*
 
 #### cg_get_surface
 
@@ -932,10 +932,10 @@ Tests if the point `(x, y)` is inside the current clip region.
 
 ### Paint and Style
 
-#### cg_set_paint
+#### cg_set_source
 
 ```c
-void cg_set_paint(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
+void cg_set_source(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
 ```
 
 Sets the current paint. The paint is referenced. Passing `NULL` reverts to using the state's stored color.

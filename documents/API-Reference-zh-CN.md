@@ -38,7 +38,7 @@ libcg 采用有状态的绘图模型。核心对象是 `cg_ctx_t`（绘图上下
 
 每个状态保存：当前 paint（纯色、渐变或纹理）、变换矩阵、描边样式（线宽、线帽、连接、斜接限制、虚线模式）、填充规则、合成操作符、全局不透明度以及裁剪区域。
 
-**内存管理**：Surface、Paint 和 Path 对象使用引用计数。接受这些对象的函数会在内部按需增加引用计数（例如 `cg_set_paint` / `cg_paint_create_texture` 内部调用 `cg_paint_reference` 和 `cg_surface_reference`）。每个 `_create` 必须配以对应的 `_destroy`。
+**内存管理**：Surface、Paint 和 Path 对象使用引用计数。接受这些对象的函数会在内部按需增加引用计数（例如 `cg_set_source` / `cg_paint_create_texture` 内部调用 `cg_paint_reference` 和 `cg_surface_reference`）。每个 `_create` 必须配以对应的 `_destroy`。
 
 **默认状态值**（创建上下文时）：
 
@@ -812,15 +812,15 @@ void cg_restore(struct cg_ctx_t * ctx);
 
 ### 查询函数
 
-#### cg_get_paint
+#### cg_get_source
 
 ```c
-struct cg_paint_t * cg_get_paint(struct cg_ctx_t * ctx, struct cg_color_t * color);
+struct cg_paint_t * cg_get_source(struct cg_ctx_t * ctx, struct cg_color_t * color);
 ```
 
 返回当前 paint 对象（如果使用简单颜色模式可能为 `NULL`）。如果 `color` 非 `NULL`，会从状态中存储的颜色填充值（该颜色可能与 paint 的颜色不同——状态快照颜色跟踪的是最后一次 `cg_set_source_*` 的值）。
 
-*注意：当调用 `cg_set_source_rgba` 时，它会设置 `state->color` 为给定的 RGBA 并将 `state->paint = NULL`。因此 `cg_get_paint` 会返回 `NULL`，但 `cg_get_paint(ctx, &c)` 会用正确的颜色填充 `c`。*
+*注意：当调用 `cg_set_source_rgba` 时，它会设置 `state->color` 为给定的 RGBA 并将 `state->paint = NULL`。因此 `cg_get_source` 会返回 `NULL`，但 `cg_get_source(ctx, &c)` 会用正确的颜色填充 `c`。*
 
 #### cg_get_surface
 
@@ -932,10 +932,10 @@ int cg_in_clip(struct cg_ctx_t * ctx, float x, float y);
 
 ### Paint 与样式
 
-#### cg_set_paint
+#### cg_set_source
 
 ```c
-void cg_set_paint(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
+void cg_set_source(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
 ```
 
 设置当前 paint。paint 被引用。传入 `NULL` 恢复使用状态中存储的颜色。

@@ -268,7 +268,7 @@ void cg_path_add_arc(struct cg_path_t * path, float cx, float cy, float r, float
 void cg_path_add_path(struct cg_path_t * path, struct cg_path_t * source, struct cg_matrix_t * m);
 float cg_path_extents(struct cg_path_t * path, struct cg_rect_t * extents, int tight);
 
-struct cg_paint_t * cg_get_paint(struct cg_ctx_t * ctx, struct cg_color_t * color);
+struct cg_paint_t * cg_get_source(struct cg_ctx_t * ctx, struct cg_color_t * color);
 struct cg_surface_t * cg_get_surface(struct cg_ctx_t * ctx);
 struct cg_path_t * cg_get_path(struct cg_ctx_t * ctx);
 struct cg_matrix_t * cg_get_matrix(struct cg_ctx_t * ctx);
@@ -287,7 +287,7 @@ struct cg_ctx_t * cg_create(struct cg_surface_t * surface);
 void cg_destroy(struct cg_ctx_t * ctx);
 void cg_save(struct cg_ctx_t * ctx);
 void cg_restore(struct cg_ctx_t * ctx);
-void cg_set_paint(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
+void cg_set_source(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
 void cg_set_source_rgb(struct cg_ctx_t * ctx, float r, float g, float b);
 void cg_set_source_rgba(struct cg_ctx_t * ctx, float r, float g, float b, float a);
 void cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color);
