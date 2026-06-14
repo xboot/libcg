@@ -542,12 +542,7 @@ void cg_path_move_to(struct cg_path_t * path, float x, float y)
 
 void cg_path_line_to(struct cg_path_t * path, float x, float y)
 {
-	if(path->sub_path)
-	{
-		cg_path_move_to(path, x, y);
-		return;
-	}
-	if(path->elements.size == 0)
+	if(path->elements.size == 0 || path->sub_path)
 		cg_path_move_to(path, 0, 0);
 	union cg_path_element_t * elements = cg_path_add_command(path, CG_PATH_COMMAND_LINE_TO, 1);
 	elements[0].point = (struct cg_point_t){x, y};
@@ -2758,29 +2753,10 @@ void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y)
 {
 	cg_path_get_current_point(ctx->path, x, y);
 }
-void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
-{
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
-	cg_span_buffer_extents(&ctx->fill_spans, extents);
-}
 
-void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
+int cg_has_current_point(struct cg_ctx_t * ctx)
 {
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, &ctx->state->stroke, CG_FILL_RULE_NON_ZERO);
-	cg_span_buffer_extents(&ctx->fill_spans, extents);
-}
-
-void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
-{
-	if(ctx->state->clipping)
-		cg_span_buffer_extents(&ctx->state->clip_spans, extents);
-	else
-	{
-		extents->x = ctx->clip_rect.x;
-		extents->y = ctx->clip_rect.y;
-		extents->w = ctx->clip_rect.w;
-		extents->h = ctx->clip_rect.h;
-	}
+	return (ctx->path->num_points > 0) && !ctx->path->sub_path;
 }
 
 int cg_in_fill(struct cg_ctx_t * ctx, float x, float y)
@@ -2804,6 +2780,31 @@ int cg_in_clip(struct cg_ctx_t * ctx, float x, float y)
 	float r = ctx->clip_rect.x + ctx->clip_rect.w;
 	float b = ctx->clip_rect.y + ctx->clip_rect.h;
 	return ((x >= l) && (x <= r) && (y >= t) && (y <= b));
+}
+
+void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
+{
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
+	cg_span_buffer_extents(&ctx->fill_spans, extents);
+}
+
+void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
+{
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, &ctx->state->stroke, CG_FILL_RULE_NON_ZERO);
+	cg_span_buffer_extents(&ctx->fill_spans, extents);
+}
+
+void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
+{
+	if(ctx->state->clipping)
+		cg_span_buffer_extents(&ctx->state->clip_spans, extents);
+	else
+	{
+		extents->x = ctx->clip_rect.x;
+		extents->y = ctx->clip_rect.y;
+		extents->w = ctx->clip_rect.w;
+		extents->h = ctx->clip_rect.h;
+	}
 }
 
 struct cg_ctx_t * cg_create(struct cg_surface_t * surface)
@@ -3132,6 +3133,12 @@ void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
 	cg_path_add_path(ctx->path, path, NULL);
 }
 
+void cg_reset_clip(struct cg_ctx_t * ctx)
+{
+	ctx->state->clipping = 0;
+	cg_span_buffer_reset(&ctx->state->clip_spans);
+}
+
 void cg_clip(struct cg_ctx_t * ctx)
 {
 	cg_clip_preserve(ctx);
@@ -3204,4 +3211,11 @@ void cg_paint(struct cg_ctx_t * ctx)
 		cg_span_buffer_init_rect(&ctx->clip_spans, 0, 0, ctx->surface->width, ctx->surface->height);
 		cg_blend(ctx, &ctx->clip_spans);
 	}
+}
+void cg_paint_with_alpha(struct cg_ctx_t * ctx, float alpha)
+{
+	cg_save(ctx);
+	cg_set_opacity(ctx, alpha);
+	cg_paint(ctx);
+	cg_restore(ctx);
 }

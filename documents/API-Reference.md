@@ -870,6 +870,14 @@ void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y);
 
 Returns the current path position.
 
+#### cg_has_current_point
+
+```c
+int cg_has_current_point(struct cg_ctx_t * ctx);
+```
+
+Checks whether the current path has a current point (i.e., a sub-path has been started with `cg_move_to` and not closed with `cg_close_path` or `cg_new_sub_path`). Returns 1 if there is a current point, 0 otherwise.
+
 ### Spatial Queries
 
 These functions rasterize the current path to determine spatial relationships. They are potentially expensive if called repeatedly in a loop.
@@ -1282,6 +1290,14 @@ void cg_clip_preserve(struct cg_ctx_t * ctx);
 
 Same as `cg_clip`, but does not clear the path (useful for fill+stroke after clipping).
 
+#### cg_reset_clip
+
+```c
+void cg_reset_clip(struct cg_ctx_t * ctx);
+```
+
+Resets the clip region back to the entire surface, as if no `cg_clip` had been called. Clears all accumulated clip spans and disables clipping.
+
 #### cg_fill
 
 ```c
@@ -1323,6 +1339,14 @@ void cg_paint(struct cg_ctx_t * ctx);
 ```
 
 Fills the entire clip region (or the entire surface if no clip is set) with the current paint. Does not use the path. This is typically used to fill a surface with a texture or gradient covering the whole area.
+
+#### cg_paint_with_alpha
+
+```c
+void cg_paint_with_alpha(struct cg_ctx_t * ctx, float alpha);
+```
+
+Fills the entire clip region with the current paint, using the specified alpha value. Equivalent to `cg_save(ctx)` + `cg_set_opacity(ctx, alpha)` + `cg_paint(ctx)` + `cg_restore(ctx)`. The original opacity is preserved after the call.
 
 ---
 

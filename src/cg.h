@@ -275,12 +275,13 @@ struct cg_matrix_t * cg_get_matrix(struct cg_ctx_t * ctx);
 enum cg_operator_t cg_get_operator(struct cg_ctx_t * ctx);
 float cg_get_opacity(struct cg_ctx_t * ctx);
 void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y);
-void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
-void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
-void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
+int cg_has_current_point(struct cg_ctx_t * ctx);
 int cg_in_fill(struct cg_ctx_t * ctx, float x, float y);
 int cg_in_stroke(struct cg_ctx_t * ctx, float x, float y);
 int cg_in_clip(struct cg_ctx_t * ctx, float x, float y);
+void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
+void cg_stroke_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
+void cg_clip_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents);
 
 struct cg_ctx_t * cg_create(struct cg_surface_t * surface);
 void cg_destroy(struct cg_ctx_t * ctx);
@@ -331,6 +332,7 @@ void cg_new_path(struct cg_ctx_t * ctx);
 void cg_new_sub_path(struct cg_ctx_t * ctx);
 void cg_close_path(struct cg_ctx_t * ctx);
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path);
+void cg_reset_clip(struct cg_ctx_t * ctx);
 void cg_clip(struct cg_ctx_t * ctx);
 void cg_clip_preserve(struct cg_ctx_t * ctx);
 void cg_fill(struct cg_ctx_t * ctx);
@@ -338,6 +340,7 @@ void cg_fill_preserve(struct cg_ctx_t * ctx);
 void cg_stroke(struct cg_ctx_t * ctx);
 void cg_stroke_preserve(struct cg_ctx_t * ctx);
 void cg_paint(struct cg_ctx_t * ctx);
+void cg_paint_with_alpha(struct cg_ctx_t * ctx, float alpha);
 
 #ifdef __cplusplus
 }

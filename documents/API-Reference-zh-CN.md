@@ -870,6 +870,14 @@ void cg_get_current_point(struct cg_ctx_t * ctx, float * x, float * y);
 
 返回当前路径位置。
 
+#### cg_has_current_point
+
+```c
+int cg_has_current_point(struct cg_ctx_t * ctx);
+```
+
+检查当前路径是否有当前点（即已通过 `cg_move_to` 开始了一个子路径，且未通过 `cg_close_path` 或 `cg_new_sub_path` 关闭）。如果有当前点则返回 1，否则返回 0。
+
 ### 空间查询
 
 这些函数对当前路径进行光栅化以确定空间关系。如果在循环中反复调用，可能开销较大。
@@ -1282,6 +1290,14 @@ void cg_clip_preserve(struct cg_ctx_t * ctx);
 
 与 `cg_clip` 相同，但不清除路径（适用于裁剪后再填充+描边）。
 
+#### cg_reset_clip
+
+```c
+void cg_reset_clip(struct cg_ctx_t * ctx);
+```
+
+将裁剪区域重置为整个 surface，就像从未调用过 `cg_clip` 一样。清除所有累积的裁剪 span 并禁用裁剪。
+
 #### cg_fill
 
 ```c
@@ -1323,6 +1339,14 @@ void cg_paint(struct cg_ctx_t * ctx);
 ```
 
 用当前 paint 填充整个裁剪区域（如果未设置裁剪，则为整个 surface）。不使用路径。通常用于用纹理或渐变覆盖整个区域。
+
+#### cg_paint_with_alpha
+
+```c
+void cg_paint_with_alpha(struct cg_ctx_t * ctx, float alpha);
+```
+
+用当前 paint 以指定的透明度值填充整个裁剪区域。等价于 `cg_save(ctx)` + `cg_set_opacity(ctx, alpha)` + `cg_paint(ctx)` + `cg_restore(ctx)`。调用后原有透明度设置会被保留。
 
 ---
 
