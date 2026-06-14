@@ -290,7 +290,6 @@ void cg_restore(struct cg_ctx_t * ctx);
 void cg_set_source(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
 void cg_set_source_rgb(struct cg_ctx_t * ctx, float r, float g, float b);
 void cg_set_source_rgba(struct cg_ctx_t * ctx, float r, float g, float b, float a);
-void cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color);
 void cg_set_source_surface(struct cg_ctx_t * ctx, struct cg_surface_t * surface, float x, float y);
 void cg_set_linear_gradient(struct cg_ctx_t * ctx, float x1, float y1, float x2, float y2, enum cg_spread_method_t spread, struct cg_gradient_stop_t * stops, int nstops, struct cg_matrix_t * m);
 void cg_set_radial_gradient(struct cg_ctx_t * ctx, float cx0, float cy0, float r0, float cx1, float cy1, float r1, enum cg_spread_method_t spread, struct cg_gradient_stop_t * stops, int nstops, struct cg_matrix_t * m);

@@ -956,14 +956,6 @@ void cg_set_source_rgba(struct cg_ctx_t * ctx, float r, float g, float b, float 
 
 Sets the paint to a solid RGBA color.
 
-#### cg_set_source_color
-
-```c
-void cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color);
-```
-
-Sets the paint to a solid color from a `cg_color_t` struct.
-
 #### cg_set_source_surface
 
 ```c

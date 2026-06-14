@@ -956,14 +956,6 @@ void cg_set_source_rgba(struct cg_ctx_t * ctx, float r, float g, float b, float 
 
 将 paint 设置为纯 RGBA 颜色。
 
-#### cg_set_source_color
-
-```c
-void cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color);
-```
-
-从 `cg_color_t` 结构体设置纯色 paint。
-
 #### cg_set_source_surface
 
 ```c

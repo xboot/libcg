@@ -2947,16 +2947,6 @@ void cg_set_source_rgba(struct cg_ctx_t * ctx, float r, float g, float b, float 
 	cg_set_source(ctx, NULL);
 }
 
-void cg_set_source_color(struct cg_ctx_t * ctx, struct cg_color_t * color)
-{
-	struct cg_color_t * c = &ctx->state->color;
-	c->r = color->r;
-	c->g = color->g;
-	c->b = color->b;
-	c->a = color->a;
-	cg_set_source(ctx, NULL);
-}
-
 void cg_set_source_surface(struct cg_ctx_t * ctx, struct cg_surface_t * surface, float x, float y)
 {
 	struct cg_matrix_t m;
@@ -3201,7 +3191,7 @@ void cg_mask(struct cg_ctx_t * ctx, struct cg_paint_t * paint)
 	if(ctx->state->paint)
 		cg_set_source(src_ctx, ctx->state->paint);
 	else
-		cg_set_source_color(src_ctx, &ctx->state->color);
+		cg_set_source_rgba(src_ctx, ctx->state->color.r, ctx->state->color.g, ctx->state->color.b, ctx->state->color.a);
 	cg_set_operator(src_ctx, CG_OPERATOR_SRC);
 	cg_paint(src_ctx);
 	cg_destroy(src_ctx);
