@@ -682,6 +682,86 @@ static void test_mask_surface(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void test_rainbow(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	{
+		float cx = 128.0, cy = 210.0;
+		float colors[7][3] = {
+			{ 0.92, 0.18, 0.18 },
+			{ 0.98, 0.48, 0.15 },
+			{ 0.99, 0.84, 0.15 },
+			{ 0.15, 0.78, 0.28 },
+			{ 0.15, 0.45, 0.92 },
+			{ 0.25, 0.20, 0.80 },
+			{ 0.50, 0.15, 0.70 },
+		};
+		for(int band = 0; band < 7; band++)
+		{
+			float r1 = 115.0f - band * 9.0f;
+			float r2 = r1 - 9.5f;
+			cg_new_path(ctx);
+			cg_arc(ctx, cx, cy, r1, (float)M_PI, 0);
+			cg_arc_negative(ctx, cx, cy, r2, 0, (float)M_PI);
+			cg_close_path(ctx);
+			cg_set_source_rgb(ctx, colors[band][0], colors[band][1], colors[band][2]);
+			cg_fill(ctx);
+		}
+	}
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
+static void test_logo(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	cg_set_source_rgba(ctx, 0.914, 0.243, 0.188, 1.0);
+	cg_move_to(ctx, 33.2, 0);
+	cg_line_to(ctx, 0, 33.2);
+	cg_line_to(ctx, 90.9, 124.1);
+	cg_line_to(ctx, 124.1, 124.1);
+	cg_line_to(ctx, 124.1, 90.9);
+	cg_close_path(ctx);
+	cg_fill(ctx);
+
+	cg_set_source_rgba(ctx, 0.216, 0.494, 0.941, 1.0);
+	cg_move_to(ctx, 222.8, 0);
+	cg_line_to(ctx, 256, 33.2);
+	cg_line_to(ctx, 165.1, 124.1);
+	cg_line_to(ctx, 131.9, 124.1);
+	cg_line_to(ctx, 131.9, 90.9);
+	cg_close_path(ctx);
+	cg_fill(ctx);
+
+	cg_set_source_rgba(ctx, 0.973, 0.776, 0.239, 1.0);
+	cg_move_to(ctx, 33.2, 256);
+	cg_line_to(ctx, 0, 222.8);
+	cg_line_to(ctx, 90.9, 131.9);
+	cg_line_to(ctx, 124.1, 131.9);
+	cg_line_to(ctx, 124.1, 165.1);
+	cg_close_path(ctx);
+	cg_fill(ctx);
+
+	cg_set_source_rgba(ctx, 0.322, 0.710, 0.161, 1.0);
+	cg_move_to(ctx, 222.8, 256);
+	cg_line_to(ctx, 256, 222.8);
+	cg_line_to(ctx, 165.1, 131.9);
+	cg_line_to(ctx, 131.9, 131.9);
+	cg_line_to(ctx, 131.9, 165.1);
+	cg_close_path(ctx);
+	cg_fill(ctx);
+
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 static void draw_operator_cell(struct cg_ctx_t * ctx, float x, float y, float w, float h, enum cg_operator_t op)
 {
 	float cx = x + w * 0.5;
@@ -750,40 +830,6 @@ static void test_operators(const char * filename)
 	cg_surface_destroy(surface);
 }
 
-static void test_rainbow(const char * filename)
-{
-	struct cg_surface_t * surface = cg_surface_create(256, 256);
-	struct cg_ctx_t * ctx = cg_create(surface);
-
-	{
-		float cx = 128.0, cy = 210.0;
-		float colors[7][3] = {
-			{ 0.92, 0.18, 0.18 },
-			{ 0.98, 0.48, 0.15 },
-			{ 0.99, 0.84, 0.15 },
-			{ 0.15, 0.78, 0.28 },
-			{ 0.15, 0.45, 0.92 },
-			{ 0.25, 0.20, 0.80 },
-			{ 0.50, 0.15, 0.70 },
-		};
-		for(int band = 0; band < 7; band++)
-		{
-			float r1 = 115.0f - band * 9.0f;
-			float r2 = r1 - 9.5f;
-			cg_new_path(ctx);
-			cg_arc(ctx, cx, cy, r1, (float)M_PI, 0);
-			cg_arc_negative(ctx, cx, cy, r2, 0, (float)M_PI);
-			cg_close_path(ctx);
-			cg_set_source_rgb(ctx, colors[band][0], colors[band][1], colors[band][2]);
-			cg_fill(ctx);
-		}
-	}
-
-	cg_surface_write_to_png(surface, filename);
-	cg_destroy(ctx);
-	cg_surface_destroy(surface);
-}
-
 int main(int argc, char * argv[])
 {
 	test_arc("arc.png");
@@ -807,6 +853,7 @@ int main(int argc, char * argv[])
 	test_texture_tiled("texture_tiled.png");
 	test_mask_surface("mask_surface.png");
 	test_rainbow("rainbow.png");
+	test_logo("logo.png");
 	test_operators("operators.png");
 	return 0;
 }

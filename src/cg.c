@@ -39,6 +39,9 @@
 #ifndef CG_DIV255
 #define CG_DIV255(x)		(((x) + ((x) >> 8) + 0x80) >> 8)
 #endif
+#ifndef CG_ROUND
+#define CG_ROUND(x)			((x) > 0 ? (int)((x) + 0.5f) : (int)((x) - 0.5f))
+#endif
 #ifndef CG_BYTE_MUL
 #define CG_BYTE_MUL(x, a)	((((((x) >> 8) & 0x00ff00ff) * (a)) & 0xff00ff00) + (((((x) & 0x00ff00ff) * (a)) >> 8) & 0x00ff00ff))
 #endif
@@ -1558,10 +1561,10 @@ struct cg_radial_gradient_values_t {
 
 static inline uint32_t premultiply_color_with_opacity(struct cg_color_t * color, float opacity)
 {
-	uint32_t alpha = lroundf(color->a * opacity * 255);
-	uint32_t pr = lroundf(color->r * alpha);
-	uint32_t pg = lroundf(color->g * alpha);
-	uint32_t pb = lroundf(color->b * alpha);
+	uint32_t alpha = CG_ROUND(color->a * opacity * 255);
+	uint32_t pr = CG_ROUND(color->r * alpha);
+	uint32_t pg = CG_ROUND(color->g * alpha);
+	uint32_t pb = CG_ROUND(color->b * alpha);
 	return (alpha << 24) | (pr << 16) | (pg << 8) | (pb);
 }
 
@@ -2607,7 +2610,7 @@ static void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_texture_paint_t * 
 	data.width = texture->surface->width;
 	data.height = texture->surface->height;
 	data.stride = texture->surface->stride;
-	data.const_alpha = lroundf(state->opacity * texture->opacity * 256);
+	data.const_alpha = CG_ROUND(state->opacity * texture->opacity * 256);
 
 	cg_matrix_multiply(&data.matrix, &data.matrix, &state->matrix);
 	if(!cg_matrix_invert(&data.matrix))
