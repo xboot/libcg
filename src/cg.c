@@ -1477,7 +1477,7 @@ static void spans_generation_callback(int count, const XCG_FT_Span * spans, void
 	cg_array_append_data(span_buffer->spans, spans, count);
 }
 
-static void cg_rasterize(struct cg_span_buffer_t * span_buffer, struct cg_path_t * path, struct cg_matrix_t * matrix, struct cg_rect_t * clip_rect, struct cg_stroke_data_t *stroke_data, enum cg_fill_rule_t winding)
+static void cg_rasterize(struct cg_span_buffer_t * span_buffer, struct cg_path_t * path, struct cg_matrix_t * matrix, struct cg_rect_t * clip_rect, struct cg_stroke_data_t * stroke_data, enum cg_fill_rule_t rule)
 {
 	XCG_FT_Outline * outline = ft_outline_convert(path, matrix, stroke_data);
 	if(stroke_data)
@@ -1486,7 +1486,7 @@ static void cg_rasterize(struct cg_span_buffer_t * span_buffer, struct cg_path_t
 	}
 	else
 	{
-		switch(winding)
+		switch(rule)
 		{
 		case CG_FILL_RULE_EVEN_ODD:
 			outline->flags = XCG_FT_OUTLINE_EVEN_ODD_FILL;
@@ -2721,7 +2721,7 @@ static struct cg_state_t * cg_state_create(void)
 	state->stroke.dash.offset = 0.0f;
 	cg_array_init(state->stroke.dash.array);
 	cg_span_buffer_init(&state->clip_spans);
-	state->winding = CG_FILL_RULE_NON_ZERO;
+	state->fill_rule = CG_FILL_RULE_NON_ZERO;
 	state->op = CG_OPERATOR_SRC_OVER;
 	state->opacity = 1.0f;
 	state->clipping = 0;
@@ -2739,7 +2739,7 @@ static void cg_state_reset(struct cg_state_t * state)
 	state->stroke.dash.offset = 0.0f;
 	cg_array_clear(state->stroke.dash.array);
 	cg_span_buffer_reset(&state->clip_spans);
-	state->winding = CG_FILL_RULE_NON_ZERO;
+	state->fill_rule = CG_FILL_RULE_NON_ZERO;
 	state->op = CG_OPERATOR_SRC_OVER;
 	state->opacity = 1.0f;
 	state->clipping = 0;
@@ -2755,7 +2755,7 @@ static void cg_state_copy(struct cg_state_t * state, struct cg_state_t * source)
 	cg_array_clear(state->stroke.dash.array);
 	cg_array_append(state->stroke.dash.array, source->stroke.dash.array);
 	cg_span_buffer_copy(&state->clip_spans, &source->clip_spans);
-	state->winding = source->winding;
+	state->fill_rule = source->fill_rule;
 	state->op = source->op;
 	state->opacity = source->opacity;
 	state->clipping = source->clipping;
@@ -2813,7 +2813,7 @@ int cg_has_current_point(struct cg_ctx_t * ctx)
 
 int cg_in_fill(struct cg_ctx_t * ctx, float x, float y)
 {
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->fill_rule);
 	return cg_span_buffer_contains(&ctx->fill_spans, x, y);
 }
 
@@ -2836,7 +2836,7 @@ int cg_in_clip(struct cg_ctx_t * ctx, float x, float y)
 
 void cg_fill_extents(struct cg_ctx_t * ctx, struct cg_rect_t * extents)
 {
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->winding);
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, NULL, NULL, ctx->state->fill_rule);
 	cg_span_buffer_extents(&ctx->fill_spans, extents);
 }
 
@@ -2987,9 +2987,9 @@ void cg_set_opacity(struct cg_ctx_t * ctx, float opacity)
 	ctx->state->opacity = CG_CLAMP(opacity, 0.0f, 1.0f);
 }
 
-void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t winding)
+void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t rule)
 {
-	ctx->state->winding = winding;
+	ctx->state->fill_rule = rule;
 }
 
 void cg_set_line_width(struct cg_ctx_t * ctx, float width)
@@ -3179,7 +3179,7 @@ void cg_mask(struct cg_ctx_t * ctx, struct cg_paint_t * paint)
 {
 	if(!paint || ctx->path->elements.size == 0)
 		return;
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->winding);
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->fill_rule);
 	if(ctx->fill_spans.spans.size == 0)
 	{
 		cg_new_path(ctx);
@@ -3249,13 +3249,13 @@ void cg_clip_preserve(struct cg_ctx_t * ctx)
 {
 	if(ctx->state->clipping)
 	{
-		cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->winding);
+		cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->fill_rule);
 		cg_span_buffer_intersect(&ctx->clip_spans, &ctx->fill_spans, &ctx->state->clip_spans);
 		cg_span_buffer_copy(&ctx->state->clip_spans, &ctx->clip_spans);
 	}
 	else
 	{
-		cg_rasterize(&ctx->state->clip_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->winding);
+		cg_rasterize(&ctx->state->clip_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->fill_rule);
 		ctx->state->clipping = 1;
 	}
 }
@@ -3268,7 +3268,7 @@ void cg_fill(struct cg_ctx_t * ctx)
 
 void cg_fill_preserve(struct cg_ctx_t * ctx)
 {
-	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->winding);
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->fill_rule);
 	if(ctx->state->clipping)
 	{
 		cg_span_buffer_intersect(&ctx->clip_spans, &ctx->fill_spans, &ctx->state->clip_spans);

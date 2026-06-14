@@ -1024,7 +1024,7 @@ void cg_set_opacity(struct cg_ctx_t * ctx, float opacity);
 #### cg_set_fill_rule
 
 ```c
-void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t winding);
+void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t rule);
 ```
 
 设置填充规则。同时适用于填充和裁剪。

@@ -1024,7 +1024,7 @@ Sets the global opacity. Clamped to `[0.0, 1.0]`. This is multiplied with the pa
 #### cg_set_fill_rule
 
 ```c
-void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t winding);
+void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t rule);
 ```
 
 Sets the fill rule. Applies to both filling and clipping.

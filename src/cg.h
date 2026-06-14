@@ -203,11 +203,11 @@ struct cg_state_t {
 	struct cg_matrix_t matrix;
 	struct cg_stroke_data_t stroke;
 	struct cg_span_buffer_t clip_spans;
-	enum cg_fill_rule_t winding;
+	enum cg_fill_rule_t fill_rule;
 	enum cg_operator_t op;
 	float opacity;
 	int clipping;
-	struct cg_state_t *next;
+	struct cg_state_t * next;
 };
 
 struct cg_ctx_t {
@@ -296,7 +296,7 @@ void cg_set_radial_gradient(struct cg_ctx_t * ctx, float cx0, float cy0, float r
 void cg_set_texture(struct cg_ctx_t * ctx, struct cg_surface_t * surface, enum cg_texture_type_t type, float opacity, struct cg_matrix_t * m);
 void cg_set_operator(struct cg_ctx_t * ctx, enum cg_operator_t op);
 void cg_set_opacity(struct cg_ctx_t * ctx, float opacity);
-void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t winding);
+void cg_set_fill_rule(struct cg_ctx_t * ctx, enum cg_fill_rule_t rule);
 void cg_set_line_width(struct cg_ctx_t * ctx, float width);
 void cg_set_line_cap(struct cg_ctx_t * ctx, enum cg_line_cap_t cap);
 void cg_set_line_join(struct cg_ctx_t * ctx, enum cg_line_join_t join);
