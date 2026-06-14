@@ -2631,6 +2631,58 @@ static void cg_blend_texture(struct cg_ctx_t * ctx, struct cg_texture_paint_t * 
 	}
 }
 
+static void blend_surface_with_mask(struct cg_surface_t * dst, struct cg_surface_t * src, struct cg_surface_t * mask, struct cg_matrix_t * m, float opacity, enum cg_operator_t op, struct cg_span_buffer_t * spans)
+{
+	composition_function_t func = composition_table[op];
+	uint32_t buffer[1024];
+	int mask_width = mask->width;
+	int mask_height = mask->height;
+	int mask_stride = mask->stride;
+	int opacity255 = (int)(opacity * 255.0f + 0.5f);
+	int count = spans->spans.size;
+	struct cg_span_t * s = spans->spans.data;
+	int fdx = (int)(m->a * FIXED_SCALE);
+	int fdy = (int)(m->b * FIXED_SCALE);
+
+	while(count--)
+	{
+		int x = s->x;
+		int y = s->y;
+		int length = s->len;
+		uint32_t * dst_row = (uint32_t *)(dst->pixels + y * dst->stride);
+		uint32_t * src_row = (uint32_t *)(src->pixels + y * src->stride);
+		float cx = x + 0.5f;
+		float cy = y + 0.5f;
+		int fx = (int)((m->a * cx + m->c * cy + m->tx) * FIXED_SCALE);
+		int fy = (int)((m->b * cx + m->d * cy + m->ty) * FIXED_SCALE);
+
+		while(length)
+		{
+			int l = CG_MIN(length, 1024);
+			for(int i = 0; i < l; i++)
+			{
+				int px = fx >> 16;
+				int py = fy >> 16;
+				uint32_t mask_alpha = 255;
+				if((unsigned)px < (unsigned)mask_width && (unsigned)py < (unsigned)mask_height)
+					mask_alpha = CG_ALPHA(((uint32_t *)(mask->pixels + py * mask_stride))[px]);
+				uint32_t p = src_row[x + i];
+				if(mask_alpha != 255)
+					p = CG_BYTE_MUL(p, mask_alpha);
+				if(opacity255 != 255)
+					p = CG_BYTE_MUL(p, opacity255);
+				buffer[i] = p;
+				fx += fdx;
+				fy += fdy;
+			}
+			func(dst_row + x, l, buffer, 255);
+			x += l;
+			length -= l;
+		}
+		++s;
+	}
+}
+
 static void cg_blend(struct cg_ctx_t * ctx, struct cg_span_buffer_t * span_buffer)
 {
 	if(span_buffer->spans.size == 0)
@@ -3131,6 +3183,64 @@ void cg_close_path(struct cg_ctx_t * ctx)
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path)
 {
 	cg_path_add_path(ctx->path, path, NULL);
+}
+
+void cg_mask(struct cg_ctx_t * ctx, struct cg_paint_t * paint)
+{
+	if(!paint || ctx->path->elements.size == 0)
+		return;
+	cg_rasterize(&ctx->fill_spans, ctx->path, &ctx->state->matrix, &ctx->clip_rect, NULL, ctx->state->winding);
+	if(ctx->fill_spans.spans.size == 0)
+	{
+		cg_new_path(ctx);
+		return;
+	}
+
+	struct cg_surface_t * src_surface = cg_surface_create(ctx->surface->width, ctx->surface->height);
+	struct cg_ctx_t * src_ctx = cg_create(src_surface);
+	if(ctx->state->paint)
+		cg_set_paint(src_ctx, ctx->state->paint);
+	else
+		cg_set_source_color(src_ctx, &ctx->state->color);
+	cg_set_operator(src_ctx, CG_OPERATOR_SRC);
+	cg_paint(src_ctx);
+	cg_destroy(src_ctx);
+
+	struct cg_surface_t * mask_surface = cg_surface_create(ctx->surface->width, ctx->surface->height);
+	struct cg_ctx_t * mask_ctx = cg_create(mask_surface);
+	cg_set_paint(mask_ctx, paint);
+	cg_set_matrix(mask_ctx, &ctx->state->matrix);
+	cg_set_operator(mask_ctx, CG_OPERATOR_SRC);
+	cg_paint(mask_ctx);
+	cg_destroy(mask_ctx);
+
+	struct cg_matrix_t id;
+	cg_matrix_init_identity(&id);
+
+	if(ctx->state->clipping)
+	{
+		cg_span_buffer_intersect(&ctx->clip_spans, &ctx->fill_spans, &ctx->state->clip_spans);
+		blend_surface_with_mask(ctx->surface, src_surface, mask_surface, &id, ctx->state->opacity, ctx->state->op, &ctx->clip_spans);
+	}
+	else
+	{
+		blend_surface_with_mask(ctx->surface, src_surface, mask_surface, &id, ctx->state->opacity, ctx->state->op, &ctx->fill_spans);
+	}
+
+	cg_surface_destroy(mask_surface);
+	cg_surface_destroy(src_surface);
+	cg_new_path(ctx);
+}
+
+void cg_mask_surface(struct cg_ctx_t * ctx, struct cg_surface_t * mask, float x, float y)
+{
+	if(!mask)
+		return;
+	struct cg_matrix_t m;
+	cg_matrix_init_translate(&m, x, y);
+	struct cg_paint_t * paint = cg_paint_create_texture(mask, CG_TEXTURE_TYPE_PLAIN, 1.0f, &m);
+	cg_mask(ctx, paint);
+	cg_paint_destroy(paint);
 }
 
 void cg_reset_clip(struct cg_ctx_t * ctx)

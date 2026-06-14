@@ -1316,6 +1316,24 @@ void cg_fill_preserve(struct cg_ctx_t * ctx);
 
 Same as `cg_fill`, but preserves the path for subsequent operations (e.g., fill then stroke).
 
+#### cg_mask
+
+```c
+void cg_mask(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
+```
+
+A drawing operator that paints the current source using the alpha channel of `paint` as a per-pixel mask within the filled area of the current path. Opaque areas of the mask paint are painted with the source, transparent areas are not painted. Clears the path after completion.
+
+Internally, the mask paint is rendered to a temporary surface (respecting the current transformation matrix), and then blended pixel-by-pixel: the source is rendered to a temp surface, the mask temp surface's alpha is used as per-pixel coverage, combined with the current operator and opacity. `cg_mask_surface` is a convenience wrapper that creates a texture paint from a surface and calls `cg_mask`.
+
+#### cg_mask_surface
+
+```c
+void cg_mask_surface(struct cg_ctx_t * ctx, struct cg_surface_t * mask, float x, float y);
+```
+
+A convenience wrapper that wraps `mask` into a texture paint at user-space position `(x, y)` and calls `cg_mask(ctx, paint)`. The `x` and `y` parameters specify the user-space coordinate where the mask surface origin (upper-left corner) should appear.
+
 #### cg_stroke
 
 ```c

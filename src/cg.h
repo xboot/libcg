@@ -332,6 +332,8 @@ void cg_new_path(struct cg_ctx_t * ctx);
 void cg_new_sub_path(struct cg_ctx_t * ctx);
 void cg_close_path(struct cg_ctx_t * ctx);
 void cg_add_path(struct cg_ctx_t * ctx, struct cg_path_t * path);
+void cg_mask(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
+void cg_mask_surface(struct cg_ctx_t * ctx, struct cg_surface_t * mask, float x, float y);
 void cg_reset_clip(struct cg_ctx_t * ctx);
 void cg_clip(struct cg_ctx_t * ctx);
 void cg_clip_preserve(struct cg_ctx_t * ctx);

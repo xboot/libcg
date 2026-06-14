@@ -1316,6 +1316,24 @@ void cg_fill_preserve(struct cg_ctx_t * ctx);
 
 与 `cg_fill` 相同，但保留路径以便后续操作（例如先填充再描边）。
 
+#### cg_mask
+
+```c
+void cg_mask(struct cg_ctx_t * ctx, struct cg_paint_t * paint);
+```
+
+一种绘制操作，用 `paint` 的 alpha 通道作为逐像素遮罩，在当前路径填充区域内绘制当前源。mask paint 的不透明区域将被源色填充，透明区域则不被绘制。完成后清除路径。
+
+内部实现：先将 mask paint 渲染到临时 surface（遵循当前变换矩阵），然后逐像素混合——将源渲染到临时 surface，再用 mask 临时 surface 的 alpha 作为覆盖率，结合当前操作符和不透明度混合到目标。`cg_mask_surface` 是便捷封装，将 surface 包装为纹理 paint 后调用 `cg_mask`。
+
+#### cg_mask_surface
+
+```c
+void cg_mask_surface(struct cg_ctx_t * ctx, struct cg_surface_t * mask, float x, float y);
+```
+
+便捷封装函数，将 `mask` 包装为纹理 paint（定位在用户空间 `(x, y)`），然后调用 `cg_mask(ctx, paint)`。`x` 和 `y` 参数指定 mask surface 原点（左上角）所在的用户空间坐标。
+
 #### cg_stroke
 
 ```c

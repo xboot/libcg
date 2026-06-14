@@ -34,6 +34,7 @@ make
 ![set_line_join](screenshots/set_line_join.png)
 ![taiji](screenshots/taiji.png)
 ![texture_tiled](screenshots/texture_tiled.png)
+![mask_surface](screenshots/mask_surface.png)
 ![operators](screenshots/operators.png)
 
 ## License

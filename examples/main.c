@@ -645,6 +645,43 @@ static void test_texture_tiled(const char * filename)
 	cg_surface_destroy(surface);
 }
 
+static void test_mask_surface(const char * filename)
+{
+	struct cg_surface_t * surface = cg_surface_create(256, 256);
+	struct cg_ctx_t * ctx = cg_create(surface);
+
+	struct cg_gradient_stop_t bg_stops[] = {
+		{ 0.0, { 0.75, 0.95, 0.78, 1 } },
+		{ 1.0, { 0.60, 0.85, 0.65, 1 } },
+	};
+	cg_set_linear_gradient(ctx, 0, 0, 0, 256, CG_SPREAD_METHOD_PAD, bg_stops, 2, NULL);
+	cg_rectangle(ctx, 0, 0, 256, 256);
+	cg_fill(ctx);
+
+	struct cg_surface_t * mask = cg_surface_create(128, 128);
+	struct cg_ctx_t * mctx = cg_create(mask);
+	struct cg_gradient_stop_t mstops[] = {
+		{ 0.0, { 1, 1, 1, 1 } },
+		{ 1.0, { 1, 1, 1, 0 } },
+	};
+	cg_set_radial_gradient(mctx, 64, 64, 0, 64, 64, 64, CG_SPREAD_METHOD_PAD, mstops, 2, NULL);
+	cg_rectangle(mctx, 0, 0, 128, 128);
+	cg_fill(mctx);
+	cg_destroy(mctx);
+
+	struct cg_surface_t * cat = cg_surface_create_for_data(128, 128, (void *)cat_img_128_128);
+	cg_set_source_surface(ctx, cat, 64, 64);
+	cg_surface_destroy(cat);
+
+	cg_arc(ctx, 128, 128, 64, 0, 2 * M_PI);
+	cg_mask_surface(ctx, mask, 64, 64);
+
+	cg_surface_destroy(mask);
+	cg_surface_write_to_png(surface, filename);
+	cg_destroy(ctx);
+	cg_surface_destroy(surface);
+}
+
 static void draw_operator_cell(struct cg_ctx_t * ctx, float x, float y, float w, float h, enum cg_operator_t op)
 {
 	float cx = x + w * 0.5;
@@ -734,6 +771,7 @@ int main(int argc, char * argv[])
 	test_set_line_join("set_line_join.png");
 	test_taiji("taiji.png");
 	test_texture_tiled("texture_tiled.png");
+	test_mask_surface("mask_surface.png");
 	test_operators("operators.png");
 	return 0;
 }
