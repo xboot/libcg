@@ -12,40 +12,31 @@ make
 
 Online documentation: [https://libcg.xboot.org](https://libcg.xboot.org)
 
-To build and serve the documentation locally:
-
-```shell
-cd documents
-make start
-```
-
-See [documents/README](documents/docs/guide/intro.md) for details.
-
 ## Screenshots
 
-![arc](screenshots/arc.png)
-![arc_negative](screenshots/arc_negative.png)
-![clip](screenshots/clip.png)
-![clip_image](screenshots/clip_image.png)
-![curve_rectangle](screenshots/curve_rectangle.png)
-![curve_to](screenshots/curve_to.png)
-![dash](screenshots/dash.png)
-![fill_and_stroke](screenshots/fill_and_stroke.png)
-![fill_style](screenshots/fill_style.png)
-![gradient](screenshots/gradient.png)
-![hollow_star](screenshots/hollow_star.png)
-![image](screenshots/image.png)
-![lines](screenshots/lines.png)
-![multi_segment_caps](screenshots/multi_segment_caps.png)
-![rounded_rectangle](screenshots/rounded_rectangle.png)
-![set_line_cap](screenshots/set_line_cap.png)
-![set_line_join](screenshots/set_line_join.png)
-![taiji](screenshots/taiji.png)
-![texture_tiled](screenshots/texture_tiled.png)
-![mask_surface](screenshots/mask_surface.png)
-![rainbow](screenshots/rainbow.png)
-![logo](screenshots/logo.png)
-![operators](screenshots/operators.png)
+![arc](documents/static/screenshots/arc.png)
+![arc_negative](documents/static/screenshots/arc_negative.png)
+![clip](documents/static/screenshots/clip.png)
+![clip_image](documents/static/screenshots/clip_image.png)
+![curve_rectangle](documents/static/screenshots/curve_rectangle.png)
+![curve_to](documents/static/screenshots/curve_to.png)
+![dash](documents/static/screenshots/dash.png)
+![fill_and_stroke](documents/static/screenshots/fill_and_stroke.png)
+![fill_style](documents/static/screenshots/fill_style.png)
+![gradient](documents/static/screenshots/gradient.png)
+![hollow_star](documents/static/screenshots/hollow_star.png)
+![image](documents/static/screenshots/image.png)
+![lines](documents/static/screenshots/lines.png)
+![multi_segment_caps](documents/static/screenshots/multi_segment_caps.png)
+![rounded_rectangle](documents/static/screenshots/rounded_rectangle.png)
+![set_line_cap](documents/static/screenshots/set_line_cap.png)
+![set_line_join](documents/static/screenshots/set_line_join.png)
+![taiji](documents/static/screenshots/taiji.png)
+![texture_tiled](documents/static/screenshots/texture_tiled.png)
+![mask_surface](documents/static/screenshots/mask_surface.png)
+![rainbow](documents/static/screenshots/rainbow.png)
+![logo](documents/static/screenshots/logo.png)
+![operators](documents/static/screenshots/operators.png)
 
 ## License
 
