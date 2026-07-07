@@ -1,0 +1,22 @@
+{
+  "title": {
+    "message": "libcg",
+    "description": "The title in the navbar"
+  },
+  "item.label.入门指南": {
+    "message": "Guide",
+    "description": "Navbar item with label 入门指南"
+  },
+  "item.label.API 参考": {
+    "message": "API Reference",
+    "description": "Navbar item with label API 参考"
+  },
+  "item.label.使用示例": {
+    "message": "Examples",
+    "description": "Navbar item with label 使用示例"
+  },
+  "item.label.参考列表": {
+    "message": "Reference",
+    "description": "Navbar item with label 参考列表"
+  }
+}

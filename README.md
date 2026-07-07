@@ -10,8 +10,16 @@ make
 ```
 ## Documentation
 
-- [API Reference](documents/API-Reference.md)
-- [API 参考文档](documents/API-Reference-zh-CN.md) (中文)
+Online documentation: [https://libcg.xboot.org](https://libcg.xboot.org)
+
+To build and serve the documentation locally:
+
+```shell
+cd documents
+make start
+```
+
+See [documents/README](documents/docs/guide/intro.md) for details.
 
 ## Screenshots
 
