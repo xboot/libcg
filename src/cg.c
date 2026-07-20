@@ -3315,6 +3315,7 @@ void cg_paint(struct cg_ctx_t * ctx)
 		cg_blend(ctx, &ctx->clip_spans);
 	}
 }
+
 void cg_paint_with_alpha(struct cg_ctx_t * ctx, float alpha)
 {
 	cg_save(ctx);
