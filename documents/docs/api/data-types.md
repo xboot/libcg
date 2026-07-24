@@ -188,12 +188,12 @@ struct cg_surface_t {
     int width;
     int height;
     int stride;
-    int owndata;
+    int owns;
     unsigned char * pixels;
 };
 ```
 
-像素画布。像素以**预乘 RGBA32** 格式存储（行优先）。`stride` 等于 `width * 4`。当 surface 通过 `cg_surface_create` 分配了自己的缓冲区时，`owndata` 为 `1`；当通过 `cg_surface_create_for_data` 包装外部数据时，`owndata` 为 `0`。
+像素画布。像素以**预乘 RGBA32** 格式存储（行优先）。`stride` 等于 `width * 4`。当 surface 通过 `cg_surface_create` 分配了自己的缓冲区时，`owns` 为 `1`；当通过 `cg_surface_create_for_data` 包装外部数据时，`owns` 为 `0`。
 
 ### cg_path_t
 

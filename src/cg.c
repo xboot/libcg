@@ -254,7 +254,7 @@ struct cg_surface_t * cg_surface_create(int width, int height)
 	surface->width = width;
 	surface->height = height;
 	surface->stride = width << 2;
-	surface->owndata = 1;
+	surface->owns = 1;
 	surface->pixels = calloc(1, (size_t)(height * surface->stride));
 	return surface;
 }
@@ -266,7 +266,7 @@ struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * p
 	surface->width = width;
 	surface->height = height;
 	surface->stride = width << 2;
-	surface->owndata = 0;
+	surface->owns = 0;
 	surface->pixels = pixels;
 	return surface;
 }
@@ -275,7 +275,7 @@ void cg_surface_destroy(struct cg_surface_t * surface)
 {
 	if(surface && (--surface->refcnt == 0))
 	{
-		if(surface->owndata)
+		if(surface->owns)
 			free(surface->pixels);
 		free(surface);
 	}

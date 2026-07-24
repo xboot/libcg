@@ -8,7 +8,7 @@ A surface is the pixel canvas that stores pixel data in premultiplied RGBA32 for
 struct cg_surface_t * cg_surface_create(int width, int height);
 ```
 
-Allocates a new surface of the given size. The pixel buffer is zero-initialized (fully transparent black). `owndata` is set to `1`.
+Allocates a new surface of the given size. The pixel buffer is zero-initialized (fully transparent black). `owns` is set to `1`.
 
 ## cg_surface_create_for_data
 
@@ -16,7 +16,7 @@ Allocates a new surface of the given size. The pixel buffer is zero-initialized 
 struct cg_surface_t * cg_surface_create_for_data(int width, int height, void * pixels);
 ```
 
-Creates a surface wrapping an existing pixel buffer. `pixels` must be at least `width * height * 4` bytes in premultiplied RGBA32 format. `owndata` is set to `0`, meaning calling `cg_surface_destroy` will **not** free the pixel data — the caller is responsible for its lifetime.
+Creates a surface wrapping an existing pixel buffer. `pixels` must be at least `width * height * 4` bytes in premultiplied RGBA32 format. `owns` is set to `0`, meaning calling `cg_surface_destroy` will **not** free the pixel data - the caller is responsible for its lifetime.
 
 ## cg_surface_destroy
 
@@ -24,7 +24,7 @@ Creates a surface wrapping an existing pixel buffer. `pixels` must be at least `
 void cg_surface_destroy(struct cg_surface_t * surface);
 ```
 
-Decrements the reference count. When it reaches zero, frees the pixel buffer (if `owndata == 1`) and the surface struct. Safe to call with `NULL`.
+Decrements the reference count. When it reaches zero, frees the pixel buffer (if `owns == 1`) and the surface struct. Safe to call with `NULL`.
 
 ## cg_surface_reference
 

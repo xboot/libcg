@@ -188,12 +188,12 @@ struct cg_surface_t {
     int width;
     int height;
     int stride;
-    int owndata;
+    int owns;
     unsigned char * pixels;
 };
 ```
 
-The pixel canvas. Pixels are stored in **premultiplied RGBA32** format (row-major). `stride` equals `width * 4`. `owndata` is `1` when the surface allocated its own buffer (via `cg_surface_create`) and `0` when wrapping external data (via `cg_surface_create_for_data`).
+The pixel canvas. Pixels are stored in **premultiplied RGBA32** format (row-major). `stride` equals `width * 4`. `owns` is `1` when the surface allocated its own buffer (via `cg_surface_create`) and `0` when wrapping external data (via `cg_surface_create_for_data`).
 
 ### cg_path_t
 
