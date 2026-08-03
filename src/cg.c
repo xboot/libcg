@@ -517,6 +517,8 @@ void cg_path_transform(struct cg_path_t * path, struct cg_matrix_t * m)
 			break;
 		}
 	}
+	if(path->elements.size > 0)
+		cg_matrix_map_point(m, &path->start_point, &path->start_point);
 }
 
 void cg_path_get_current_point(struct cg_path_t * path, float * x, float * y)
